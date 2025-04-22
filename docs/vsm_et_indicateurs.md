@@ -86,3 +86,41 @@ Cela signifie que la production est lancée en avance, selon un planning prédé
 | Taux de rendement synthétique (TRS) | Dispo × Perf × Qualité × 100 | < 85% | Pertes globales | Analyser les pertes : pannes, lenteurs, défauts |
 | Taux de rejet | (Quantité défectueuse / Quantité totale) × 100 | > 2% | Non-qualité élevée | Analyse 5M, Ishikawa, AMDEC |
 | Taux de service | (Commandes livrées à temps / Commandes totales) × 100 | < 95% | Retards fréquents | Optimiser planification, éviter ruptures |
+
+## Indicateurs clés pour l'analyse VSM
+
+Le tableau ci-dessous présente les principaux indicateurs utilisés dans l'analyse de flux de valeur (VSM), leur formule de calcul, les seuils d'alerte typiques, les problèmes potentiels qu'ils peuvent révéler, et les actions d'amélioration possibles.
+
+| Indicateur | Formule de calcul | Seuil d'alerte | Problèmes potentiels | Actions d'amélioration |
+|------------|-------------------|----------------|----------------------|------------------------|
+| % Valeur Ajoutée | (Temps VA / Lead time total) × 100 | < 5% | Processus inefficace, trop de gaspillages | Éliminer les gaspillages, réduire les attentes |
+| Lead Time | Σ(temps de passage par étape) + Σ(temps d'attente entre les étapes) | > délai client | Délais trop longs, manque de réactivité | Réduire les stocks, optimiser les flux |
+| Takt Time | Temps disponible / Demande client | TC > Takt | Production trop lente | Équilibrer les postes, réduire les TC |
+| Temps de Cycle (TC) | Temps total passé à produire / Nombre d'unités produites | Variation > 20% | Instabilité du processus | Standardiser les méthodes, former les opérateurs |
+| % Taux d'utilisation des postes | (Temps de cycle / Takt time) × 100 | > 85% | Surcharge des postes, manque de flexibilité | Redistribuer la charge, automatiser |
+| % TRS (Taux de Rendement Synthétique) | Disponibilité × Performance × Qualité × 100 | < 70% | Pertes multiples sur les équipements | Maintenance préventive, réduction des arrêts |
+| % Taux de Rejet / Rebut | (Quantité défectueuse / Quantité totale produite) × 100 | > 2% | Problèmes qualité | Poka-yoke, contrôles amont, amélioration process |
+| Taux de service | (Commandes livrées à temps / Commandes totales) × 100 | < 95% | Retards fréquents | Optimiser planification, éviter ruptures |
+| Taille des lots | Nombre d'unités produites consécutivement du même type | > besoins journaliers | Stocks élevés, flexibilité réduite | Réduire les lots, SMED pour changements rapides |
+| Niveaux de stocks | Quantité physique en stock / Consommation journalière (jours) | > 3 jours | Capital immobilisé, obsolescence | Kanban, FIFO, flux tiré |
+| Nombre de changements | Nombre de changements de série par jour/semaine | < 1 par jour | Rigidité de production | SMED, réduction des temps de changement |
+| Distance parcourue | Somme des distances entre les postes | > 50m | Implantation inefficace | Reconfigurer les postes, cellule en U |
+| Nombre d'opérateurs | Somme des opérateurs par poste | > idéal théorique | Sureffectif ou répartition inégale | Polyvalence, équilibrage des postes |
+| Temps de changement de série | Temps entre la dernière pièce bonne et la première pièce bonne | > 10 min | Flexibilité limitée | SMED, préparation externe, standardisation |
+
+## Comment utiliser ces indicateurs
+
+1. **Mesurer l'état actuel** : Collecter les données et calculer chaque indicateur
+2. **Comparer aux seuils d'alerte** : Identifier les écarts significatifs 
+3. **Analyser les causes racines** : Utiliser des outils comme les 5 Pourquoi ou le diagramme d'Ishikawa
+4. **Définir l'état futur** : Fixer des objectifs d'amélioration réalistes pour chaque indicateur
+5. **Mettre en œuvre le plan d'action** : Transformer l'état actuel en état futur via des chantiers d'amélioration
+
+## Visualisation dans l'application
+
+L'application VSM-Tools permet de:
+- Saisir les données brutes pour chaque processus et stock
+- Calculer automatiquement tous ces indicateurs
+- Visualiser les écarts par rapport aux seuils via un code couleur
+- Comparer état actuel et état futur pour évaluer les progrès
+- Exporter les tableaux de bord pour présentation et suivi

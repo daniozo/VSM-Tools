@@ -1,0 +1,275 @@
+:root {
+  /* Palette de couleurs en noir, blanc et gris */
+  --color-black: #000000;
+  --color-gray-900: #111111;
+  --color-gray-800: #262626;
+  --color-gray-700: #404040;
+  --color-gray-600: #666666;
+  --color-gray-500: #888888;
+  --color-gray-400: #a3a3a3;
+  --color-gray-300: #d1d1d1;
+  --color-gray-200: #e5e5e5;
+  --color-gray-100: #f5f5f5;
+  --color-white: #ffffff;
+
+  /* Couleurs fonctionnelles */
+  --color-background: var(--color-white);
+  --color-background-secondary: var(--color-gray-100);
+  --color-text-primary: var(--color-gray-900);
+  --color-text-secondary: var(--color-gray-600);
+  --color-border: var(--color-gray-300);
+  --color-accent: var(--color-gray-800);
+  --color-accent-hover: var(--color-gray-700);
+
+  /* Ombres */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+
+  /* Transitions */
+  --transition-quick: 150ms ease;
+  --transition-normal: 250ms ease;
+
+  /* Rayons de bordure */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+}
+
+/* Styles pour le mode sombre, à activer via une classe sur <html> */
+html.dark-theme {
+  --color-background: var(--color-gray-900);
+  --color-background-secondary: var(--color-gray-800);
+  --color-text-primary: var(--color-gray-100);
+  --color-text-secondary: var(--color-gray-400);
+  --color-border: var(--color-gray-700);
+  --color-accent: var(--color-gray-100);
+  --color-accent-hover: var(--color-white);
+}
+
+/* Styles de base des icônes */
+.vsm-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--color-text-primary);
+}
+
+/* Boutons avec icônes */
+.vsm-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  transition:
+    background-color var(--transition-quick),
+    border-color var(--transition-quick),
+    color var(--transition-quick);
+  cursor: pointer;
+  background-color: transparent;
+  padding: 6px;
+}
+
+/* Variantes des boutons avec icônes */
+.vsm-icon-button--default:hover {
+  background-color: var(--color-gray-100);
+}
+
+.vsm-icon-button--default:active {
+  background-color: var(--color-gray-200);
+}
+
+.vsm-icon-button--primary {
+  background-color: var(--color-gray-800);
+  color: var(--color-white);
+}
+
+.vsm-icon-button--primary:hover {
+  background-color: var(--color-gray-700);
+}
+
+.vsm-icon-button--primary:active {
+  background-color: var(--color-gray-900);
+}
+
+.vsm-icon-button--subtle {
+  color: var(--color-text-secondary);
+}
+
+.vsm-icon-button--subtle:hover {
+  color: var(--color-text-primary);
+  background-color: var(--color-gray-100);
+}
+
+.vsm-icon-button--subtle:active {
+  background-color: var(--color-gray-200);
+}
+
+/* Tailles des boutons avec icônes */
+.vsm-icon-button--small {
+  padding: 4px;
+}
+
+.vsm-icon-button--medium {
+  padding: 6px;
+}
+
+.vsm-icon-button--large {
+  padding: 8px;
+}
+
+/* Boutons désactivés */
+.vsm-icon-button--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.vsm-icon-button--disabled:hover {
+  background-color: transparent;
+}
+
+/* Style pour les boutons avec label */
+.vsm-icon-button__label {
+  margin-left: 6px;
+  font-size: 14px;
+}
+
+/* Styles pour la toolbar */
+.vsm-toolbar {
+  display: flex;
+  align-items: center;
+  background-color: var(--color-background-secondary);
+  border-bottom: 1px solid var(--color-border);
+  padding: 4px 8px;
+}
+
+.vsm-toolbar-group {
+  display: flex;
+  align-items: center;
+  margin-right: 16px;
+}
+
+.vsm-toolbar-separator {
+  width: 1px;
+  height: 24px;
+  background-color: var(--color-border);
+  margin: 0 8px;
+}
+
+/* Styles pour les panneaux latéraux */
+.vsm-panel {
+  background-color: var(--color-background-secondary);
+  border: 1px solid var(--color-border);
+}
+
+.vsm-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-gray-100);
+}
+
+.vsm-panel-title {
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-text-primary);
+}
+
+.vsm-panel-content {
+  padding: 12px;
+}
+
+/* Styles pour les catégories de la palette d'outils */
+.vsm-panel-category {
+  margin-bottom: 12px;
+}
+
+.vsm-panel-category-header {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  padding: 4px;
+}
+
+.vsm-panel-category-header:hover {
+  background-color: var(--color-gray-200);
+}
+
+.vsm-panel-category-title {
+  font-weight: 500;
+  font-size: 14px;
+  margin-left: 4px;
+  color: var(--color-text-primary);
+}
+
+.vsm-panel-category-content {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 8px;
+  padding-left: 28px;
+}
+
+/* Styles pour le panneau de propriétés */
+.vsm-property-group {
+  margin-bottom: 16px;
+}
+
+.vsm-property-group-title {
+  font-weight: 500;
+  font-size: 13px;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  margin-bottom: 8px;
+}
+
+.vsm-property-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.vsm-property-label {
+  width: 40%;
+  font-size: 13px;
+  color: var(--color-text-primary);
+}
+
+.vsm-property-control {
+  width: 60%;
+}
+
+/* Styles pour la barre de statut */
+.vsm-status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 24px;
+  background-color: var(--color-background-secondary);
+  border-top: 1px solid var(--color-border);
+  padding: 0 12px;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.vsm-status-section {
+  display: flex;
+  align-items: center;
+}
+
+.vsm-status-item {
+  display: flex;
+  align-items: center;
+  margin-right: 16px;
+}
+
+.vsm-status-item .vsm-icon {
+  margin-right: 4px;
+}

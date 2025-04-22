@@ -1,0 +1,74 @@
+/* Styles pour le composant App */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+}
+
+.main-content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Styles pour la zone d'édition principale */
+.editor-area {
+  flex: 1;
+  position: relative;
+  background-color: #f0f0f0;
+  background-image:
+    linear-gradient(rgba(200, 200, 200, 0.3) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(200, 200, 200, 0.3) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Styles pour les panneaux latéraux */
+.side-panel {
+  width: 250px;
+  background-color: var(--panel-background);
+  border-right: 1px solid var(--border-color);
+  height: 100%;
+  overflow-y: auto;
+  box-shadow: 1px 0 3px rgba(0, 0, 0, 0.1);
+}
+
+.side-panel-right {
+  border-right: none;
+  border-left: 1px solid var(--border-color);
+  box-shadow: -1px 0 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Styles pour les boutons */
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  background-color: var(--primary-color);
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.btn:hover {
+  background-color: #2980b9;
+}
+
+.btn-secondary {
+  background-color: var(--secondary-color);
+}
+
+.btn-secondary:hover {
+  background-color: #27ae60;
+}
+
+/* Styles pour les erreurs */
+.error-container {
+  padding: 20px;
+  margin: 20px;
+  background-color: #fff3f3;
+  border: 1px solid var(--error-color);
+  border-radius: 8px;
+  color: var(--error-color);
+}
