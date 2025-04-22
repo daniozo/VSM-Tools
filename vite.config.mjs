@@ -1,14 +1,18 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import electron from 'vite-plugin-electron';
-import { resolve } from 'path';
+import { resolve } from 'path'; 
+import tailwindcss from '@tailwindcss/vite'
 
 // Configuration conditionnelle basée sur une variable d'environnement
 const isElectronEnabled = process.env.ELECTRON_BUILD === 'true';
 
 // Configuration principale
 const config = {
-  plugins: [react()],
+  plugins: [
+    react(),
+    tailwindcss(),
+    ],
   resolve: {
     alias: {
       '@': resolve(__dirname, './src')

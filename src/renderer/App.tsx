@@ -9,6 +9,7 @@ import PropertiesPanel from './components/editor/PropertiesPanel';
 import Toolbar from './components/editor/Toolbar';
 import StatusBar from './components/ui/StatusBar';
 import ErrorFallback from './components/ui/ErrorFallback';
+import MainMenu from './components/ui/MainMenu';
 
 const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -40,26 +41,33 @@ const App: React.FC = () => {
     // Implémentez ici la logique pour activer l'outil sélectionné
   };
 
+  // Gestionnaire pour les clics sur les éléments du menu principal
+  const handleMenuItemClick = (menuId: string) => {
+    console.log(`Élément de menu cliqué: ${menuId}`);
+    // Implémentez ici la logique pour chaque élément de menu
+  };
+
   if (isLoading) {
     return (
-      <div className="loading-screen">
-        <h1>VSM-Tools</h1>
-        <p>Chargement en cours...</p>
-        <div className="spinner"></div>
+      <div className="flex flex-col items-center justify-center h-screen bg-background">
+        <h1 className="text-3xl font-bold mb-4 text-text-primary">VSM-Tools</h1>
+        <p className="mb-6 text-text-secondary">Chargement en cours...</p>
+        <div className="w-12 h-12 border-4 border-t-accent rounded-full animate-spin"></div>
       </div>
     );
   }
 
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback} onError={handleError}>
-      <div className="app-container">
-        <Toolbar onToolClick={handleToolClick} />
-        <div className="main-content">
-          <ToolPalette onToolSelect={handleToolSelect} />
+      <div className="flex flex-col h-screen bg-background select-none">
+        <MainMenu onMenuItemClick={handleMenuItemClick} className="flex-shrink-0" />
+        <Toolbar onToolClick={handleToolClick} className="flex-shrink-0" />
+        <div className="flex flex-1 overflow-hidden">
+          <ToolPalette onToolSelect={handleToolSelect} className="w-64 flex-shrink-0 border-r border-border-subtle" />
           <EditorCanvas />
-          <PropertiesPanel />
+          <PropertiesPanel className="w-64 flex-shrink-0 border-l border-border-subtle" />
         </div>
-        <StatusBar />
+        <StatusBar className="flex-shrink-0" />
       </div>
     </ErrorBoundary>
   );

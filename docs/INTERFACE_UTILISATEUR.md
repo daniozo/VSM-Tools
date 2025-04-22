@@ -245,7 +245,7 @@ Les raccourcis suivants seront implémentés pour une utilisation efficace :
 
 - **Fichier** : Ctrl+N (nouveau), Ctrl+O (ouvrir), Ctrl+S (enregistrer)
 - **Édition** : Ctrl+Z (annuler), Ctrl+Y (rétablir), Ctrl+X/C/V (couper/copier/coller), Del (supprimer)
-- **Affichage** : Ctrl++ (zoom+), Ctrl+- (zoom-), Ctrl+0 (zoom 100%), F11 (plein écran)
+- **Affichage** : Ctrl+ (zoom+), Ctrl- (zoom-), Ctrl+0 (zoom 100%), F11 (plein écran)
 - **Outils** : V (sélection), C (connexion), T (texte), H (main)
 - **Panneaux** : F4 (panneau gauche), F5 (panneau droit)
 - **Navigation** : Tab (élément suivant), Shift+Tab (élément précédent)

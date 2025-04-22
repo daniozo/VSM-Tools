@@ -7,7 +7,7 @@ interface IconButtonProps {
   onClick?: () => void;
   title?: string;
   variant?: 'default' | 'primary' | 'subtle';
-  size?: 'small' | 'medium' | 'large';
+  size?: 'extrasmall' | 'small' | 'medium' | 'large';
   disabled?: boolean;
   className?: string;
 }
@@ -26,18 +26,26 @@ export const IconButton: React.FC<IconButtonProps> = ({
   disabled = false,
   className = '',
 }) => {
-  const baseClass = 'vsm-icon-button';
-  const variantClass = `${baseClass}--${variant}`;
-  const sizeClass = `${baseClass}--${size}`;
-  const disabledClass = disabled ? `${baseClass}--disabled` : '';
+  const sizeClasses = {
+    small: 'p-1',
+    medium: 'p-1.5',
+    large: 'p-2',
+  };
 
-  const buttonClasses = [
-    baseClass,
-    variantClass,
-    sizeClass,
-    disabledClass,
-    className
-  ].filter(Boolean).join(' ');
+  const variantClasses = {
+    default: 'hover:bg-gray-100 active:bg-gray-200',
+    primary: 'bg-accent text-white hover:bg-accent-hover active:bg-gray-900',
+    subtle: 'text-text-secondary hover:text-text-primary hover:bg-gray-100 active:bg-gray-200',
+  };
+
+  const buttonClasses = `
+    inline-flex items-center justify-center border border-transparent rounded-md 
+    transition-colors duration-quick cursor-pointer
+    ${sizeClasses[size]} 
+    ${variantClasses[variant]} 
+    ${disabled ? 'opacity-50 cursor-not-allowed hover:bg-transparent' : ''}
+    ${className}
+  `;
 
   return (
     <button
@@ -52,7 +60,7 @@ export const IconButton: React.FC<IconButtonProps> = ({
         size={size}
         color="currentColor"
       />
-      {label && <span className={`${baseClass}__label`}>{label}</span>}
+      {label && <span className="ml-1.5 text-sm">{label}</span>}
     </button>
   );
 };

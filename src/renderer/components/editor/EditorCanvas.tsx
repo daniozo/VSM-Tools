@@ -31,7 +31,7 @@ const EditorCanvas: React.FC = () => {
   }, []);
 
   return (
-    <div ref={containerRef} className="editor-area">
+    <div ref={containerRef} className="w-full h-full bg-white overflow-hidden">
       <Stage ref={stageRef} width={800} height={600}>
         <Layer>
           {/* Les éléments de la carte VSM seront ajoutés ici */}

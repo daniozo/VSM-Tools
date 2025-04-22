@@ -2,7 +2,7 @@ import React from 'react';
 import * as LucideIcons from 'lucide-react';
 
 export type IconName = keyof typeof LucideIcons;
-export type IconSize = 'small' | 'medium' | 'large';
+export type IconSize = 'extrasmall' | 'small' | 'medium' | 'large';
 
 // Définir un type pour les composants d'icônes Lucide
 type LucideIconComponent = React.ComponentType<{
@@ -25,7 +25,7 @@ interface IconProps {
 /**
  * Composant Icon qui utilise les icônes de Lucide
  * @param name - Nom de l'icône Lucide (ex: 'Save', 'FilePlus')
- * @param size - Taille de l'icône: 'small' (16px), 'medium' (20px) par défaut, ou 'large' (24px)
+ * @param size - Taille de l'icône: 'extrasmall' (14px), 'small' (16px), 'medium' (20px) par défaut, ou 'large' (24px)
  * @param color - Couleur CSS (utilise les variables CSS du thème par défaut)
  * @param className - Classes CSS supplémentaires
  * @param onClick - Fonction de callback lors du clic
@@ -47,6 +47,7 @@ export const Icon: React.FC<IconProps> = ({
 
   // Détermination de la taille en pixels
   const sizeInPx = {
+    extrasmall: 14,
     small: 16,
     medium: 20,
     large: 24,
@@ -56,7 +57,7 @@ export const Icon: React.FC<IconProps> = ({
     <LucideIcon
       size={sizeInPx}
       color={color}
-      className={`vsm-icon ${className}`}
+      className={`inline-flex items-center justify-center flex-shrink-0 text-text-primary ${className}`}
       onClick={onClick}
       style={{ cursor: onClick ? 'pointer' : 'inherit' }}
     />

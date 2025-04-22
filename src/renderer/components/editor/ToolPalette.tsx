@@ -75,15 +75,15 @@ const ToolPalette: React.FC<ToolPaletteProps> = ({
   };
 
   return (
-    <div className={`vsm-panel ${className}`}>
-      <div className="vsm-panel-header">
-        <h2 className="vsm-panel-title">Outils</h2>
+    <div className={`bg-background-secondary h-full ${className}`}>
+      <div className="flex items-center justify-between px-3 py-2 border-b border-border-subtle bg-gray-100">
+        <h2 className="font-semibold text-sm uppercase tracking-wider text-text-primary">Outils</h2>
       </div>
-      <div className="vsm-panel-content">
+      <div className="p-3">
         {toolCategories.map(category => (
-          <div key={category.id} className="vsm-panel-category">
+          <div key={category.id} className="mb-3">
             <div
-              className="vsm-panel-category-header"
+              className="flex items-center cursor-pointer rounded hover:bg-gray-200 p-1"
               onClick={() => toggleCategory(category.id)}
             >
               <IconButton
@@ -91,18 +91,18 @@ const ToolPalette: React.FC<ToolPaletteProps> = ({
                 size="small"
                 variant="subtle"
               />
-              <span className="vsm-panel-category-title">{category.title}</span>
+              <span className="font-medium text-sm ml-1 text-text-primary">{category.title}</span>
             </div>
 
             {expandedCategories.includes(category.id) && (
-              <div className="vsm-panel-category-content">
+              <div className="flex flex-wrap gap-1 mt-2 pl-7">
                 {category.tools.map(tool => (
                   <IconButton
                     key={tool.id}
                     icon={tool.icon as IconName}
                     title={tool.title}
                     onClick={() => onToolSelect(tool.id)}
-                    size="medium"
+                    size="large"
                     variant="default"
                   />
                 ))}

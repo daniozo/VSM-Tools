@@ -21,28 +21,28 @@ const StatusBar: React.FC<StatusBarProps> = ({
   className = '',
 }) => {
   return (
-    <div className={`vsm-status-bar ${className}`}>
-      <div className="vsm-status-section">
-        <div className="vsm-status-item">
-          <Icon name="MousePointer" size="small" />
+    <div className={`flex items-center justify-between h-6 bg-background-secondary border-t border-border-subtle text-text-secondary text-xs px-3 ${className}`}>
+      <div className="flex items-center">
+        <div className="flex items-center mr-4">
+          <Icon name="MousePointer" size="small" className="mr-1" />
           <span>{`X: ${cursorPosition.x.toFixed(0)}, Y: ${cursorPosition.y.toFixed(0)}`}</span>
         </div>
 
-        <div className="vsm-status-item">
-          <Icon name="ZoomIn" size="small" />
+        <div className="flex items-center mr-4">
+          <Icon name="ZoomIn" size="small" className="mr-1" />
           <span>{`${zoom.toFixed(0)}%`}</span>
         </div>
       </div>
 
-      <div className="vsm-status-section">
-        <div className="vsm-status-item">
-          <Icon name="Layers" size="small" />
+      <div className="flex items-center">
+        <div className="flex items-center mr-4">
+          <Icon name="Layers" size="small" className="mr-1" />
           <span>{`${elementCount} élément${elementCount !== 1 ? 's' : ''}`}</span>
         </div>
 
         {selectionCount > 0 && (
-          <div className="vsm-status-item">
-            <Icon name="CheckSquare" size="small" />
+          <div className="flex items-center">
+            <Icon name="CheckSquare" size="small" className="mr-1" />
             <span>{`${selectionCount} sélectionné${selectionCount !== 1 ? 's' : ''}`}</span>
           </div>
         )}
