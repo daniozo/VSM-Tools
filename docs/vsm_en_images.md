@@ -1,14 +1,14 @@
 **Etat actuel du processus**
 <br>
-![img.png](images/img.png)
+![vsm_etat_actuel](images/vsm_etat_actuel.png)
 
 **Etat futur du processus**
 <br>
-![img_3.png](images/img_3.png)
+![vsm_etat_futur](images/vsm_etat_futur.png)
 
 **Plan d'action**
 <br>
-![img_2.png](images/img_2.png)
+![plan_daction.png](images/plan_daction.png)
 
 **Un futur etat d'un processus**
 <br>
