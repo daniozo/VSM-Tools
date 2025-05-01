@@ -9,6 +9,7 @@
 \usepackage{amssymb} % Pour les symboles mathématiques si nécessaire
 \usepackage{enumitem} % Pour personnaliser les listes
 \usepackage{float} % Pour un meilleur contrôle du placement des flottants (figures, tables)
+\usepackage{xurl} % Pour une meilleure coupure de ligne des URLs
 
 \geometry{a4paper, left=2.5cm, right=2.5cm, top=2.5cm, bottom=2.5cm} % Définir les marges
 
@@ -18,16 +19,43 @@
     linkcolor=blue,
     filecolor=magenta,
     urlcolor=cyan,
-    pdftitle={Rapport de Présentation : VSM-Tools},
+    pdftitle={Rapport de Projet : VSM-Tools}, % Titre mis à jour pour le PDF
     pdfpagemode=FullScreen,
 }
 
-\title{Rapport de Présentation : VSM-Tools - Optimisation des Flux de Valeur}
-\author{Équipe Projet VSM-Tools} % Mettez les noms des auteurs ici si vous préférez
-\date{\today} % Utilise la date de compilation
-
 \begin{document}
-\maketitle % Affiche le titre, l'auteur et la date
+
+% Nouvelle page de garde personnalisée
+\begin{titlepage}
+    \centering % Centre tout le contenu de la page de garde
+
+    % Logo de l'école
+    \includegraphics[width=0.3\textwidth]{../images/logo_eigsi.png}\vspace{2cm} % Ajustez la taille et l'espacement si nécessaire
+
+    % Titre du rapport
+    {\LARGE \bfseries Développement d'une application de visualisation des flux de production pour identifier les goulots d'étranglement et optimiser les performances industrielles}\vspace{1.5cm}
+
+    {\Large Rapport de Projet}\vspace{2cm}
+
+    % Membres de l'équipe
+    {\large \textbf{Membres de l'équipe :}}\vspace{0.5cm}
+    Nom Membre 1 \\
+    Nom Membre 2 \\
+    Nom Membre 3 \\
+    Nom Membre 4 \vspace{1.5cm}
+
+    % Encadrants
+    {\large \textbf{Encadrants :}}\vspace{0.5cm}
+    Nom Encadrant 1 \\
+    Nom Encadrant 2 \vspace{2cm}
+
+    % Date
+    {\large 1er mai 2025}
+
+    \vfill % Pousse le contenu vers le haut et le bas si nécessaire
+
+\end{titlepage}
+% Le saut de page après la page de garde est implicite avec l'environnement titlepage
 
 \tableofcontents % Génère la table des matières
 \newpage
@@ -284,7 +312,7 @@ Cette approche permet de structurer le travail de conception tout en conservant 
         \item \textbf{Sprint 4 : Exigences Non-Fonctionnelles \& Conception UI/UX (Wireframes) :} Contraintes techniques, maquettes basse fidélité, flux de navigation.
         \item \textbf{Sprint 5 : Conception Architecture Système \& Choix Technologiques :} Architecture logicielle, justification choix technologiques, modules principaux.
         \item \textbf{Sprint 6 : Conception UI/UX (Mockups) \& Modèle de Données :} Maquettes haute fidélité, structure des données VSM (JSON/TypeScript), API Electron.
-        \item \textbf{Sprint 7 : Finalisation Documentation de Conception :} Consolidation et validation des documents (\texttt{SYSTEME\_DESIGN.md}, \texttt{INTERFACE\_UTILISATEUR.md}, exigences).
+        \item \textbf{Sprint 7 : Finalisation Documentation de Conception :} Consolidation et validation des documents (\url{SYSTEME_DESIGN.md}, \url{INTERFACE_UTILISATEUR.md}, exigences).
         \item \textbf{Sprint 8 \& 9 : Préparation \& Rédaction Rapport Mi-Parcours :} Compilation du travail, rédaction, relecture et finalisation du présent rapport.
         \item \textit{Objectif fin Année 1 :} Produire un dossier de conception complet et validé.
     \end{itemize}
@@ -304,10 +332,10 @@ Cette section présente les principales actions réalisées depuis le lancement 
 \subsection{Actions Réalisées (Sprints 1 à 7)}
 La première partie de l'année a été consacrée à la construction des fondations analytiques et conceptuelles de VSM-Tools :
 \begin{itemize}
-    \item \textbf{Cadrage et Recherche (Sprints 1 \& 2) :} Le périmètre du projet a été défini, les rôles établis, et une recherche approfondie sur la méthodologie VSM et les outils concurrents a été menée. Les synthèses correspondantes (\texttt{vsm\_et\_indicateurs.md}, analyse concurrentielle dans Section 3) ont été produites.
+    \item \textbf{Cadrage et Recherche (Sprints 1 \& 2) :} Le périmètre du projet a été défini, les rôles établis, et une recherche approfondie sur la méthodologie VSM et les outils concurrents a été menée. Les synthèses correspondantes (\url{vsm_et_indicateurs.md}, analyse concurrentielle dans Section 3) ont été produites.
     \item \textbf{Définition des Besoins (Sprint 3) :} Les personas utilisateurs et les cas d'usage clés ont été identifiés, menant à une première liste d'exigences fonctionnelles détaillées.
-    \item \textbf{Conception Initiale (Sprints 4 \& 5) :} Les exigences non-fonctionnelles ont été listées. La conception de l'interface utilisateur a débuté avec la création de wireframes (\texttt{INTERFACE\_UTILISATEUR.md}). L'architecture système globale et les choix technologiques principaux ont été définis et documentés (\texttt{SYSTEME\_DESIGN.md}).
-    \item \textbf{Conception Détaillée (Sprints 6 \& 7) :} Les maquettes haute fidélité (mockups) ont été créées, affinant la vision de l'interface utilisateur. Le modèle de données précis pour les cartes VSM et l'API Electron a été spécifié. La documentation de conception (\texttt{SYSTEME\_DESIGN.md}, \texttt{INTERFACE\_UTILISATEUR.md}) a été consolidée.
+    \item \textbf{Conception Initiale (Sprints 4 \& 5) :} Les exigences non-fonctionnelles ont été listées. La conception de l'interface utilisateur a débuté avec la création de wireframes (\url{INTERFACE_UTILISATEUR.md}). L'architecture système globale et les choix technologiques principaux ont été définis et documentés (\url{SYSTEME_DESIGN.md}).
+    \item \textbf{Conception Détaillée (Sprints 6 \& 7) :} Les maquettes haute fidélité (mockups) ont été créées, affinant la vision de l'interface utilisateur. Le modèle de données précis pour les cartes VSM et l'API Electron a été spécifié. La documentation de conception (\url{SYSTEME_DESIGN.md}, \url{INTERFACE_UTILISATEUR.md}) a été consolidée.
 \end{itemize}
 
 \subsection{Résultats Obtenus}
@@ -348,13 +376,9 @@ La seconde année sera dédiée à la réalisation concrète de VSM-Tools, en su
 \end{itemize}
 
 \section{Conclusion}
-Ce rapport a présenté VSM-Tools, une solution logicielle conçue pour faciliter l'application de la méthodologie Value Stream Mapping. L'analyse contextuelle a souligné l'importance du VSM comme outil d'identification des gaspillages et d'optimisation des flux, tout en relevant les limitations des approches traditionnelles ou des outils non spécialisés.
-
-VSM-Tools se positionne comme une réponse pragmatique et puissante à ces défis. Il combine une interface intuitive pour la modélisation des flux avec des capacités de calcul automatique des indicateurs clés (Lead Time, \%VA...) et, de manière distinctive, des \textbf{fonctionnalités d'analyse avancées intégrées} : simulation de scénarios \og what-if \fg{}, éléments d'analyse prédictive et suggestions d'optimisation. L'étude comparative a mis en évidence cet équilibre entre accessibilité et puissance analytique comme un différenciateur clé.
-
-Le positionnement de VSM-Tools au sein de l'écosystème des systèmes d'information industriels (ERP, MES) a été défini comme celui d'un outil complémentaire d'analyse approfondie et d'aide à la décision, visant à améliorer la compréhension et la conception des processus transversaux. Les défis liés à la qualité des données, à la nécessité d'une expertise pour les fonctions avancées et à la conduite du changement ont été reconnus, tout comme les limites actuelles en termes d'intégration et de collaboration, qui définissent les axes d'évolution future.
-
 En synthèse, VSM-Tools vise à rendre la démarche VSM plus accessible, rapide, et surtout plus \textbf{analytique et prédictive}. En fournissant une représentation claire des flux, des indicateurs associés, et des capacités de simulation et d'aide à la décision, il constitue un support pertinent pour accélérer et fiabiliser les initiatives d'amélioration continue et la recherche de l'excellence opérationnelle. Les stratégies de commercialisation et les modèles économiques envisagés devront valoriser cette combinaison unique de simplicité et de puissance analytique.
+
+\newpage
 
 \appendix
 \section{Annexes}
