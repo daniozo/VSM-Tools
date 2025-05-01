@@ -1,0 +1,391 @@
+\documentclass[11pt, a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx} % Requis pour inclure des images
+\usepackage{geometry} % Pour les marges de page
+\usepackage{hyperref} % Pour les liens cliquables et les références
+\usepackage[french]{babel} % Pour la typographie française et les noms (Table des matières, Figure)
+\usepackage{amsmath} % Pour les environnements mathématiques si nécessaire
+\usepackage{amssymb} % Pour les symboles mathématiques si nécessaire
+\usepackage{enumitem} % Pour personnaliser les listes
+\usepackage{float} % Pour un meilleur contrôle du placement des flottants (figures, tables)
+
+\geometry{a4paper, left=2.5cm, right=2.5cm, top=2.5cm, bottom=2.5cm} % Définir les marges
+
+% Configuration de hyperref (optionnel mais recommandé)
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=cyan,
+    pdftitle={Rapport de Présentation : VSM-Tools},
+    pdfpagemode=FullScreen,
+}
+
+\title{Rapport de Présentation : VSM-Tools - Optimisation des Flux de Valeur}
+\author{Équipe Projet VSM-Tools} % Mettez les noms des auteurs ici si vous préférez
+\date{\today} % Utilise la date de compilation
+
+\begin{document}
+\maketitle % Affiche le titre, l'auteur et la date
+
+\tableofcontents % Génère la table des matières
+\newpage
+
+\section{Introduction : Le Contexte Essentiel du Value Stream Mapping (VSM)}
+Avant de plonger dans les spécificités de notre solution, il est fondamental de comprendre le concept sur lequel elle repose : le Value Stream Mapping (VSM), ou Cartographie des Flux de Valeur.
+
+\subsection{Qu'est-ce que le VSM ?}
+Le VSM est une méthode visuelle issue du Lean Management. Son objectif principal est simple mais essentiel : \textbf{visualiser, analyser et améliorer l'ensemble des flux} (matière et information) nécessaires pour amener un produit ou un service du fournisseur jusqu'au client. Il s'agit de cartographier toutes les étapes, qu'elles ajoutent de la valeur ou non, afin d'obtenir une image claire et complète du processus actuel.
+
+\subsection{L'importance du VSM dans l'industrie moderne}
+Dans un environnement économique où l'efficacité et la réactivité sont primordiales, le VSM s'avère être un \textbf{outil pertinent pour l'analyse et l'amélioration des performances}. Il permet de :
+\begin{itemize}
+    \item \textbf{Identifier et quantifier les gaspillages} (Muda) : Temps d'attente, stocks excessifs, mouvements inutiles, surproduction, défauts, etc.
+    \item \textbf{Localiser précisément les goulots d'étranglement} qui limitent la capacité globale du flux.
+    \item \textbf{Réduire les délais de production (Lead Time)} : En optimisant le flux et en traitant les goulots, on livre plus rapidement le client.
+    \item \textbf{Améliorer la productivité et réduire les coûts} : En éliminant les activités sans valeur ajoutée et en fluidifiant le processus.
+    \item \textbf{Favoriser une culture d'amélioration continue (Kaizen)} : Le VSM fournit une base factuelle pour identifier les chantiers d'optimisation prioritaires, notamment sur les points de blocage.
+\end{itemize}
+
+\subsection{Place du VSM dans la démarche d'amélioration}
+Le VSM n'est pas une fin en soi, mais un \textbf{outil clé au cœur des démarches Lean}. Il sert de diagnostic initial pour comprendre où se situent les problèmes dans un flux de valeur. Les informations issues de la cartographie \og état actuel \fg{} permettent ensuite de concevoir un \og état futur \fg{} optimisé et de définir les plans d'actions concrets pour y parvenir. C'est un langage commun pour aligner les équipes autour des objectifs d'amélioration.
+
+\subsection{Qui bénéficie du VSM ?}
+La démarche VSM concerne de nombreux acteurs au sein d'une organisation :
+\begin{itemize}
+    \item \textbf{Les Ingénieurs Process et Méthodes} : Pour analyser et optimiser les processus de fabrication ou de service.
+    \item \textbf{Les Responsables Production et Logistique} : Pour améliorer les flux physiques et réduire les stocks.
+    \item \textbf{Les Responsables Qualité} : Pour identifier les sources de défauts et améliorer la satisfaction client.
+    \item \textbf{Les Équipes d'Amélioration Continue / Lean Managers} : Comme outil fondamental de leur méthodologie.
+    \item \textbf{Les Consultants en Organisation et Management} : Pour diagnostiquer rapidement les inefficacités chez leurs clients.
+    \item \textbf{La Direction Générale} : Pour avoir une vision claire de la performance opérationnelle et orienter la stratégie.
+\end{itemize}
+
+\subsection{Le défi des méthodes traditionnelles}
+Historiquement, la réalisation de VSM s'appuyait souvent sur des moyens rudimentaires :
+\begin{itemize}
+    \item \textbf{Papier et Post-it} : Utile pour une première approche collaborative, mais difficile à maintenir, partager, et analyser quantitativement.
+    \item \textbf{Tableurs (Excel, etc.)} : Permettent certains calculs mais manquent de visualisation intuitive et de standardisation VSM.
+    \item \textbf{Logiciels de dessin génériques (Visio, etc.)} : Offrent la flexibilité du dessin mais sont dépourvus d'intelligence métier spécifique au VSM (pas de calculs automatiques des indicateurs clés, pas de liens logiques entre éléments).
+\end{itemize}
+Ces méthodes traditionnelles, bien que répandues, présentent des limites en termes d'efficacité, de collaboration, de précision des calculs et de capacité à simuler facilement des scénarios d'amélioration. C'est précisément pour répondre à ces défis que VSM-Tools a été conçu.
+
+\section{VSM-Tools : Un Levier d'Optimisation des Flux}
+Face aux limites des approches traditionnelles et à l'importance reconnue du VSM, VSM-Tools a été développé comme une solution logicielle dédiée à la cartographie et à l'analyse des flux de valeur.
+
+\subsection{Mission}
+La mission de VSM-Tools est de \textbf{rendre l'analyse VSM accessible, rapide et actionnable pour les entreprises} souhaitant améliorer leur performance opérationnelle. L'objectif est de faciliter l'utilisation de cet outil en levant les barrières liées à la complexité ou au manque d'outils adaptés.
+
+\subsection{Vision}
+VSM-Tools aspire à devenir \textbf{un outil de référence pour une cartographie VSM intuitive et efficace}. La solution vise non seulement à faciliter la création des cartes, mais également à guider l'utilisateur dans l'analyse et l'identification des pistes d'amélioration pertinentes.
+
+\subsection{Proposition de valeur : Les bénéfices concrets}
+L'utilisation de VSM-Tools apporte directement les bénéfices suivants :
+\begin{itemize}
+    \item \textbf{Gain de temps significatif} : La création et la mise à jour des VSM sont significativement accélérées. Les calculs des indicateurs clés (temps de cycle, délai total, taux de valeur ajoutée...) sont automatisés.
+    \item \textbf{Analyse approfondie et aide à la décision} : L'outil permet d'aller au-delà de la simple cartographie. Il identifie rapidement les goulots d'étranglement et les gaspillages grâce à la visualisation claire et aux indicateurs. Il est possible de \textbf{simuler l'impact de changements} (\og what-if \fg{}), d'\textbf{anticiper les problèmes potentiels} grâce à des éléments prédictifs, et de recevoir des \textbf{suggestions d'optimisation} pour guider les choix d'amélioration.
+    \item \textbf{Collaboration facilitée} : Les cartographies et analyses peuvent être facilement partagées avec les équipes, favorisant ainsi une compréhension commune des flux et un alignement sur les actions d'amélioration.
+    \item \textbf{Décisions éclairées et robustes} : Les stratégies d'optimisation peuvent être basées non seulement sur l'état actuel, mais aussi sur l'évaluation de scénarios futurs et l'analyse prédictive fournie par l'outil.
+\end{itemize}
+En résumé, VSM-Tools est conçu pour transformer la manière d'aborder l’optimisation des processus, en fournissant la clarté et les capacités d'analyse avancées nécessaires pour agir efficacement.
+
+\section{Analyse du Paysage : Comment VSM-Tools se Distingue}
+Pour bien positionner VSM-Tools, il est essentiel de comprendre les catégories d’outils généralement utilisés pour la cartographie des flux de valeur, ainsi que leurs limites. Ce panorama permet de dégager clairement les axes différenciateurs de notre solution.
+
+\subsection{Panorama des solutions existantes}
+Plusieurs types d'outils sont couramment utilisés :
+\begin{itemize}
+    \item \textbf{Les outils de dessin génériques} :
+    \begin{itemize}
+        \item \textit{Exemples} : Microsoft Visio, Draw.io, Lucidchart.
+        \item \textit{Caractéristiques} : Très accessibles, grande liberté de dessin.
+        \item \textit{Limites pour le VSM} : Modélisation entièrement manuelle, pas de reconnaissance de processus, aucun calcul automatique d'indicateurs Lean (lead time, \%VA...), pas de dynamique ni d'intégration de données. Utiles pour la documentation statique, mais peu adaptés à une analyse continue basée sur les données.
+    \end{itemize}
+    \item \textbf{Les modules VSM intégrés dans des systèmes plus larges} :
+    \begin{itemize}
+        \item \textit{Exemples} : Fonctionnalités VSM dans des suites comme celles de Planview ou Siemens PLM.
+        \item \textit{Caractéristiques} : Potentiel de connexion avec d'autres données d'entreprise (ERP, etc.).
+        \item \textit{Limites fréquentes} : Souvent coûteux, lourds à mettre en œuvre, et parfois peu souples pour une analyse VSM terrain ciblée. La configuration des indicateurs ou la visualisation des goulots peuvent être limitées pour l'utilisateur final.
+    \end{itemize}
+    \item \textbf{Les outils VSM spécialisés} :
+    \begin{itemize}
+        \item \textit{Exemples} : Simcad Pro, visTABLE®.
+        \item \textit{Caractéristiques} : Conçus spécifiquement pour le VSM, ils intègrent souvent des calculs et parfois des simulations avancées (simulation dynamique, optimisation \og what-if \fg{} pour Simcad Pro ; cartographie automatisée et calculs intégrés pour visTABLE®).
+        \item \textit{Limites possibles} : Temps d'apprentissage parfois élevé (surtout pour les outils orientés simulation), coûts de licence potentiellement dissuasifs (notamment pour les PME), et un focus parfois trop marqué sur la simulation industrielle au détriment de la simplicité ou de l'adaptabilité à d'autres secteurs.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Les atouts différenciants de VSM-Tools}
+C’est dans cet écosystème que VSM-Tools apporte sa valeur ajoutée :
+\begin{itemize}
+    \item \textbf{Approche équilibrée et puissante} : Nous combinons la simplicité d'une interface intuitive, inspirée des outils de dessin, avec la puissance d'analyse souvent réservée aux outils de simulation complexes.
+    \item \textbf{Calculs dynamiques et indicateurs clés} : L'outil calcule automatiquement les indicateurs Lean essentiels (lead time, takt time, taux de valeur ajoutée...) et génère la timeline, offrant une vision quantitative immédiate.
+    \item \textbf{Capacités d'analyse avancées intégrées} : VSM-Tools va au-delà de la simple cartographie statique en intégrant nativement des fonctionnalités de :
+    \begin{itemize}
+        \item \textbf{Simulation \og What-if \fg{}} : Pour évaluer l'impact de changements potentiels (modification de temps, ressources, flux...) sur les performances globales du flux.
+        \item \textbf{Analyse prédictive} : Pour anticiper les risques de goulots d'étranglement ou de déséquilibres futurs basés sur les données et les tendances.
+        \item \textbf{Suggestions d'optimisation} : Pour guider l'utilisateur vers des pistes d'amélioration pertinentes identifiées par l'outil.
+    \end{itemize}
+    \item \textbf{Connectivité aux données} : Conçu avec la possibilité de se connecter aux données terrain ou aux systèmes métiers (via API ou fichiers structurés), permettant une cartographie vivante et à jour.
+    \item \textbf{Modularité et adaptabilité} : Pensé pour être adaptable à différents secteurs (industrie, mais aussi santé, services, logistique...).
+\end{itemize}
+VSM-Tools se positionne ainsi comme une solution offrant non seulement une cartographie accessible mais aussi une réelle capacité d'analyse avancée et d'aide à la décision, rendant l'optimisation des flux plus dynamique et informée.
+
+\section{VSM-Tools en Action : Un Parcours Utilisateur Fluide}
+L'utilisation de VSM-Tools est conçue pour être logique et accompagner l'utilisateur tout au long de sa démarche d'analyse. Voici les étapes clés du parcours :
+
+\subsection{Modélisation visuelle intuitive}
+Tout commence par la création de la carte VSM. Grâce à une interface claire et une palette d'outils contenant les symboles VSM standards (processus, stocks, transports, flux d'information...), l'utilisateur construit sa cartographie visuellement. Un simple glisser-déposer permet de positionner les éléments sur la zone de travail et de les relier pour représenter le flux matière et le flux d'information, de manière similaire à un dessin, mais avec une structure sous-jacente dédiée au VSM. (Voir Annexe \ref{sec:annexeA})
+
+\subsection{Enrichissement facile des données}
+Une fois la structure visuelle en place, l'étape suivante consiste à renseigner les données associées à chaque élément. En sélectionnant un processus, un stock ou un autre symbole, un panneau dédié apparaît, permettant de saisir facilement les métriques pertinentes : temps de cycle, temps de changement de série, nombre d'opérateurs, taille de lot, niveau de stock, taux de rebut, etc. L'interface guide l'utilisateur pour s'assurer que les informations nécessaires aux calculs sont bien renseignées.
+
+\subsection{Analyse guidée et approfondie par les indicateurs et l'intelligence intégrée}
+C'est ici que VSM-Tools révèle sa pleine valeur. Au fur et à mesure que les données sont saisies, l'outil calcule automatiquement les indicateurs clés (Lead Time, \%VA...) et génère la timeline dynamique. Mais l'analyse va plus loin : VSM-Tools met en évidence les goulots d'étranglement, les déséquilibres, et \textbf{fournit des éléments prédictifs} sur les risques potentiels du flux actuel. De plus, l'outil peut \textbf{générer des suggestions d'optimisation} basées sur les données et les bonnes pratiques, orientant ainsi l'utilisateur vers les pistes d'amélioration les plus prometteuses.
+
+\subsection{Conception et simulation de l'état futur}
+Après avoir analysé l'état actuel, l'objectif est de définir un état amélioré. VSM-Tools facilite cette étape en permettant de dupliquer la carte \og état actuel \fg{}. L'utilisateur peut alors modifier cette nouvelle carte pour modéliser les améliorations. Crucialement, il peut ensuite utiliser les \textbf{fonctionnalités de simulation \og what-if \fg{}} pour tester l'impact de ces changements (ajustement de temps, ressources, flux...) non seulement sur les indicateurs statiques, mais aussi sur la robustesse et la dynamique potentielle du nouveau flux. Cela permet de valider plus finement l'efficacité des solutions proposées avant leur mise en œuvre réelle. (Voir Annexe \ref{sec:annexeB} et Annexe \ref{sec:annexeC})
+
+\subsection{Communication et partage des résultats}
+Une fois l'analyse terminée et les états \og actuel \fg{} et \og futur \fg{} définis, il est essentiel de pouvoir communiquer les résultats. VSM-Tools permet d'exporter les cartographies et les indicateurs associés dans des formats standards (comme PDF ou image). Ces exports clairs et professionnels peuvent être facilement intégrés dans des rapports, des présentations ou partagés avec les différentes parties prenantes pour discuter des plans d'action.
+
+Ce parcours utilisateur vise à rendre la démarche VSM plus structurée, plus rapide et plus orientée vers l'action, en s'appuyant sur la visualisation et les calculs automatiques.
+
+\section{VSM-Tools dans l'Écosystème Industriel : Positionnement Stratégique}
+
+\subsection{La pyramide d'automatisation : Un cadre de référence}
+La pyramide d'automatisation est un modèle classique qui hiérarchise les différents systèmes d'information et de contrôle dans une entreprise industrielle :
+\begin{itemize}
+    \item \textbf{Niveau stratégique (sommet)} : Systèmes de planification des ressources de l'entreprise (ERP - Enterprise Resource Planning) pour la gestion globale (finances, ventes, achats, planification long terme).
+    \item \textbf{Niveau pilotage / exécution} : Systèmes de gestion de la production (MES - Manufacturing Execution System) pour le suivi en temps réel des opérations, la gestion des ordres de fabrication, la traçabilité.
+    \item \textbf{Niveau supervision} : Systèmes de supervision et d'acquisition de données (SCADA - Supervisory Control And Data Acquisition) pour le contrôle et la visualisation des processus industriels.
+    \item \textbf{Niveau contrôle} : Automates programmables (PLC - Programmable Logic Controller) qui commandent directement les machines.
+    \item \textbf{Niveau terrain (base)} : Capteurs et actionneurs sur les équipements physiques.
+\end{itemize}
+
+\begin{figure}[H] % Utilisation de [H] du package float pour forcer la position ici
+    \centering
+    \includegraphics[width=0.7\textwidth]{../images/automation_pyramide.png}
+    \caption{Pyramide d'Automatisation}
+    \label{fig:pyramide_auto}
+\end{figure}
+
+\subsection{Place de VSM-Tools dans cet écosystème}
+VSM-Tools ne se situe pas directement \textit{dans} une couche unique de cette pyramide opérationnelle, mais plutôt \textbf{en complément, comme un outil d'analyse et d'aide à la décision qui interagit avec plusieurs niveaux}.
+
+Son rôle principal est d'\textbf{optimiser les flux de valeur} qui sont \textit{gérés et exécutés} par les systèmes comme l'ERP et le MES. VSM-Tools se positionne comme un pont :
+\begin{itemize}
+    \item Il utilise des informations potentiellement issues des niveaux supérieurs (planification ERP) et intermédiaires (données réelles de production du MES).
+    \item Il fournit des analyses et des objectifs d'amélioration (réduction des délais, optimisation des stocks) qui vont influencer la stratégie (niveau ERP) et guider les actions d'optimisation au niveau de l'exécution (niveau MES).
+\end{itemize}
+VSM-Tools est donc un \textbf{outil focalisé sur la compréhension et l'amélioration des processus transversaux}, là où les autres systèmes sont souvent centrés sur la gestion transactionnelle (ERP) ou le contrôle de l'exécution (MES/SCADA).
+
+\subsection{Synergies et interactions potentielles}
+La véritable force de VSM-Tools peut être décuplée par ses interactions potentielles avec les autres systèmes :
+\begin{itemize}
+    \item \textbf{Alimentation en données} : Plutôt que de saisir toutes les données manuellement, VSM-Tools pourrait idéalement récupérer des données agrégées et fiabilisées depuis le MES (temps de cycle moyens, TRS, temps d'arrêt...) ou l'ERP (coûts standards, niveaux de stock moyens...). Cela rendrait la création de la VSM \og état actuel \fg{} plus rapide, plus précise et permettrait d'alimenter plus efficacement les modules d'analyse avancée.
+    \item \textbf{Orientation des actions et pilotage affiné} : L'analyse réalisée dans VSM-Tools (identification des goulots, définition de l'état futur), \textbf{enrichie par les simulations et les prédictions}, permet de fixer des objectifs plus robustes et précis (par exemple, objectifs de temps de cycle, niveaux de stock cibles, règles de priorisation...). Ces objectifs et règles peuvent ensuite être utilisés pour paramétrer ou piloter plus finement les systèmes MES et ERP, assurant un meilleur alignement entre l'analyse stratégique des flux et l'exécution opérationnelle.
+    \item \textbf{Complémentarité fondamentale} : Il ne s'agit pas de remplacer les systèmes existants. VSM-Tools sert à \textit{comprendre, analyser en profondeur et concevoir} les flux (diagnostic, simulation, prédiction, conception état futur), tandis que les MES/SCADA servent à \textit{exécuter et contrôler} les opérations au quotidien, et l'ERP à \textit{gérer} les ressources globalement. VSM-Tools apporte la vision \og flux \fg{} dynamique et l'intelligence analytique qui manquent souvent aux systèmes transactionnels.
+\end{itemize}
+En intégrant VSM-Tools dans l'écosystème digital de l'entreprise, on crée une boucle vertueuse où l'analyse avancée des flux guide l'action opérationnelle, et les données opérationnelles nourrissent cette analyse pour une amélioration continue et informée.
+
+\section{Transparence : Défis et limites actuelles}
+
+\subsection{Dépendance à la qualité des données d'entrée}
+Comme tout outil d'analyse, et \textit{a fortiori} pour ses fonctions avancées (simulation, prédiction), la pertinence des résultats fournis par VSM-Tools dépend directement de la qualité, de la complétude et de la fiabilité des données saisies. Des données erronées ou incomplètes mèneront inévitablement à une analyse faussée. La collecte rigoureuse des données terrain reste donc une étape préalable essentielle.
+
+\subsection{Un outil au service d'une démarche méthodologique}
+VSM-Tools est un facilitateur, mais il ne remplace pas la compréhension et l'application de la méthodologie Lean et VSM. Pour tirer pleinement parti de l'outil, notamment de ses suggestions ou des résultats de simulation, les utilisateurs doivent comprendre les principes sous-jacents. L'outil maximise son impact lorsqu'il est intégré dans une culture d'amélioration continue.
+
+\subsection{Complexité potentielle et besoin d'expertise}
+Si l'interface vise la simplicité, l'utilisation et l'interprétation correctes des fonctionnalités avancées (simulation de scénarios, analyse prédictive) peuvent nécessiter une certaine expertise ou une formation spécifique pour éviter les mauvaises interprétations ou les décisions basées sur des configurations erronées.
+
+\subsection{Nécessité d'une conduite du changement}
+L'introduction de VSM-Tools, comme tout nouvel outil analytique, peut nécessiter un accompagnement pour assurer son adoption par les équipes. Il est important de communiquer sur ses bénéfices, de former les utilisateurs clés et d'intégrer son usage dans les routines d'amélioration existantes.
+
+\subsection{Périmètre fonctionnel actuel}
+VSM-Tools est conçu pour être une solution pragmatique et accessible. À ce stade de la conception ou du développement initial, son périmètre fonctionnel présente certaines limites par rapport à des solutions très avancées ou beaucoup plus coûteuses :
+\begin{itemize}
+    \item \textbf{Intégrations systèmes} : Les capacités d'intégration automatique avec d'autres systèmes (ERP, MES) sont envisagées mais peuvent nécessiter des développements spécifiques ou être planifiées pour des versions ultérieures. La saisie des données reste majoritairement manuelle dans la version de base.
+    \item \textbf{Fonctionnalités collaboratives avancées} : Les options de travail collaboratif en temps réel sur une même carte sont des axes d'amélioration potentiels pour de futures versions.
+\end{itemize}
+Ces limites sont identifiées et constituent des axes potentiels pour les évolutions futures de la solution, que nous aborderons dans la section suivante.
+
+\section{Vision future : Opportunités d'évolution}
+
+\subsection{Intégrations poussées avec l'écosystème existant}
+Pour réduire l'effort de saisie manuelle et garantir des données à jour, une priorité est de développer des \textbf{connecteurs standards} vers les principaux systèmes d'information du marché (ERP, MES). L'objectif est de pouvoir importer automatiquement certaines données clés (temps de cycle réels, niveaux de stock, etc.) pour alimenter les VSM et les rendre encore plus dynamiques et représentatives de la réalité terrain.
+
+\subsection{Collaboration renforcée pour les équipes}
+Faciliter le travail d'équipe est essentiel. Nous prévoyons d'améliorer les aspects collaboratifs avec :
+\begin{itemize}
+    \item \textbf{Fonctionnalités temps réel} : Permettre à plusieurs utilisateurs de travailler simultanément sur la même cartographie.
+    \item \textbf{Gestion de versions} : Offrir un historique des modifications et la possibilité de comparer différentes versions d'une VSM.
+    \item \textbf{Partage et commentaires améliorés} : Simplifier le partage des cartes et l'ajout de commentaires ou d'annotations par les membres de l'équipe.
+\end{itemize}
+
+\subsection{Accessibilité et déploiement flexible}
+Pour répondre aux différents besoins des entreprises, nous explorons des options de déploiement plus flexibles, notamment une \textbf{offre Cloud / SaaS (Software as a Service)}. Cela permettrait un accès facilité depuis n'importe quel navigateur, des mises à jour automatiques et un modèle d'abonnement potentiellement plus souple.
+
+\subsection{Capitalisation des connaissances et bonnes pratiques}
+Nous souhaitons enrichir VSM-Tools avec une dimension de capitalisation :
+\begin{itemize}
+    \item \textbf{Bibliothèque de modèles} : Proposer des modèles de VSM pré-configurés pour différents secteurs d'activité (automobile, aéronautique, santé, services...) afin d'accélérer le démarrage des utilisateurs.
+    \item \textbf{Base de connaissances des bonnes pratiques} : Intégrer des suggestions de bonnes pratiques Lean ou des benchmarks sectoriels directement dans l'outil pour guider l'utilisateur dans ses choix d'amélioration.
+\end{itemize}
+Ces évolutions visent à faire de VSM-Tools un partenaire encore plus stratégique dans la démarche d'excellence opérationnelle des entreprises.
+
+\section{Modèle Économique}
+Pour assurer la pérennité et le développement de VSM-Tools, une stratégie de mise sur le marché et un modèle économique clairs sont envisagés. L'objectif est de rendre l'outil accessible tout en valorisant ses capacités avancées.
+
+L'ensemble de ces éléments est synthétisé dans le Business Model Canvas ci-dessous, qui offre une vue d'ensemble de la manière dont VSM-Tools crée, délivre et capture de la valeur.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{../images/business_model_canvas.png}
+    \caption{Business Model Canvas pour VSM-Tools}
+    \label{fig:bmc}
+\end{figure}
+
+\section{Management de Projet}
+
+\subsection{Organisation de l’équipe}
+L'équipe projet est constituée de quatre élèves-ingénieurs de l'EIGSI, partageant un objectif commun mais apportant des expertises complémentaires :
+\begin{itemize}
+    \item \textbf{Trois élèves-ingénieurs spécialisés en Supply Chain \& Transport International :} Leur connaissance des processus industriels, des enjeux logistiques et des méthodologies d'amélioration continue (dont le VSM) est cruciale pour définir les besoins fonctionnels de l'outil, valider sa pertinence métier et orienter sa conception afin qu'il réponde aux attentes concrètes des utilisateurs finaux. Ils sont les garants de l'adéquation de la solution aux problématiques terrain.
+    \item \textbf{Un élève-ingénieur spécialisé en Intelligence Artificielle et Bases de Données (IABD) :} Responsable des aspects techniques du projet (conception de l'architecture logicielle, choix technologiques, conception des fonctionnalités avancées IA/prédictives, gestion des données, coordination technique).
+\end{itemize}
+
+\textbf{Mode de travail et collaboration :}
+L'équipe fonctionne de manière collaborative. Les décisions importantes concernant l'orientation du projet, les fonctionnalités majeures et la validation des étapes clés sont prises collectivement. Des réunions sont organisées pour synchroniser l'avancement. La communication est assurée via WhatsApp. La documentation et le suivi des tâches sont gérés via Trello et un dépôt Git partagé (GitHub).
+
+\subsection{Méthodologie utilisée}
+Compte tenu de la nature du projet (conception logicielle sur deux ans, contexte académique), une \textbf{approche Agile légère, inspirée de Scrum et Kanban}, a été adoptée pour la phase de conception (Année 1) et sera poursuivie pour la phase de développement (Année 2).
+\begin{itemize}
+    \item \textbf{Principes Agiles :} Nous privilégions une approche itérative et incrémentale, permettant d'affiner la conception et de s'adapter aux découvertes faites en cours de projet.
+    \item \textbf{Éléments inspirés de Scrum/Kanban (Année 1) :}
+    \begin{itemize}
+        \item Découpage de la phase de conception en sprints thématiques (voir planification ci-dessous).
+        \item Utilisation d'un tableau de suivi visuel (Trello) pour gérer le flux des tâches de recherche, conception et documentation (À faire, En cours, Terminé).
+        \item Réunions de synchronisation régulières pour suivre l'avancement et lever les blocages.
+    \end{itemize}
+\end{itemize}
+Cette approche permet de structurer le travail de conception tout en conservant la souplesse nécessaire.
+
+\subsection{Suivi des tâches réalisées et planification des étapes à venir}
+\begin{itemize}
+    \item \textbf{Suivi des tâches :} Le suivi de l'avancement est assuré principalement via le tableau Trello et lors des points de synchronisation réguliers.
+    \item \textbf{Planification (Année 1 - Phase d'Analyse \& Conception) :} L'objectif principal de cette première année est de poser des fondations solides pour le développement futur. Les activités ont été organisées en sprints thématiques sur Trello :
+    \begin{itemize}
+        \item \textbf{Sprint 1 : Initialisation \& Cadrage du Projet :} Définition du périmètre, objectifs, rôles, outils, planification de la recherche.
+        \item \textbf{Sprint 2 : Recherche Approfondie VSM \& Analyse Concurrentielle :} Synthèse méthodologie VSM, analyse des outils existants, identification bonnes pratiques.
+        \item \textbf{Sprint 3 : Définition des Besoins Fonctionnels \& Cas d'Usage :} Personas, cas d'usage, exigences fonctionnelles prioritaires.
+        \item \textbf{Sprint 4 : Exigences Non-Fonctionnelles \& Conception UI/UX (Wireframes) :} Contraintes techniques, maquettes basse fidélité, flux de navigation.
+        \item \textbf{Sprint 5 : Conception Architecture Système \& Choix Technologiques :} Architecture logicielle, justification choix technologiques, modules principaux.
+        \item \textbf{Sprint 6 : Conception UI/UX (Mockups) \& Modèle de Données :} Maquettes haute fidélité, structure des données VSM (JSON/TypeScript), API Electron.
+        \item \textbf{Sprint 7 : Finalisation Documentation de Conception :} Consolidation et validation des documents (\texttt{SYSTEME\_DESIGN.md}, \texttt{INTERFACE\_UTILISATEUR.md}, exigences).
+        \item \textbf{Sprint 8 \& 9 : Préparation \& Rédaction Rapport Mi-Parcours :} Compilation du travail, rédaction, relecture et finalisation du présent rapport.
+        \item \textit{Objectif fin Année 1 :} Produire un dossier de conception complet et validé.
+    \end{itemize}
+    \item \textbf{Planification (Année 2 - Phase de Développement \& Validation - \textit{Prévue}) :} Sur la base du dossier de conception, la deuxième année sera consacrée au développement itératif des fonctionnalités (éditeur, calculs, simulation, IA...), aux tests, à l'intégration et à la validation finale. (Le détail des sprints de développement sera affiné en début d'année 2).
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{../images/sprints_premiere_annee.png}
+    \caption{Planification des Sprints (Année 1)}
+    \label{fig:sprints}
+\end{figure}
+
+\section{État d’Avancement (au 29 Avril 2025)}
+Cette section présente les principales actions réalisées depuis le lancement du projet, conformément à la planification définie en section 9.3.
+
+\subsection{Actions Réalisées (Sprints 1 à 7)}
+La première partie de l'année a été consacrée à la construction des fondations analytiques et conceptuelles de VSM-Tools :
+\begin{itemize}
+    \item \textbf{Cadrage et Recherche (Sprints 1 \& 2) :} Le périmètre du projet a été défini, les rôles établis, et une recherche approfondie sur la méthodologie VSM et les outils concurrents a été menée. Les synthèses correspondantes (\texttt{vsm\_et\_indicateurs.md}, analyse concurrentielle dans Section 3) ont été produites.
+    \item \textbf{Définition des Besoins (Sprint 3) :} Les personas utilisateurs et les cas d'usage clés ont été identifiés, menant à une première liste d'exigences fonctionnelles détaillées.
+    \item \textbf{Conception Initiale (Sprints 4 \& 5) :} Les exigences non-fonctionnelles ont été listées. La conception de l'interface utilisateur a débuté avec la création de wireframes (\texttt{INTERFACE\_UTILISATEUR.md}). L'architecture système globale et les choix technologiques principaux ont été définis et documentés (\texttt{SYSTEME\_DESIGN.md}).
+    \item \textbf{Conception Détaillée (Sprints 6 \& 7) :} Les maquettes haute fidélité (mockups) ont été créées, affinant la vision de l'interface utilisateur. Le modèle de données précis pour les cartes VSM et l'API Electron a été spécifié. La documentation de conception (\texttt{SYSTEME\_DESIGN.md}, \texttt{INTERFACE\_UTILISATEUR.md}) a été consolidée.
+\end{itemize}
+
+\subsection{Résultats Obtenus}
+À ce stade, les principaux résultats sont :
+\begin{itemize}
+    \item Une compréhension approfondie du domaine VSM et du positionnement de VSM-Tools.
+    \item Un ensemble de documents de conception détaillés (exigences, architecture, UI/UX, modèle de données) constituant une base solide pour la future phase de développement.
+    \item Une planification claire des étapes restantes pour la première année et une vision pour la seconde année.
+\end{itemize}
+
+\subsection{Modifications par rapport au plan initial}
+Aucune modification majeure n'est à signaler par rapport au plan initial. Néanmoins, la recherche concurrentielle a pris plus de temps que prévu, décalant le début de la conception UI.
+
+\section{Perspectives et Prochaines Étapes}
+Cette section décrit les étapes prévues pour finaliser la première année du projet et prépare la transition vers la phase de développement de la seconde année.
+
+\subsection{Finalisation de la Phase de Conception (Fin Année 1)}
+Les prochaines étapes à court terme se concentrent sur la finalisation de la phase de conception et la livraison des éléments requis pour la fin de la première année :
+\begin{itemize}
+    \item \textbf{Rédaction du Rapport de Mi-Parcours (Sprints 8 \& 9) :} Compilation de l'ensemble des travaux réalisés, rédaction, relecture et finalisation du rapport de mi-parcours.
+    \item \textbf{Validation Finale du Dossier de Conception :} S'assurer que tous les documents de conception sont complets, cohérents et validés par l'équipe.
+\end{itemize}
+
+\subsection{Préparation de la Phase de Développement (Début Année 2)}
+L'objectif principal à la fin de l'Année 1 est de disposer d'un cahier des charges technique et fonctionnel suffisamment détaillé pour lancer efficacement la phase de développement en Année 2. Cela inclut :
+\begin{itemize}
+    \item La confirmation des choix technologiques.
+    \item Un backlog initial de fonctionnalités à développer, basé sur les exigences définies.
+\end{itemize}
+
+\subsection{Objectifs à Moyen Terme (Année 2)}
+La seconde année sera dédiée à la réalisation concrète de VSM-Tools, en suivant une approche itérative (Scrum) :
+\begin{itemize}
+    \item Développement progressif des fonctionnalités (éditeur, calculs, simulation, IA...).
+    \item Mise en place des tests automatisés.
+    \item Intégration continue.
+    \item Livraison d'une version fonctionnelle et testée de l'application en fin de projet.
+\end{itemize}
+
+\section{Conclusion}
+Ce rapport a présenté VSM-Tools, une solution logicielle conçue pour faciliter l'application de la méthodologie Value Stream Mapping. L'analyse contextuelle a souligné l'importance du VSM comme outil d'identification des gaspillages et d'optimisation des flux, tout en relevant les limitations des approches traditionnelles ou des outils non spécialisés.
+
+VSM-Tools se positionne comme une réponse pragmatique et puissante à ces défis. Il combine une interface intuitive pour la modélisation des flux avec des capacités de calcul automatique des indicateurs clés (Lead Time, \%VA...) et, de manière distinctive, des \textbf{fonctionnalités d'analyse avancées intégrées} : simulation de scénarios \og what-if \fg{}, éléments d'analyse prédictive et suggestions d'optimisation. L'étude comparative a mis en évidence cet équilibre entre accessibilité et puissance analytique comme un différenciateur clé.
+
+Le positionnement de VSM-Tools au sein de l'écosystème des systèmes d'information industriels (ERP, MES) a été défini comme celui d'un outil complémentaire d'analyse approfondie et d'aide à la décision, visant à améliorer la compréhension et la conception des processus transversaux. Les défis liés à la qualité des données, à la nécessité d'une expertise pour les fonctions avancées et à la conduite du changement ont été reconnus, tout comme les limites actuelles en termes d'intégration et de collaboration, qui définissent les axes d'évolution future.
+
+En synthèse, VSM-Tools vise à rendre la démarche VSM plus accessible, rapide, et surtout plus \textbf{analytique et prédictive}. En fournissant une représentation claire des flux, des indicateurs associés, et des capacités de simulation et d'aide à la décision, il constitue un support pertinent pour accélérer et fiabiliser les initiatives d'amélioration continue et la recherche de l'excellence opérationnelle. Les stratégies de commercialisation et les modèles économiques envisagés devront valoriser cette combinaison unique de simplicité et de puissance analytique.
+
+\appendix
+\section{Annexes}
+\label{sec:annexes}
+\newpage % Commence les annexes sur une nouvelle page
+
+\subsection{Annexe A : Exemple de VSM - État Actuel}
+\label{sec:annexeA}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{../images/vsm_etat_actuel.png}
+    \caption{Exemple de VSM - État Actuel}
+    \label{fig:vsm_actuel}
+\end{figure}
+
+\subsection{Annexe B : Exemple de VSM - État Futur}
+\label{sec:annexeB}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{../images/vsm_etat_futur.png}
+    \caption{Exemple de VSM - État Futur}
+    \label{fig:vsm_futur}
+\end{figure}
+
+\subsection{Annexe C : Exemple de Plan d'Action issu de l'analyse VSM}
+\label{sec:annexeC}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{../images/plan_daction.png}
+    \caption{Exemple de Plan d'Action issu de l'analyse VSM}
+    \label{fig:plan_action}
+\end{figure}
+
+\end{document}

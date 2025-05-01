@@ -106,9 +106,7 @@ L'utilisation de VSM-Tools est conçue pour être logique et accompagner l'utili
 
 **4.1. Modélisation visuelle intuitive**
 
-Tout commence par la création de la carte VSM. Grâce à une interface claire et une palette d'outils contenant les symboles VSM standards (processus, stocks, transports, flux d'information...), l'utilisateur construit sa cartographie visuellement. Un simple glisser-déposer permet de positionner les éléments sur la zone de travail et de les relier pour représenter le flux matière et le flux d'information, de manière similaire à un dessin, mais avec une structure sous-jacente dédiée au VSM.
-
-![Exemple de VSM - État Actuel](images/vsm_etat_actuel.png)
+Tout commence par la création de la carte VSM. Grâce à une interface claire et une palette d'outils contenant les symboles VSM standards (processus, stocks, transports, flux d'information...), l'utilisateur construit sa cartographie visuellement. Un simple glisser-déposer permet de positionner les éléments sur la zone de travail et de les relier pour représenter le flux matière et le flux d'information, de manière similaire à un dessin, mais avec une structure sous-jacente dédiée au VSM. (Voir Annexe A : Exemple de VSM - État Actuel)
 
 **4.2. Enrichissement facile des données**
 
@@ -120,11 +118,7 @@ C'est ici que VSM-Tools révèle sa pleine valeur. Au fur et à mesure que les d
 
 **4.4. Conception et simulation de l'état futur**
 
-Après avoir analysé l'état actuel, l'objectif est de définir un état amélioré. VSM-Tools facilite cette étape en permettant de dupliquer la carte "état actuel". L'utilisateur peut alors modifier cette nouvelle carte pour modéliser les améliorations. Crucialement, il peut ensuite utiliser les **fonctionnalités de simulation "what-if"** pour tester l'impact de ces changements (ajustement de temps, ressources, flux...) non seulement sur les indicateurs statiques, mais aussi sur la robustesse et la dynamique potentielle du nouveau flux. Cela permet de valider plus finement l'efficacité des solutions proposées avant leur mise en œuvre réelle.
-
-![Exemple de VSM - État Futur](images/vsm_etat_futur.png)
-
-![Exemple de Plan d'Action issu de l'analyse VSM](images/plan_daction.png)
+Après avoir analysé l'état actuel, l'objectif est de définir un état amélioré. VSM-Tools facilite cette étape en permettant de dupliquer la carte "état actuel". L'utilisateur peut alors modifier cette nouvelle carte pour modéliser les améliorations. Crucialement, il peut ensuite utiliser les **fonctionnalités de simulation "what-if"** pour tester l'impact de ces changements (ajustement de temps, ressources, flux...) non seulement sur les indicateurs statiques, mais aussi sur la robustesse et la dynamique potentielle du nouveau flux. Cela permet de valider plus finement l'efficacité des solutions proposées avant leur mise en œuvre réelle. (Voir Annexe B : Exemple de VSM - État Futur et Annexe C : Exemple de Plan d'Action)
 
 **4.5. Communication et partage des résultats**
 
@@ -265,6 +259,8 @@ Cette approche permet de structurer le travail de conception tout en conservant 
 
 *   **Planification (Année 2 - Phase de Développement & Validation - *Prévue*) :** Sur la base du dossier de conception, la deuxième année sera consacrée au développement itératif des fonctionnalités (éditeur, calculs, simulation, IA...), aux tests, à l'intégration et à la validation finale. (Le détail des sprints de développement sera affiné en début d'année 2).
 
+![sprints_premiere_annee](images/sprints_premiere_annee.png)
+
 ## 10. État d’Avancement (au 29 Avril 2025)
 
 Cette section présente les principales actions réalisées depuis le lancement du projet, conformément à la planification définie en section 9.3.
@@ -321,4 +317,18 @@ VSM-Tools se positionne comme une réponse pragmatique et puissante à ces défi
 Le positionnement de VSM-Tools au sein de l'écosystème des systèmes d'information industriels (ERP, MES) a été défini comme celui d'un outil complémentaire d'analyse approfondie et d'aide à la décision, visant à améliorer la compréhension et la conception des processus transversaux. Les défis liés à la qualité des données, à la nécessité d'une expertise pour les fonctions avancées et à la conduite du changement ont été reconnus, tout comme les limites actuelles en termes d'intégration et de collaboration, qui définissent les axes d'évolution future.
 
 En synthèse, VSM-Tools vise à rendre la démarche VSM plus accessible, rapide, et surtout plus **analytique et prédictive**. En fournissant une représentation claire des flux, des indicateurs associés, et des capacités de simulation et d'aide à la décision, il constitue un support pertinent pour accélérer et fiabiliser les initiatives d'amélioration continue et la recherche de l'excellence opérationnelle. Les stratégies de commercialisation et les modèles économiques envisagés devront valoriser cette combinaison unique de simplicité et de puissance analytique.
+
+## Annexes
+
+### Annexe A : Exemple de VSM - État Actuel
+
+![Exemple de VSM - État Actuel](images/vsm_etat_actuel.png)
+
+### Annexe B : Exemple de VSM - État Futur
+
+![Exemple de VSM - État Futur](images/vsm_etat_futur.png)
+
+### Annexe C : Exemple de Plan d'Action issu de l'analyse VSM
+
+![Exemple de Plan d'Action issu de l'analyse VSM](images/plan_daction.png)
 
