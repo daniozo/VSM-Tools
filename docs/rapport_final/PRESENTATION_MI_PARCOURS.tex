@@ -3,9 +3,13 @@
 % --- Thème ---
 % Vous pouvez choisir parmi de nombreux thèmes. Exemples : Madrid, Berlin, Warsaw, Montpellier, etc.
 % Essayez différents thèmes pour voir celui qui vous plaît le plus.
-\usetheme{Madrid}
+% \usetheme{Madrid}
+\usetheme{metropolis} % Thème moderne et épuré
 % Vous pouvez aussi choisir des thèmes de couleurs, par exemple : dolphin, orchid, whale, beaver
-\usecolortheme{default}
+% \usecolortheme{default} % Metropolis gère les couleurs différemment
+
+% Supprimer les symboles de navigation (si présents)
+\setbeamertemplate{navigation symbols}{}
 
 % --- Packages utiles ---
 \usepackage[utf8]{inputenc}
@@ -24,14 +28,13 @@
 \institute{EIGSI} % Nom de votre institution
 \date{3 Mai 2025} % Date de la présentation
 
-% --- Logo (optionnel, dépend du thème) ---
-% Placez votre logo ici si le thème le supporte bien (Madrid le fait)
-\logo{\includegraphics[height=1cm]{../images/logo_eigsi.png}} % Ajustez height si besoin
-
 \begin{document}
 
 % --- Page de Titre ---
 \begin{frame}
+  % Si vous voulez le logo UNIQUEMENT sur la page de titre avec Metropolis,
+  % vous pouvez l'ajouter manuellement ici, par exemple :
+  % \node[anchor=south east] at (current page.south east){\includegraphics[height=1cm]{../images/logo_eigsi.png}};
   \titlepage % Affiche la page de titre configurée ci-dessus
 \end{frame}
 
