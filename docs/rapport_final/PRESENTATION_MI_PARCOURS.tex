@@ -32,149 +32,272 @@
 
 % --- Page de Titre ---
 \begin{frame}
-  % Si vous voulez le logo UNIQUEMENT sur la page de titre avec Metropolis,
-  % vous pouvez l'ajouter manuellement ici, par exemple :
+  % Logo EIGSI (optionnel, peut être ajouté manuellement si nécessaire)
   % \node[anchor=south east] at (current page.south east){\includegraphics[height=1cm]{../images/logo_eigsi.png}};
   \titlepage % Affiche la page de titre configurée ci-dessus
 \end{frame}
 
-% --- Table des Matières (optionnel) ---
-\begin{frame}{Plan de la présentation}
-  \tableofcontents % Génère automatiquement la table des matières basée sur les sections/sous-sections
+% --- Table des Matières ---
+% Frame option=shrink permet de réduire la taille si nécessaire pour tenir sur une page
+\begin{frame}[shrink=15]{Plan de la présentation}
+  \tableofcontents % Génère automatiquement la table des matières
 \end{frame}
 
-% --- Section 1 : Introduction & Contexte ---
-\section{Introduction et Contexte}
+% --- Section 1 : Introduction & Contexte VSM ---
+\section{Introduction & Contexte VSM}
 
-\begin{frame}{Contexte du projet}
-  \frametitle{Pourquoi VSM-Tools ?} % Titre de la diapositive
-
+\begin{frame}{Qu'est-ce que le VSM ?}
+  \frametitle{Le Value Stream Mapping : Visualiser pour Optimiser}
   \begin{itemize}
-    \item Importance de l'optimisation des flux de valeur (VSM).
-    \item Limites des outils actuels (Excel, papier, logiciels complexes).
-    \item Objectif : Créer un outil dédié, simple et puissant.
-  \end{itemize}
-
-  % Suggestion Visuelle : Pyramide d'automatisation ou schéma VSM générique
-  % \begin{figure}
-  %   \includegraphics[width=0.7\textwidth]{../images/automation_pyramide.png}
-  %   \caption{Positionnement de VSM dans l'industrie.}
-  % \end{figure}
-\end{frame}
-
-\begin{frame}{Objectifs du projet}
-  \begin{itemize}
-    \item Développer une application web/desktop pour la modélisation VSM.
-    \item Permettre le calcul automatique d'indicateurs clés.
-    \item Faciliter l'identification des goulots d'étranglement.
-    \item Offrir une interface utilisateur intuitive.
-    % Ajoutez d'autres objectifs spécifiques
+    \item Méthode visuelle issue du Lean Management.
+    \item Objectif : Cartographier TOUS les flux (matière, information) du fournisseur au client.
+    \item But : Identifier les étapes à valeur ajoutée et les gaspillages.
+    \item Fournit une image claire du processus actuel.
   \end{itemize}
 \end{frame}
 
-% --- Section 2 : Travail Réalisé ---
-\section{Travail Réalisé}
+\begin{frame}{Importance et Bénéficiaires du VSM}
+  \frametitle{Pourquoi le VSM est Essentiel ?}
+  \textbf{Importance :}
+  \begin{itemize}
+    \item Identifier et quantifier les gaspillages (Muda).
+    \item Localiser les goulots d'étranglement.
+    \item Réduire les délais (Lead Time).
+    \item Améliorer productivité et coûts.
+    \item Favoriser l'amélioration continue (Kaizen).
+  \end{itemize}
+  \vfill % Espace vertical
+  \textbf{Bénéficiaires :} Ingénieurs Process/Méthodes, Responsables Prod/Logistique/Qualité, Lean Managers, Consultants, Direction.
+\end{frame}
 
-\begin{frame}{Architecture et Technologies}
-  \frametitle{Choix Techniques}
+\begin{frame}{Le Défi des Méthodes Traditionnelles}
+  \frametitle{Limites des Outils Classiques}
+  \begin{itemize}
+    \item \textbf{Papier / Post-it :} Collaboratif mais difficile à maintenir, partager, analyser quantitativement.
+    \item \textbf{Tableurs (Excel) :} Calculs possibles mais manque de visualisation VSM standardisée.
+    \item \textbf{Logiciels de dessin (Visio) :} Flexibles mais sans intelligence métier VSM (pas de calculs auto, liens logiques...).
+  \end{itemize}
+  \vfill
+  \textit{Besoin d'un outil dédié, simple et puissant.}
+\end{frame}
 
-  \begin{columns}[T] % Divise la diapo en colonnes
-    \begin{column}{0.5\textwidth} % Première colonne
-      \textbf{Frontend:}
+% --- Section 2 : VSM-Tools : Notre Solution ---
+\section{VSM-Tools : Notre Solution}
+
+\begin{frame}{VSM-Tools : Mission et Vision}
+  \frametitle{Notre Réponse aux Défis du VSM}
+  \textbf{Mission :}
+  \begin{itemize}
+    \item Rendre l'analyse VSM \textbf{accessible, rapide et actionnable}.
+    \item Faciliter l'amélioration de la performance opérationnelle.
+  \end{itemize}
+  \vfill
+  \textbf{Vision :}
+  \begin{itemize}
+    \item Devenir un outil de \textbf{référence pour une cartographie VSM intuitive et efficace}.
+    \item Guider l'utilisateur dans l'analyse et l'identification des améliorations.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Proposition de Valeur}
+  \frametitle{Les Bénéfices Concrets de VSM-Tools}
+  \begin{itemize}
+    \item<1-> \textbf{Gain de temps significatif :} Création/mise à jour accélérées, calculs indicateurs automatisés (Lead Time, \%VA...).
+    \item<2-> \textbf{Analyse approfondie et aide à la décision :}
+    \begin{itemize}
+        \item Identification rapide des goulots et gaspillages.
+        \item Simulation d'impact des changements ("what-if").
+        \item Anticipation des problèmes (prédictif).
+        \item Suggestions d'optimisation.
+    \end{itemize}
+    \item<3-> \textbf{Collaboration facilitée :} Partage aisé des cartes et analyses.
+    \item<4-> \textbf{Décisions éclairées et robustes :} Basées sur l'état actuel, scénarios futurs et analyses prédictives.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Positionnement et Atouts}
+  \frametitle{Comment VSM-Tools se Distingue ?}
+  \textbf{Panorama Existant :} Outils de dessin (Visio), Modules VSM intégrés (ERP/PLM), Outils VSM spécialisés (Simcad).
+  \vfill
+  \textbf{Atouts Différenciants de VSM-Tools :}
+  \begin{itemize}
+    \item \textbf{Approche équilibrée :} Simplicité + Puissance d'analyse.
+    \item \textbf{Calculs dynamiques intégrés :} Indicateurs clés (LT, Takt, \%VA...) et timeline auto.
+    \item \textbf{Capacités d'analyse avancées :} Simulation "what-if", Analyse prédictive, Suggestions d'optimisation.
+    \item \textbf{Connectivité aux données} (potentielle).
+    \item \textbf{Modularité et adaptabilité}.
+  \end{itemize}
+\end{frame}
+
+% --- Section 3 : Fonctionnement de VSM-Tools ---
+\section{Fonctionnement de VSM-Tools}
+
+\begin{frame}{Parcours Utilisateur Fluide}
+  \frametitle{De la Modélisation à l'Action}
+  \begin{enumerate}
+    \item \textbf{Modélisation visuelle intuitive :} Glisser-déposer des symboles VSM standards, connexion des flux.
+    \item \textbf{Enrichissement facile des données :} Panneau dédié pour saisir les métriques (temps, opérateurs, stocks...).
+    \item \textbf{Analyse guidée et approfondie :}
+    \begin{itemize}
+        \item Calculs auto des indicateurs \& timeline.
+        \item Mise en évidence goulots, déséquilibres.
+        \item \textit{Éléments prédictifs et suggestions d'optimisation.}
+    \end{itemize}
+    \item \textbf{Conception et simulation état futur :} Duplication carte, modélisation améliorations, simulation "what-if" pour valider l'impact.
+    \item \textbf{Communication et partage :} Exports (PDF, image) pour rapports et présentations.
+  \end{enumerate}
+  % Optionnel : Ajouter une image de l'interface si disponible
+  % \begin{figure} \includegraphics[width=0.6\textwidth]{../images/img_4.png} \end{figure}
+\end{frame}
+
+% --- Section 4 : Positionnement & Synergies ---
+\section{Positionnement & Synergies}
+
+\begin{frame}{Place dans l'Écosystème Industriel}
+  \frametitle{VSM-Tools et la Pyramide d'Automatisation}
+  \begin{columns}[T]
+    \begin{column}{0.6\textwidth}
+      \textbf{Pyramide d'Automatisation :}
       \begin{itemize}
-        \item React / TypeScript
-        \item Vite
-        \item Tailwind CSS
-        \item Zustand (ou autre gestionnaire d'état)
+        \item Stratégique (ERP)
+        \item Pilotage (MES)
+        \item Supervision (SCADA)
+        \item Contrôle (PLC)
+        \item Terrain (Capteurs)
       \end{itemize}
-      \textbf{Backend/Desktop:}
+      \vfill
+      \textbf{Position de VSM-Tools :}
       \begin{itemize}
-        \item Electron
-        \item Node.js
+        \item \textbf{En complément}, outil d'analyse transverse.
+        \item Utilise données ERP/MES.
+        \item Fournit analyses pour influencer stratégie (ERP) et guider actions (MES).
+        \item Focalisé sur l'\textbf{amélioration des processus}.
       \end{itemize}
     \end{column}
-    \begin{column}{0.5\textwidth} % Deuxième colonne
-      \textbf{Visualisation:}
-      \begin{itemize}
-        \item Librairie de diagrammes (Ex: React Flow, GoJS, etc. - à préciser)
-      \end{itemize}
-       % Suggestion Visuelle : Diagramme d'architecture simplifié
-       % \begin{figure}
-       %   \includegraphics[width=\textwidth]{../images/architecture_diagram.png} % Mettez le bon chemin
-       % \end{figure}
+    \begin{column}{0.4\textwidth}
+      \begin{figure}
+        \includegraphics[width=\textwidth]{../images/automation_pyramide.png}
+        \caption{Pyramide d'Automatisation}
+      \end{figure}
     \end{column}
   \end{columns}
 \end{frame}
 
-\begin{frame}{Fonctionnalités Implémentées}
+\begin{frame}{Synergies Potentielles}
+  \frametitle{Interactions avec les Systèmes Existants}
   \begin{itemize}
-    \item Création/Sauvegarde/Chargement de cartes VSM.
-    \item Palette d'éléments VSM (Processus, Stock, Transport...).
-    \item Éditeur graphique (glisser-déposer, connexion).
-    \item Panneau de propriétés pour les éléments.
-    % Listez les fonctionnalités clés déjà développées
+    \item \textbf{Alimentation en données :} Récupération de données depuis MES/ERP pour une VSM "état actuel" plus rapide et précise.
+    \item \textbf{Orientation des actions :} Objectifs issus de VSM-Tools (simulations, prédictions) pour paramétrer/piloter MES/ERP.
+    \item \textbf{Complémentarité :}
+    \begin{itemize}
+        \item VSM-Tools : Comprendre, analyser, concevoir (diagnostic, simulation, prédiction).
+        \item MES/SCADA : Exécuter, contrôler.
+        \item ERP : Gérer globalement.
+    \end{itemize}
+    \item \textit{Boucle vertueuse : Analyse $\rightarrow$ Action $\rightarrow$ Données $\rightarrow$ Analyse.}
   \end{itemize}
-
-  % Suggestion Visuelle : Capture d'écran de l'interface principale
-  % \begin{figure}
-  %   \includegraphics[width=\textwidth]{../images/img_4.png} % Mettez une capture pertinente
-  % \end{figure}
 \end{frame}
 
-% --- Section 3 : Démonstration (Optionnel) ---
-% \section{Démonstration}
-% \begin{frame}{Démonstration Live}
-%   % Prévoyez une diapo pour annoncer la démo si vous en faites une
-%   Points clés à montrer :
-%   \begin{itemize}
-%     \item Création d'un processus simple.
-%     \item Ajout d'indicateurs.
-%     \item Sauvegarde.
-%   \end{itemize}
-% \end{frame}
+% --- Section 5 : Management de Projet & Avancement ---
+\section{Management de Projet & Avancement}
 
-% --- Section 4 : Prochaines Étapes ---
-\section{Prochaines Étapes}
-
-\begin{frame}{Planification}
-  \frametitle{Travail à venir}
-  \begin{itemize}
-    \item Implémentation du calcul des indicateurs (Lead Time, Takt Time...).
-    \item Finalisation de l'interface utilisateur.
-    \item Ajout de fonctionnalités d'analyse (détection goulots).
-    \item Tests et débogage.
-    \item Rédaction de la documentation finale.
-  \end{itemize}
-
-  % Suggestion Visuelle : Diagramme de Gantt ou liste des sprints restants
-  % \begin{figure}
-  %   \includegraphics[width=0.8\textwidth]{../images/sprints_premiere_annee.png} % Exemple
-  %   \caption{Planification des Sprints}
-  % \end{figure}
+\begin{frame}{Équipe et Méthodologie}
+  \frametitle{Notre Organisation}
+    \textbf{Équipe :} 4 élèves-ingénieurs EIGSI
+    \begin{itemize}
+        \item 3 x Supply Chain \& Transport International (Besoin fonctionnel, pertinence métier)
+        \item 1 x IA \& Bases de Données (Aspects techniques, IA/prédictif)
+    \end{itemize}
+    \vfill
+    \textbf{Méthodologie :}
+    \begin{itemize}
+        \item Approche \textbf{Agile légère} (inspirée Scrum/Kanban).
+        \item Itératif et incrémental.
+        \item Sprints thématiques (Année 1 : Conception).
+        \item Tableau de suivi (Trello), Réunions régulières, Git (GitHub).
+    \end{itemize}
 \end{frame}
 
-% --- Section 5 : Conclusion ---
+\begin{frame}{Planification et État d'Avancement}
+  \frametitle{Où en Sommes-Nous ?}
+  \textbf{Planification Année 1 (Conception) :}
+  \begin{itemize}
+    \item Sprints 1-2 : Cadrage, Recherche VSM & Concurrents.
+    \item Sprint 3 : Besoins Fonctionnels & Cas d'Usage.
+    \item Sprint 4 : Exigences Non-Fonctionnelles & Wireframes.
+    \item Sprint 5 : Architecture Système & Choix Technos.
+    \item Sprint 6 : Mockups & Modèle de Données.
+    \item Sprint 7 : Finalisation Documentation Conception.
+    \item Sprints 8-9 : Préparation Rapport Mi-Parcours.
+  \end{itemize}
+  \vfill
+  \textbf{État d'Avancement (Mai 2025) :}
+  \begin{itemize}
+    \item Phase de conception (Sprints 1-7) \textbf{terminée}.
+    \item Dossier de conception détaillé produit (exigences, archi, UI/UX, modèle données).
+    \item Prêts pour la phase de développement (Année 2).
+  \end{itemize}
+  % Optionnel : Ajouter image Gantt/Sprints
+  % \begin{figure} \includegraphics[width=0.8\textwidth]{../images/sprints_premiere_annee.png} \end{figure}
+\end{frame}
+
+% --- Section 6 : Prochaines Étapes & Vision ---
+\section{Prochaines Étapes & Vision}
+
+\begin{frame}{Prochaines Étapes}
+  \frametitle{Vers la Réalisation}
+  \textbf{Finalisation Année 1 :}
+  \begin{itemize}
+    \item Finalisation et soumission du Rapport Mi-Parcours.
+    \item Validation finale du dossier de conception.
+  \end{itemize}
+  \vfill
+  \textbf{Préparation Année 2 (Développement) :}
+  \begin{itemize}
+    \item Confirmation choix technologiques.
+    \item Préparation du backlog initial pour le développement.
+  \end{itemize}
+  \vfill
+  \textbf{Objectifs Année 2 :}
+  \begin{itemize}
+    \item Développement itératif des fonctionnalités (éditeur, calculs, simulation, IA...).
+    \item Tests et validation.
+    \item Livraison d'une version fonctionnelle de VSM-Tools.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Vision Future de VSM-Tools}
+  \frametitle{Opportunités d'Évolution}
+  \begin{itemize}
+    \item \textbf{Intégrations poussées :} Connecteurs standards vers ERP/MES pour import auto des données.
+    \item \textbf{Collaboration renforcée :} Fonctionnalités temps réel, gestion de versions, partage/commentaires améliorés.
+    \item \textbf{Accessibilité et déploiement flexible :} Offre Cloud / SaaS.
+    \item \textbf{Capitalisation des connaissances :} Bibliothèque de modèles VSM sectoriels, base de bonnes pratiques Lean intégrée.
+  \end{itemize}
+\end{frame}
+
+% --- Section 7 : Conclusion ---
 \section{Conclusion}
 
-\begin{frame}{Conclusion et Perspectives}
+\begin{frame}{Conclusion}
+  \frametitle{Synthèse et Perspectives}
   \begin{itemize}
-    \item Rappel des objectifs atteints à mi-parcours.
-    \item Confirmation de la faisabilité du projet.
-    \item Potentiel de l'outil VSM-Tools.
-    \item Questions ?
+    \item VSM : Outil clé mais limité par les méthodes traditionnelles.
+    \item VSM-Tools : Solution dédiée, intuitive et \textbf{analytiquement puissante}.
+    \item Bénéfices : Gain de temps, analyse approfondie (simulation, prédiction), aide à la décision.
+    \item Positionnement : Complémentaire aux ERP/MES, focalisé sur l'optimisation des flux.
+    \item Projet : Phase de conception terminée, prêt pour le développement.
+    \item Vision : Intégrations, collaboration, accessibilité, capitalisation.
   \end{itemize}
-
-  % Suggestion Visuelle : Business Model Canvas ou un VSM état futur simplifié
-  % \begin{figure}
-  %   \includegraphics[width=0.6\textwidth]{../images/business_model_canvas.png}
-  % \end{figure}
+  \vfill
+  \textit{VSM-Tools : Un levier pour accélérer l'excellence opérationnelle.}
 \end{frame}
 
 % --- Diapositive de fin ---
 \begin{frame}
   \centering
   {\Huge Merci de votre attention}
-  \vspace{1cm} % Changed \[1cm] to \vspace{1cm}
+  \vspace{1cm}
   {\large Questions ?}
 \end{frame}
 
