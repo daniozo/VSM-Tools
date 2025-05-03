@@ -1,0 +1,178 @@
+\documentclass{beamer}
+
+% --- Thème ---
+% Vous pouvez choisir parmi de nombreux thèmes. Exemples : Madrid, Berlin, Warsaw, Montpellier, etc.
+% Essayez différents thèmes pour voir celui qui vous plaît le plus.
+\usetheme{Madrid}
+% Vous pouvez aussi choisir des thèmes de couleurs, par exemple : dolphin, orchid, whale, beaver
+\usecolortheme{default}
+
+% --- Packages utiles ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{graphicx} % Pour inclure des images
+\usepackage{amsmath} % Pour les maths
+\usepackage{booktabs} % Pour de jolis tableaux
+\usepackage{hyperref} % Pour les liens
+\usepackage{xurl}     % Pour mieux couper les URLs
+
+% --- Informations pour la page de titre ---
+\title[VSM-Tools Mi-Parcours]{Développement d'une application VSM-Tools}
+\subtitle{Présentation de Mi-Parcours}
+\author{Nom Membre 1 \and Nom Membre 2 \and Nom Membre 3 \and Nom Membre 4}
+\institute{EIGSI} % Nom de votre institution
+\date{3 Mai 2025} % Date de la présentation
+
+% --- Logo (optionnel, dépend du thème) ---
+% Placez votre logo ici si le thème le supporte bien (Madrid le fait)
+\logo{\includegraphics[height=1cm]{../images/logo_eigsi.png}} % Ajustez height si besoin
+
+\begin{document}
+
+% --- Page de Titre ---
+\begin{frame}
+  \titlepage % Affiche la page de titre configurée ci-dessus
+\end{frame}
+
+% --- Table des Matières (optionnel) ---
+\begin{frame}{Plan de la présentation}
+  \tableofcontents % Génère automatiquement la table des matières basée sur les sections/sous-sections
+\end{frame}
+
+% --- Section 1 : Introduction & Contexte ---
+\section{Introduction et Contexte}
+
+\begin{frame}{Contexte du projet}
+  \frametitle{Pourquoi VSM-Tools ?} % Titre de la diapositive
+
+  \begin{itemize}
+    \item Importance de l'optimisation des flux de valeur (VSM).
+    \item Limites des outils actuels (Excel, papier, logiciels complexes).
+    \item Objectif : Créer un outil dédié, simple et puissant.
+  \end{itemize}
+
+  % Suggestion Visuelle : Pyramide d'automatisation ou schéma VSM générique
+  % \begin{figure}
+  %   \includegraphics[width=0.7\textwidth]{../images/automation_pyramide.png}
+  %   \caption{Positionnement de VSM dans l'industrie.}
+  % \end{figure}
+\end{frame}
+
+\begin{frame}{Objectifs du projet}
+  \begin{itemize}
+    \item Développer une application web/desktop pour la modélisation VSM.
+    \item Permettre le calcul automatique d'indicateurs clés.
+    \item Faciliter l'identification des goulots d'étranglement.
+    \item Offrir une interface utilisateur intuitive.
+    % Ajoutez d'autres objectifs spécifiques
+  \end{itemize}
+\end{frame}
+
+% --- Section 2 : Travail Réalisé ---
+\section{Travail Réalisé}
+
+\begin{frame}{Architecture et Technologies}
+  \frametitle{Choix Techniques}
+
+  \begin{columns}[T] % Divise la diapo en colonnes
+    \begin{column}{0.5\textwidth} % Première colonne
+      \textbf{Frontend:}
+      \begin{itemize}
+        \item React / TypeScript
+        \item Vite
+        \item Tailwind CSS
+        \item Zustand (ou autre gestionnaire d'état)
+      \end{itemize}
+      \textbf{Backend/Desktop:}
+      \begin{itemize}
+        \item Electron
+        \item Node.js
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.5\textwidth} % Deuxième colonne
+      \textbf{Visualisation:}
+      \begin{itemize}
+        \item Librairie de diagrammes (Ex: React Flow, GoJS, etc. - à préciser)
+      \end{itemize}
+       % Suggestion Visuelle : Diagramme d'architecture simplifié
+       % \begin{figure}
+       %   \includegraphics[width=\textwidth]{../images/architecture_diagram.png} % Mettez le bon chemin
+       % \end{figure}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Fonctionnalités Implémentées}
+  \begin{itemize}
+    \item Création/Sauvegarde/Chargement de cartes VSM.
+    \item Palette d'éléments VSM (Processus, Stock, Transport...).
+    \item Éditeur graphique (glisser-déposer, connexion).
+    \item Panneau de propriétés pour les éléments.
+    % Listez les fonctionnalités clés déjà développées
+  \end{itemize}
+
+  % Suggestion Visuelle : Capture d'écran de l'interface principale
+  % \begin{figure}
+  %   \includegraphics[width=\textwidth]{../images/img_4.png} % Mettez une capture pertinente
+  % \end{figure}
+\end{frame}
+
+% --- Section 3 : Démonstration (Optionnel) ---
+% \section{Démonstration}
+% \begin{frame}{Démonstration Live}
+%   % Prévoyez une diapo pour annoncer la démo si vous en faites une
+%   Points clés à montrer :
+%   \begin{itemize}
+%     \item Création d'un processus simple.
+%     \item Ajout d'indicateurs.
+%     \item Sauvegarde.
+%   \end{itemize}
+% \end{frame}
+
+% --- Section 4 : Prochaines Étapes ---
+\section{Prochaines Étapes}
+
+\begin{frame}{Planification}
+  \frametitle{Travail à venir}
+  \begin{itemize}
+    \item Implémentation du calcul des indicateurs (Lead Time, Takt Time...).
+    \item Finalisation de l'interface utilisateur.
+    \item Ajout de fonctionnalités d'analyse (détection goulots).
+    \item Tests et débogage.
+    \item Rédaction de la documentation finale.
+  \end{itemize}
+
+  % Suggestion Visuelle : Diagramme de Gantt ou liste des sprints restants
+  % \begin{figure}
+  %   \includegraphics[width=0.8\textwidth]{../images/sprints_premiere_annee.png} % Exemple
+  %   \caption{Planification des Sprints}
+  % \end{figure}
+\end{frame}
+
+% --- Section 5 : Conclusion ---
+\section{Conclusion}
+
+\begin{frame}{Conclusion et Perspectives}
+  \begin{itemize}
+    \item Rappel des objectifs atteints à mi-parcours.
+    \item Confirmation de la faisabilité du projet.
+    \item Potentiel de l'outil VSM-Tools.
+    \item Questions ?
+  \end{itemize}
+
+  % Suggestion Visuelle : Business Model Canvas ou un VSM état futur simplifié
+  % \begin{figure}
+  %   \includegraphics[width=0.6\textwidth]{../images/business_model_canvas.png}
+  % \end{figure}
+\end{frame}
+
+% --- Diapositive de fin ---
+\begin{frame}
+  \centering
+  {\Huge Merci de votre attention}
+  \[1cm]
+  {\large Questions ?}
+\end{frame}
+
+\end{document}
