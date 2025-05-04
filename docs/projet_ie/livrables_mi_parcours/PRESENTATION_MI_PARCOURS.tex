@@ -14,7 +14,7 @@
 % --- Packages utiles ---
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage[frenchb]{babel} % Changed 'french' to 'frenchb'
+\usepackage[french, provide=*]{babel} % Pour la typographie française et les noms (Table des matières, Figure)
 \usepackage{graphicx} % Pour inclure des images
 \usepackage{amsmath} % Pour les maths
 \usepackage{booktabs} % Pour de jolis tableaux
@@ -30,6 +30,8 @@
         ZOUGOU TOVIGNON Comlan Daniel}
 \institute{EIGSI} % Nom de votre institution
 \date{} % Date de la présentation
+
+\setbeamertemplate{footline}{} % Supprime la ligne de pied de page
 
 \begin{document}
 
@@ -53,10 +55,32 @@
   \frametitle{Le Value Stream Mapping : Visualiser pour Optimiser}
   \begin{itemize}
     \item Méthode visuelle (Lean Management).
-    \item Cartographie des flux (matière, information) : Fournisseur $\rightarrow$ Client.
+    \item Cartographie des flux (matière, information) : \\ Fournisseur $\rightarrow$ Client.
     \item Objectif : Identifier valeur ajoutée vs gaspillages.
     \item Image claire du processus actuel.
   \end{itemize}
+\end{frame}
+
+\begin{frame}{Exemples de Value Stream Mapping}
+  \frametitle{Du VSM État Actuel au VSM État Futur}
+  \begin{columns}[c] % Centrage vertical des colonnes
+    \begin{column}{0.45\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{../images/vsm_etat_actuel}
+      \textbf{État Actuel}
+    \end{column}
+
+    \begin{column}{0.1\textwidth}
+      \centering
+      \LARGE{$\Rightarrow$} % Flèche entre les images
+    \end{column}
+
+    \begin{column}{0.45\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{../images/vsm_etat_futur}
+      \textbf{État Futur}
+    \end{column}
+  \end{columns}
 \end{frame}
 
 \begin{frame}{Importance et Bénéficiaires du VSM}
@@ -105,10 +129,10 @@
 \begin{frame}{Proposition de Valeur}
   \frametitle{Les Bénéfices Concrets de VSM-Tools}
   \begin{itemize}
-    \item<1-> \textbf{Gain de temps :} Création rapide, calculs auto (LT, \%VA...). % LT = Lead Time
-    \item<2-> \textbf{Analyse approfondie :} Goulots, gaspillages, simulation \textit{what-if}, prédictif, suggestions.
-    \item<3-> \textbf{Collaboration facilitée :} Partage aisé.
-    \item<4-> \textbf{Décisions éclairées :} Basées sur données, scénarios, prédictions.
+    \item \textbf{Gain de temps :} Création rapide, calculs auto (LT, \%VA\ldots). % LT = Lead Time
+    \item \textbf{Analyse approfondie :} Goulots, gaspillages, simulation \textit{what-if}, prédictif, suggestions.
+    \item \textbf{Collaboration facilitée :} Partage aisé.
+    \item \textbf{Décisions éclairées :} Basées sur données, scénarios, prédictions.
   \end{itemize}
 \end{frame}
 
@@ -116,12 +140,12 @@
   \frametitle{Comment VSM-Tools se Distingue ?}
   \textbf{Panorama :} Outils dessin (Visio), Modules intégrés (ERP/PLM), Outils spécialisés (Simcad).
   \vfill
-  \textbf{Atouts VSM-Tools :}
+  \textbf{Atouts de VSM-Tools :}
   \begin{itemize}
     \item \textbf{Équilibre :} Simplicité + Puissance d'analyse.
     \item \textbf{Calculs dynamiques intégrés} (LT, Takt, \%VA...). % LT = Lead Time
     \item \textbf{Analyse avancée :} Simulation, Prédictif, Suggestions.
-    \item Connectivité données (potentielle).
+    \item Connectivité données.
     \item Modularité.
   \end{itemize}
 \end{frame}
@@ -134,7 +158,7 @@
   \small % Reduce font size slightly for this slide
   \begin{enumerate}
     \item \textbf{Modélisation visuelle :} Glisser-déposer symboles VSM, connexion flux.
-    \item \textbf{Enrichissement données :} Panneau dédié (temps, opérateurs, stocks...). 
+    \item \textbf{Enrichissement données :} Panneau dédié (temps, opérateurs, stocks\ldots).
     \item \textbf{Analyse guidée :} Calculs auto (indicateurs, timeline), mise en évidence goulots, \textit{prédictif \& suggestions}.
     \item \textbf{Conception état futur :} Duplication carte, modélisation améliorations, simulation \textit{what-if}.
     \item \textbf{Communication :} Exports (PDF, image).
@@ -156,7 +180,7 @@
         \item Pilotage (MES)
         \item Supervision (SCADA)
         \item Contrôle (PLC)
-        \item Terrain (Capteurs)
+        \item Terrain (Capteurs, Actionneurs)
       \end{itemize}
       \vfill
       \textbf{Position VSM-Tools :}
@@ -165,59 +189,59 @@
         \item Utilise données ERP/MES.
         \item Influence stratégie (ERP) \& guide actions (MES).
         \item Focus : \textbf{Amélioration processus}.
-      \end{itemize>
+      \end{itemize}
     \end{column}
     \begin{column}{0.4\textwidth}
-      \begin{figure>
-        \includegraphics[width=\textwidth]{../images/automation_pyramide.png}
+      \begin{figure}
+        \includegraphics[width=\textwidth]{../images/automation_pyramide}
         % \caption{Pyramide d'Automatisation}
-      </figure>
-    </end{column}
-  \end{columns>
-</end{frame>
+      \end{figure}
+    \end{column}
+  \end{columns}
+\end{frame}
 
 \begin{frame}{Synergies Potentielles}
   \frametitle{Interactions avec les Systèmes Existants}
-  \begin{itemize>
+  \begin{itemize}
     \item \textbf{Alimentation données :} Depuis MES/ERP $\rightarrow$ VSM actuel précis \& rapide.
     \item \textbf{Orientation actions :} Objectifs VSM (simulations, prédictions) $\rightarrow$ Paramétrage MES/ERP.
     \item \textbf{Complémentarité :}
-    \begin{itemize>
+    \begin{itemize}
         \item VSM-Tools : Comprendre, analyser, concevoir.
         \item MES/SCADA : Exécuter, contrôler.
         \item ERP : Gérer globalement.
-    \end{itemize>
+    \end{itemize}
     \item \textit{Boucle : Analyse $\rightarrow$ Action $\rightarrow$ Données $\rightarrow$ Analyse.}
-  \end{itemize>
-</end{frame>
+  \end{itemize}
+\end{frame}
 
 % --- Section 5 : Management de Projet & Avancement ---
 \section{Management de Projet \& Avancement}
 
 \begin{frame}{Équipe et Méthodologie}
-  \frametitle{Notre Organisation}
+  \frametitle{Notre Équipe}
     \textbf{Équipe :} 4 élèves-ingénieurs EIGSI
     \small
-    \begin{itemize>
+    \begin{itemize}
         \item 3 x Supply Chain \& Transport Intl. (Besoin fonctionnel, métier)
-        \item 1 x IA \& Bases de Données (Technique, IA/prédictif)
-    </itemize>
+        \item 1 x IA \& Big Data (Technique, IA/prédictif)
+    \end{itemize}
     \normalsize
     \vfill
     \textbf{Méthodologie :}
-    \begin{itemize>
+    \begin{itemize}
         \item \textbf{Agile} (inspirée Scrum/Kanban).
         \item Itératif et incrémental.
         \item Sprints thématiques (Année 1 : Conception).
         \item Outils : Trello, Réunions, GitHub.
-    \end{itemize>
-</end{frame>
+    \end{itemize}
+\end{frame}
 
 \begin{frame}{Planification et État d'Avancement}
   \frametitle{Où en Sommes-Nous ?}
   \textbf{Planification Année 1 (Conception) :}
   \small
-  \begin{itemize>
+  \begin{itemize}
     \item Sprints 1-2 : Cadrage, Recherche.
     \item Sprint 3 : Besoins Fonctionnels.
     \item Sprint 4 : Exigences Non-Fonctionnelles, Wireframes.
@@ -225,32 +249,32 @@
     \item Sprint 6 : Mockups, Modèle Données.
     \item Sprint 7 : Finalisation Doc Conception.
     \item Sprints 8-9 : Rapport Mi-Parcours.
-  \end{itemize>
+  \end{itemize}
   \normalsize
   \vfill
   \textbf{État d'Avancement (Mai 2025) :}
-  \begin{itemize>
+  \begin{itemize}
     \item Phase conception (Sprints 1-7) \textbf{terminée}.
     \item Dossier de conception détaillé produit.
     \item Prêts pour développement (Année 2).
-  \end{itemize>
+  \end{itemize}
   % Optionnel : Ajouter image Gantt/Sprints
-  % \begin{figure> \includegraphics[width=0.7\textwidth]{../images/sprints_premiere_annee.png} </figure>
-</end{frame>
+  % \begin{figure} \includegraphics[width=0.7\textwidth]{../images/sprints_premiere_annee.png} \end{figure}
+\end{frame}
 
 % --- Section 6 : Défis et Limites ---
 \section{Défis et Limites}
 
 \begin{frame}{Défis et Limites Actuelles}
   \frametitle{Points de Vigilance}
-  \begin{itemize>
+  \begin{itemize}
     \item \textbf{Qualité des données :} Pertinence des analyses liée à la fiabilité des données d'entrée.
     \item \textbf{Outil vs Méthodologie :} VSM-Tools facilite, mais ne remplace pas la compréhension Lean/VSM.
     \item \textbf{Expertise pour fonctions avancées :} Simulation/prédictif demandent une interprétation correcte.
     \item \textbf{Conduite du changement :} Nécessité d'accompagner l'adoption par les équipes.
     \item \textbf{Périmètre fonctionnel actuel :} Intégrations systèmes et collaboration temps réel sont des évolutions futures.
-  \end{itemize>
-</end{frame>
+  \end{itemize}
+\end{frame}
 
 % --- Section 7 : Modèle Économique ---
 \section{Modèle Économique}
@@ -261,31 +285,30 @@
   % Optionnel: Ajouter une phrase d'introduction si désiré
   % \textit{Synthèse de la stratégie via le Business Model Canvas :}
   \vspace{0.5cm} % Ajoute un petit espace vertical
-  \includegraphics[width=0.9\textwidth]{../images/business_model_canvas.png}
+  \includegraphics[width=0.9\textwidth]{../images/business_model_canvas}
   \label{fig:bmc_pres}
-</end{frame>
+\end{frame}
 
 % --- Section 8 : Conclusion ---
 \section{Conclusion}
 
 \begin{frame}{Conclusion}
   \frametitle{Synthèse et Perspectives}
-  \begin{itemize>
+  \begin{itemize}
     \item VSM : Outil clé, mais méthodes trad. limitées.
     \item VSM-Tools : Solution dédiée, intuitive, \textbf{analytiquement puissante}.
     \item Bénéfices : Temps, analyse (simu, prédictif), décision.
     \item Positionnement : Complémentaire ERP/MES, focus optimisation flux.
     \item Projet : Conception terminée, prêt pour dev.
     \item Vision : Intégrations, collaboration, SaaS, capitalisation.
-  \end{itemize>
-\end{frame>
+  \end{itemize}
+\end{frame}
 
 % --- Diapositive de fin ---
-\begin{frame>
+\begin{frame}
   \centering
   {\Huge Merci de votre attention}
   \vspace{1cm}
-  {\large Questions ?}
-</end{frame>
+\end{frame}
 
-\end{document>
+\end{document}
