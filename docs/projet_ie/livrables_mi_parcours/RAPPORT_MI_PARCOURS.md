@@ -225,7 +225,7 @@ L'ensemble de ces éléments est synthétisé dans le Business Model Canvas ci-d
 L'équipe projet est constituée de quatre élèves-ingénieurs de l'EIGSI, partageant un objectif commun mais apportant des expertises complémentaires :
 
 *   **Trois élèves-ingénieurs spécialisés en Supply Chain & Transport International :** Leur connaissance des processus industriels, des enjeux logistiques et des méthodologies d'amélioration continue (dont le VSM) est cruciale pour définir les besoins fonctionnels de l'outil, valider sa pertinence métier et orienter sa conception afin qu'il réponde aux attentes concrètes des utilisateurs finaux. Ils sont les garants de l'adéquation de la solution aux problématiques terrain.
-*   **Un élève-ingénieur spécialisé en Intelligence Artificielle et Bases de Données (IABD) :** Responsable des aspects techniques du projet (conception de l'architecture logicielle, choix technologiques, conception des fonctionnalités avancées IA/prédictives, gestion des données, coordination technique).
+*   **Un élève-ingénieur spécialisé en Intelligence Artificielle et Big Data :** Responsable des aspects techniques du projet (conception de l'architecture logicielle, choix technologiques, conception des fonctionnalités avancées IA/prédictives, gestion des données, coordination technique).
 
 **Mode de travail et collaboration :**
 L'équipe fonctionne de manière collaborative. Les décisions importantes concernant l'orientation du projet, les fonctionnalités majeures et la validation des étapes clés sont prises collectivement. Des réunions sont organisées pour synchroniser l'avancement. La communication est assurée via WhatsApp. La documentation et le suivi des tâches sont gérés via Trello et un dépôt Git partagé (GitHub).
