@@ -253,7 +253,7 @@ Cette approche permet de structurer le travail de conception tout en conservant 
     *   **Sprint 4 : Exigences Non-Fonctionnelles & Conception UI/UX (Wireframes) :** Contraintes techniques, maquettes basse fidélité, flux de navigation.
     *   **Sprint 5 : Conception Architecture Système & Choix Technologiques :** Architecture logicielle, justification choix technologiques, modules principaux.
     *   **Sprint 6 : Conception UI/UX (Mockups) & Modèle de Données :** Maquettes haute fidélité, structure des données VSM (JSON/TypeScript), API Electron.
-    *   **Sprint 7 : Finalisation Documentation de Conception :** Consolidation et validation des documents (`SYSTEME_DESIGN.md`, `INTERFACE_UTILISATEUR.md`, exigences).
+    *   **Sprint 7 : Finalisation Documentation de Conception :** Consolidation et validation des documents (`SYSTEM_DESIGN.md`, `INTERFACE_UTILISATEUR.md`, exigences).
     *   **Sprint 8 & 9 : Préparation & Rédaction Rapport Mi-Parcours :** Compilation du travail, rédaction, relecture et finalisation du présent rapport.
     *   *Objectif fin Année 1 :* Produire un dossier de conception complet et validé.
 
@@ -270,8 +270,8 @@ Cette section présente les principales actions réalisées depuis le lancement 
 La première partie de l'année a été consacrée à la construction des fondations analytiques et conceptuelles de VSM-Tools :
 *   **Cadrage et Recherche (Sprints 1 & 2) :** Le périmètre du projet a été défini, les rôles établis, et une recherche approfondie sur la méthodologie VSM et les outils concurrents a été menée. Les synthèses correspondantes (`vsm_et_indicateurs.md`, analyse concurrentielle dans Section 3) ont été produites.
 *   **Définition des Besoins (Sprint 3) :** Les personas utilisateurs et les cas d'usage clés ont été identifiés, menant à une première liste d'exigences fonctionnelles détaillées.
-*   **Conception Initiale (Sprints 4 & 5) :** Les exigences non-fonctionnelles ont été listées. La conception de l'interface utilisateur a débuté avec la création de wireframes (`INTERFACE_UTILISATEUR.md`). L'architecture système globale et les choix technologiques principaux ont été définis et documentés (`SYSTEME_DESIGN.md`).
-*   **Conception Détaillée (Sprints 6 & 7) :** Les maquettes haute fidélité (mockups) ont été créées, affinant la vision de l'interface utilisateur. Le modèle de données précis pour les cartes VSM et l'API Electron a été spécifié. La documentation de conception (`SYSTEME_DESIGN.md`, `INTERFACE_UTILISATEUR.md`) a été consolidée.
+*   **Conception Initiale (Sprints 4 & 5) :** Les exigences non-fonctionnelles ont été listées. La conception de l'interface utilisateur a débuté avec la création de wireframes (`INTERFACE_UTILISATEUR.md`). L'architecture système globale et les choix technologiques principaux ont été définis et documentés (`SYSTEM_DESIGN.md`).
+*   **Conception Détaillée (Sprints 6 & 7) :** Les maquettes haute fidélité (mockups) ont été créées, affinant la vision de l'interface utilisateur. Le modèle de données précis pour les cartes VSM et l'API Electron a été spécifié. La documentation de conception (`SYSTEM_DESIGN.md`, `INTERFACE_UTILISATEUR.md`) a été consolidée.
 
 **10.2. Résultats Obtenus**
 
@@ -330,5 +330,5 @@ En synthèse, VSM-Tools vise à rendre la démarche VSM plus accessible, rapide,
 
 ### Annexe C : Exemple de Plan d'Action issu de l'analyse VSM
 
-![Exemple de Plan d'Action issu de l'analyse VSM](images/plan_daction.png)
+![Exemple de Plan d'Action issu de l'analyse VSM](images/plan_daction_vsm.png)
 
