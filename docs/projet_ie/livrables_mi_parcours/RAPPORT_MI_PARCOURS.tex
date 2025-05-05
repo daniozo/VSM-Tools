@@ -9,6 +9,7 @@
 \usepackage{amssymb} % Pour les symboles mathématiques si nécessaire
 \usepackage{enumitem} % Pour personnaliser les listes
 \usepackage{float} % Pour un meilleur contrôle du placement des flottants (figures, tables)
+\usepackage{natbib} % Pour la bibliographie
 \usepackage{xurl} % Pour une meilleure coupure de ligne des URLs
 
 \geometry{a4paper, left=2.5cm, right=2.5cm, top=2.5cm, bottom=2.5cm} % Définir les marges
@@ -419,5 +420,14 @@ En synthèse, VSM-Tools vise à rendre la démarche VSM plus accessible, rapide,
     \caption{Dossier de documentation}
     \label{fig:documentation}
 \end{figure}
+
+
+\nocite{github_vsmtools}
+
+% Bibliographie
+\newpage
+\section{Références}
+\bibliographystyle{plainnat}  % Style de bibliographie
+\bibliography{bibliographie}  % Nom du fichier .bib sans extension
 
 \end{document}
