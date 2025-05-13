@@ -11,6 +11,8 @@
 \usepackage{float} % Pour un meilleur contrôle du placement des flottants (figures, tables)
 \usepackage{natbib} % Pour la bibliographie
 \usepackage{xurl} % Pour une meilleure coupure de ligne des URLs
+\usepackage{csquotes} % For smart quotes
+\usepackage{textcomp} % For symbols like \textregistered
 
 \geometry{a4paper, left=2.5cm, right=2.5cm, top=2.5cm, bottom=2.5cm} % Définir les marges
 
@@ -31,12 +33,12 @@
     \centering % Centre tout le contenu de la page de garde
 
     % Logo de l'école
-    \includegraphics[width=0.3\textwidth]{../../images/logo_eigsi.png}\vspace{2cm} % Ajustez la taille et l'espacement si nécessaire
+    \includegraphics[width=0.3\textwidth]{../../../images/logo_eigsi.png}\vspace{3cm} % Ajustez la taille et l'espacement si nécessaire
 
     % Titre du rapport
     {\LARGE \bfseries Développement d'une application de visualisation des flux de production pour identifier les goulots d'étranglement et optimiser les performances industrielles}\vspace{1.5cm}
 
-    {\Large Rapport de mi-parcours}\vspace{2cm}
+    {\Large Rapport de mi-parcours}\vspace{3cm}
 
     % Membres de l'équipe
     {\large \textbf{Membres de l'équipe :}}\vspace{0.5cm} \\
@@ -48,10 +50,10 @@
     % Encadrants
     {\large \textbf{Encadrants :}}\vspace{0.5cm} \\
     ERROUSSO Hanae \\
-    BAROUD Sohaib \vspace{2cm}
+    BAROUD Sohaib \vspace{3cm}
 
-    % Date
-    {\large 1er mai 2025}
+    % Année académique
+    {\large Année académique : 2024 - 2025}
 
     \vfill % Pousse le contenu vers le haut et le bas si nécessaire
 
@@ -78,7 +80,7 @@ Dans un environnement économique où l'efficacité et la réactivité sont prim
 \end{itemize}
 
 \subsection{Place du VSM dans la démarche d'amélioration}
-Le VSM n'est pas une fin en soi, mais un \textbf{outil clé au cœur des démarches Lean}. Il sert de diagnostic initial pour comprendre où se situent les problèmes dans un flux de valeur. Les informations issues de la cartographie \og état actuel \fg{} permettent ensuite de concevoir un \og état futur \fg{} optimisé et de définir les plans d'actions concrets pour y parvenir. C'est un langage commun pour aligner les équipes autour des objectifs d'amélioration.
+Le VSM n'est pas une fin en soi, mais un \textbf{outil clé au cœur des démarches Lean}. Il sert de diagnostic initial pour comprendre où se situent les problèmes dans un flux de valeur. Les informations issues de la cartographie \enquote{état actuel} permettent ensuite de concevoir un \enquote{état futur} optimisé et de définir les plans d'actions concrets pour y parvenir. C'est un langage commun pour aligner les équipes autour des objectifs d'amélioration.
 
 \subsection{Qui bénéficie du VSM ?}
 La démarche VSM concerne de nombreux acteurs au sein d'une organisation :
@@ -113,7 +115,7 @@ VSM-Tools aspire à devenir \textbf{un outil de référence pour une cartographi
 L'utilisation de VSM-Tools apporte directement les bénéfices suivants :
 \begin{itemize}
     \item \textbf{Gain de temps significatif} : La création et la mise à jour des VSM sont significativement accélérées. Les calculs des indicateurs clés (temps de cycle, délai total, taux de valeur ajoutée...) sont automatisés.
-    \item \textbf{Analyse approfondie et aide à la décision} : L'outil permet d'aller au-delà de la simple cartographie. Il identifie rapidement les goulots d'étranglement et les gaspillages grâce à la visualisation claire et aux indicateurs. Il est possible de \textbf{simuler l'impact de changements} (\og what-if \fg{}), d'\textbf{anticiper les problèmes potentiels} grâce à des éléments prédictifs, et de recevoir des \textbf{suggestions d'optimisation} pour guider les choix d'amélioration.
+    \item \textbf{Analyse approfondie et aide à la décision} : L'outil permet d'aller au-delà de la simple cartographie. Il identifie rapidement les goulots d'étranglement et les gaspillages grâce à la visualisation claire et aux indicateurs. Il est possible de \textbf{simuler l'impact de changements} (\enquote{what-if}), d'\textbf{anticiper les problèmes potentiels} grâce à des éléments prédictifs, et de recevoir des \textbf{suggestions d'optimisation} pour guider les choix d'amélioration.
     \item \textbf{Collaboration facilitée} : Les cartographies et analyses peuvent être facilement partagées avec les équipes, favorisant ainsi une compréhension commune des flux et un alignement sur les actions d'amélioration.
     \item \textbf{Décisions éclairées et robustes} : Les stratégies d'optimisation peuvent être basées non seulement sur l'état actuel, mais aussi sur l'évaluation de scénarios futurs et l'analyse prédictive fournie par l'outil.
 \end{itemize}
@@ -139,8 +141,8 @@ Plusieurs types d'outils sont couramment utilisés :
     \end{itemize}
     \item \textbf{Les outils VSM spécialisés} :
     \begin{itemize}
-        \item \textit{Exemples} : Simcad Pro, visTABLE®.
-        \item \textit{Caractéristiques} : Conçus spécifiquement pour le VSM, ils intègrent souvent des calculs et parfois des simulations avancées (simulation dynamique, optimisation \og what-if \fg{} pour Simcad Pro ; cartographie automatisée et calculs intégrés pour visTABLE®).
+        \item \textit{Exemples} : Simcad Pro, visTABLE\textregistered{}.
+        \item \textit{Caractéristiques} : Conçus spécifiquement pour le VSM, ils intègrent souvent des calculs et parfois des simulations avancées (simulation dynamique, optimisation \enquote{what-if} pour Simcad Pro ; cartographie automatisée et calculs intégrés pour visTABLE\textregistered{}).
         \item \textit{Limites possibles} : Temps d'apprentissage parfois élevé (surtout pour les outils orientés simulation), coûts de licence potentiellement dissuasifs (notamment pour les PME), et un focus parfois trop marqué sur la simulation industrielle au détriment de la simplicité ou de l'adaptabilité à d'autres secteurs.
     \end{itemize}
 \end{itemize}
@@ -152,7 +154,7 @@ C’est dans cet écosystème que VSM-Tools apporte sa valeur ajoutée :
     \item \textbf{Calculs dynamiques et indicateurs clés} : L'outil calcule automatiquement les indicateurs Lean essentiels (lead time, takt time, taux de valeur ajoutée...) et génère la timeline, offrant une vision quantitative immédiate.
     \item \textbf{Capacités d'analyse avancées intégrées} : VSM-Tools va au-delà de la simple cartographie statique en intégrant nativement des fonctionnalités de :
     \begin{itemize}
-        \item \textbf{Simulation \og What-if \fg{}} : Pour évaluer l'impact de changements potentiels (modification de temps, ressources, flux...) sur les performances globales du flux.
+        \item \textbf{Simulation \enquote{What-if}} : Pour évaluer l'impact de changements potentiels (modification de temps, ressources, flux...) sur les performances globales du flux.
         \item \textbf{Analyse prédictive} : Pour anticiper les risques de goulots d'étranglement ou de déséquilibres futurs basés sur les données et les tendances.
         \item \textbf{Suggestions d'optimisation} : Pour guider l'utilisateur vers des pistes d'amélioration pertinentes identifiées par l'outil.
     \end{itemize}
@@ -174,10 +176,10 @@ Une fois la structure visuelle en place, l'étape suivante consiste à renseigne
 C'est ici que VSM-Tools révèle sa pleine valeur. Au fur et à mesure que les données sont saisies, l'outil calcule automatiquement les indicateurs clés (Lead Time, \%VA...) et génère la timeline dynamique. Mais l'analyse va plus loin : VSM-Tools met en évidence les goulots d'étranglement, les déséquilibres, et \textbf{fournit des éléments prédictifs} sur les risques potentiels du flux actuel. De plus, l'outil peut \textbf{générer des suggestions d'optimisation} basées sur les données et les bonnes pratiques, orientant ainsi l'utilisateur vers les pistes d'amélioration les plus prometteuses.
 
 \subsection{Conception et simulation de l'état futur}
-Après avoir analysé l'état actuel, l'objectif est de définir un état amélioré. VSM-Tools facilite cette étape en permettant de dupliquer la carte \og état actuel \fg{}. L'utilisateur peut alors modifier cette nouvelle carte pour modéliser les améliorations. Crucialement, il peut ensuite utiliser les \textbf{fonctionnalités de simulation \og what-if \fg{}} pour tester l'impact de ces changements (ajustement de temps, ressources, flux...) non seulement sur les indicateurs statiques, mais aussi sur la robustesse et la dynamique potentielle du nouveau flux. Cela permet de valider plus finement l'efficacité des solutions proposées avant leur mise en œuvre réelle. (Voir Annexe \ref{sec:annexeB} et Annexe \ref{sec:annexeC})
+Après avoir analysé l'état actuel, l'objectif est de définir un état amélioré. VSM-Tools facilite cette étape en permettant de dupliquer la carte \enquote{état actuel}. L'utilisateur peut alors modifier cette nouvelle carte pour modéliser les améliorations. importantement, il peut ensuite utiliser les \textbf{fonctionnalités de simulation \enquote{what-if}} pour tester l'impact de ces changements (ajustement de temps, ressources, flux...) non seulement sur les indicateurs statiques, mais aussi sur la robustesse et la dynamique potentielle du nouveau flux. Cela permet de valider plus finement l'efficacité des solutions proposées avant leur mise en œuvre réelle. (Voir Annexe \ref{sec:annexeB} et Annexe \ref{sec:annexeC})
 
 \subsection{Communication et partage des résultats}
-Une fois l'analyse terminée et les états \og actuel \fg{} et \og futur \fg{} définis, il est essentiel de pouvoir communiquer les résultats. VSM-Tools permet d'exporter les cartographies et les indicateurs associés dans des formats standards (comme PDF ou image). Ces exports clairs et professionnels peuvent être facilement intégrés dans des rapports, des présentations ou partagés avec les différentes parties prenantes pour discuter des plans d'action.
+Une fois l'analyse terminée et les états \enquote{actuel} et \enquote{futur} définis, il est essentiel de pouvoir communiquer les résultats. VSM-Tools permet d'exporter les cartographies et les indicateurs associés dans des formats standards (comme PDF ou image). Ces exports clairs et professionnels peuvent être facilement intégrés dans des rapports, des présentations ou partagés avec les différentes parties prenantes pour discuter des plans d'action.
 
 Ce parcours utilisateur vise à rendre la démarche VSM plus structurée, plus rapide et plus orientée vers l'action, en s'appuyant sur la visualisation et les calculs automatiques.
 
@@ -195,7 +197,7 @@ La pyramide d'automatisation est un modèle classique qui hiérarchise les diff�
 
 \begin{figure}[H] % Utilisation de [H] du package float pour forcer la position ici
     \centering
-    \includegraphics[width=0.7\textwidth]{../../images/automation_pyramide.png}
+    \includegraphics[width=0.7\textwidth]{../../../images/automation_pyramide.png}
     \caption{Pyramide d'Automatisation}
     \label{fig:pyramide_auto}
 \end{figure}
@@ -213,9 +215,9 @@ VSM-Tools est donc un \textbf{outil focalisé sur la compréhension et l'amélio
 \subsection{Synergies et interactions potentielles}
 La véritable force de VSM-Tools peut être décuplée par ses interactions potentielles avec les autres systèmes :
 \begin{itemize}
-    \item \textbf{Alimentation en données} : Plutôt que de saisir toutes les données manuellement, VSM-Tools pourrait idéalement récupérer des données agrégées et fiabilisées depuis le MES (temps de cycle moyens, TRS, temps d'arrêt...) ou l'ERP (coûts standards, niveaux de stock moyens...). Cela rendrait la création de la VSM \og état actuel \fg{} plus rapide, plus précise et permettrait d'alimenter plus efficacement les modules d'analyse avancée.
+    \item \textbf{Alimentation en données} : Plutôt que de saisir toutes les données manuellement, VSM-Tools pourrait idéalement récupérer des données agrégées et fiabilisées depuis le MES (temps de cycle moyens, TRS, temps d'arrêt...) ou l'ERP (coûts standards, niveaux de stock moyens...). Cela rendrait la création de la VSM \enquote{état actuel} plus rapide, plus précise et permettrait d'alimenter plus efficacement les modules d'analyse avancée.
     \item \textbf{Orientation des actions et pilotage affiné} : L'analyse réalisée dans VSM-Tools (identification des goulots, définition de l'état futur), \textbf{enrichie par les simulations et les prédictions}, permet de fixer des objectifs plus robustes et précis (par exemple, objectifs de temps de cycle, niveaux de stock cibles, règles de priorisation...). Ces objectifs et règles peuvent ensuite être utilisés pour paramétrer ou piloter plus finement les systèmes MES et ERP, assurant un meilleur alignement entre l'analyse stratégique des flux et l'exécution opérationnelle.
-    \item \textbf{Complémentarité fondamentale} : Il ne s'agit pas de remplacer les systèmes existants. VSM-Tools sert à \textit{comprendre, analyser en profondeur et concevoir} les flux (diagnostic, simulation, prédiction, conception état futur), tandis que les MES/SCADA servent à \textit{exécuter et contrôler} les opérations au quotidien, et l'ERP à \textit{gérer} les ressources globalement. VSM-Tools apporte la vision \og flux \fg{} dynamique et l'intelligence analytique qui manquent souvent aux systèmes transactionnels.
+    \item \textbf{Complémentarité fondamentale} : Il ne s'agit pas de remplacer les systèmes existants. VSM-Tools sert à \textit{comprendre, analyser en profondeur et concevoir} les flux (diagnostic, simulation, prédiction, conception état futur), tandis que les MES/SCADA servent à \textit{exécuter et contrôler} les opérations au quotidien, et l'ERP à \textit{gérer} les ressources globalement. VSM-Tools apporte la vision \enquote{flux} dynamique et l'intelligence analytique qui manquent souvent aux systèmes transactionnels.
 \end{itemize}
 En intégrant VSM-Tools dans l'écosystème digital de l'entreprise, on crée une boucle vertueuse où l'analyse avancée des flux guide l'action opérationnelle, et les données opérationnelles nourrissent cette analyse pour une amélioration continue et informée.
 
@@ -272,17 +274,125 @@ L'ensemble de ces éléments est synthétisé dans le Business Model Canvas ci-d
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{../../images/business_model_canvas.png}
+    \includegraphics[width=0.9\textwidth]{../../../images/business_model_canvas.png}
     \caption{Business Model Canvas pour VSM-Tools}
     \label{fig:bmc}
 \end{figure}
+
+\section{Analyse des Coûts du Projet}
+\label{sec:analyse_couts}
+
+Cette section détaille les coûts associés au développement du projet VSM-Tools.
+
+\subsection{Coûts de Développement}
+Les coûts de développement englobent les ressources et les moyens nécessaires pour mener à bien la conception et la réalisation de l'application.
+
+\subsubsection{Ressources Humaines}
+Le principal investissement en ressources humaines pour ce projet réside dans le temps consacré par l'équipe de développement et l'encadrement.
+
+L'équipe est composée de quatre élèves-ingénieurs qui dédient une part de leur cursus à ce projet. Le volume horaire total planifié pour la réalisation du projet, incluant les phases de conception, de développement, les travaux collaboratifs et la préparation des livrables, est estimé à \textbf{1800 heures}.
+
+Deux enseignants assurent l'encadrement du projet, apportant leur expertise et guidant l'équipe. Bien que ce projet s'inscrive dans un cadre académique où ces contributions ne sont pas directement facturées comme dans une entreprise, il est important de reconnaître leur valeur.
+
+Dans un contexte commercial, ces 1800 heures de travail étudiant pourraient être valorisées sur la base d'un taux horaire pour des ingénieurs juniors ou consultants juniors. De même, le temps d'encadrement par des experts (les enseignants) représenterait un coût significatif. Pour cette simulation, nous n'attribuerons pas de valeur monétaire précise, mais il est important de considérer ce volume horaire comme le coût principal en ressources humaines si le projet était mené dans une structure commerciale.
+
+\subsubsection{Outils et Logiciels}
+Pour la réalisation de ce projet, l'équipe s'appuie sur un ensemble d'outils et de logiciels, majoritairement accessibles gratuitement ou via des programmes étudiants.
+
+\begin{itemize}
+    \item \textbf{Gestion de Projet :} Trello est utilisé pour le suivi des tâches et la gestion du flux de travail, dans sa version gratuite.
+    \item \textbf{Environnements de Développement Intégrés (IDE) :} Visual Studio Code (VSCode) est utilisé pour le développement et la documentation.
+    \item \textbf{Contrôle de Version :} Git est utilisé pour le contrôle de version, avec des dépôts hébergés sur GitHub (plan gratuit).
+    \item \textbf{Communication :} Des outils de messagerie instantanée (par exemple, WhatsApp) sont utilisés pour la communication interne de l'équipe (gratuit).
+    \item \textbf{Documentation :} La documentation est rédigée en Markdown et LaTeX, utilisant des éditeurs comme VSCode et des compilateurs LaTeX gratuits.
+    \item \textbf{GitHub Student Developer Pack :} Ce pack offre un accès à divers services qui pourraient être pertinents pour des phases ultérieures du projet, tels que des crédits pour des hébergeurs cloud, des noms de domaine, etc. Actuellement, ces offres ne sont pas activement utilisées pour des coûts directs, mais représentent une ressource de valeur.
+\end{itemize}
+
+Dans un contexte commercial, l'utilisation de versions professionnelles de ces outils (par exemple, Trello Business Class, licences commerciales pour les IDE si les versions communautaires ne suffisent pas, ou services cloud payants de GitHub) ainsi que l'acquisition de licences pour des logiciels spécifiques (outils de design avancés, bases de données spécifiques, etc.) représenteraient des coûts à budgétiser. Pour cette simulation, nous considérons ces coûts comme nuls grâce aux offres gratuites et étudiantes, mais ils seraient à prendre en compte dans un scénario d'entreprise.
+
+\subsubsection{Infrastructure}
+Pour la phase actuelle de conception et de développement initial, le projet ne requiert pas d'infrastructure de serveurs de test ou de déploiement dédiée engendrant des coûts directs. Le développement est effectué en local sur les postes des membres de l'équipe, et l'hébergement du code se fait via des dépôts Git gratuits (GitHub).
+
+Cependant, il est important d'anticiper que des coûts d'infrastructure pourraient survenir dans des phases ultérieures du projet, notamment :
+\begin{itemize}
+    \item \textbf{Hébergement Cloud :} Si l'application VSM-Tools était déployée en tant que service (SaaS), des coûts d'hébergement sur des plateformes cloud (AWS, Azure, Google Cloud, etc.) seraient à prévoir pour les serveurs d'application, les bases de données, et potentiellement le stockage de fichiers.
+    \item \textbf{Services CI/CD :} L'utilisation de services d'intégration continue et de déploiement continu (GitHub Actions avec des minutes de build payantes au-delà du quota gratuit) pourrait engendrer des coûts pour automatiser les tests et les déploiements.
+    \item \textbf{Noms de Domaine et Certificats SSL :} Bien que le GitHub Student Developer Pack puisse offrir des avantages initiaux, le renouvellement de noms de domaine et de certificats SSL pour une application en production représenterait un coût récurrent.
+\end{itemize}
+Pour la simulation actuelle, ces coûts d'infrastructure sont considérés comme nuls pour la phase de conception. Ils devront être estimés plus précisément si le projet évolue vers un déploiement commercial ou une offre de service en ligne.
+
+\subsection{Coûts Opérationnels Prévisionnels (Post-Développement)}
+Une fois l'application VSM-Tools développée et potentiellement commercialisée, plusieurs catégories de coûts opérationnels récurrents devraient être anticipées pour assurer sa pérennité et sa croissance :
+
+\begin{itemize}
+    \item \textbf{Hébergement (si modèle SaaS) :} Si VSM-Tools est proposé en tant que Software as a Service (SaaS), des coûts mensuels ou annuels d'hébergement sur une plateforme cloud (par exemple, AWS, Azure, Google Cloud) seront nécessaires. Ces coûts couvriront les serveurs d'application, les bases de données, le stockage des données utilisateurs, la bande passante, et potentiellement des services managés (authentification, équilibrage de charge, etc.). L'ampleur de ces coûts dépendra du nombre d'utilisateurs, du volume de données et de la complexité de l'infrastructure.
+
+    \item \textbf{Maintenance Applicative (Corrective et Évolutive) :} Des ressources devront être allouées pour :
+    \begin{itemize}
+        \item \textit{Maintenance Corrective :} Correction des bugs et des anomalies qui pourraient apparaître après le lancement.
+        \item \textit{Maintenance Évolutive :} Développement de nouvelles fonctionnalités, amélioration des fonctionnalités existantes, adaptation aux évolutions technologiques (mises à jour des frameworks, bibliothèques, systèmes d'exploitation des serveurs), et prise en compte des retours utilisateurs. Cela inclut également la maintenance des intégrations avec d'autres systèmes.
+    \end{itemize}
+    Ces activités nécessiteront du temps de développement et de test continu.
+
+    \item \textbf{Support Utilisateur :} Pour assister les utilisateurs, un service de support sera nécessaire. Cela peut inclure :
+    \begin{itemize}
+        \item La création et la maintenance d'une base de connaissances (FAQ, tutoriels, documentation en ligne).
+        \item Un système de ticketing pour gérer les demandes d'assistance.
+        \item Potentiellement, du personnel dédié pour répondre aux questions des utilisateurs par email, chat ou téléphone, en fonction du niveau de service proposé.
+    \end{itemize}
+
+    \item \textbf{Marketing et Ventes :} Pour acquérir de nouveaux clients et développer la notoriété de VSM-Tools, des investissements en marketing et ventes seront indispensables. Cela peut comprendre :
+    \begin{itemize}
+        \item Marketing digital (publicité en ligne, SEO, marketing de contenu).
+        \item Création de matériel promotionnel (site web, brochures).
+        \item Participation à des salons professionnels ou événements industriels.
+        \item Potentiellement, une équipe commerciale pour la prospection et la gestion des comptes clients.
+    \end{itemize}
+
+    \item \textbf{Coûts Administratifs et Généraux :} Incluant les frais légaux, comptables, les assurances, et autres frais généraux de fonctionnement d'une structure commerciale.
+\end{itemize}
+
+L'estimation précise de ces coûts opérationnels dépendra fortement du modèle économique choisi (SaaS, licence, freemium), de l'échelle de l'opération, et de la stratégie de croissance. Ils constituent néanmoins une part importante du budget à long terme pour un produit logiciel commercialisé.
+
+\subsubsection{Synthèse du Budget Prévisionnel Global}
+En cumulant ces estimations simulées :
+\begin{itemize}
+    \item \textbf{Coût de Développement Initial : Non comptabilisé.}
+    \item \textbf{Coûts Opérationnels Annuels (Après lancement) : entre 7 100 € et 25 500 €.}
+\end{itemize}
+Le tableau ci-dessous détaille les estimations pour chaque catégorie de coût opérationnel annuel :
+
+\begin{table}[H]
+    \centering
+    \caption{Détail des Coûts Opérationnels Annuels Prévisionnels Post-Lancement}
+    \label{tab:couts_operationnels_annuels}
+    \begin{tabular}{|l|r|}
+        \hline
+        \textbf{Catégorie de Coût} & \textbf{Estimation Annuelle (€)} \\
+        \hline
+        Hébergement (modèle SaaS) & 600 - 2 000 \\
+        \hline
+        Maintenance Applicative & 3 000 - 10 000 \\
+        \hline
+        Support Utilisateur & 500 - 2 500 \\
+        \hline
+        Marketing et Ventes & 2 000 - 8 000 \\
+        \hline
+        Coûts Administratifs et Généraux & 1 000 - 3 000 \\
+        \hline
+        \textbf{Total Opérationnel Annuel} & \textbf{7 100 - 25 500} \\
+        \hline
+    \end{tabular}
+\end{table}
+
+Ces chiffres illustrent l'investissement potentiel que représenterait VSM-Tools s'il était développé et opéré dans un cadre purement commercial dès sa création. Ils soulignent également la valeur significative apportée par le travail de l'équipe projet et les ressources académiques dans le contexte actuel.
 
 \section{Management de Projet}
 
 \subsection{Organisation de l’équipe}
 L'équipe projet est constituée de quatre élèves-ingénieurs de l'EIGSI, partageant un objectif commun mais apportant des expertises complémentaires :
 \begin{itemize}
-    \item \textbf{Trois élèves-ingénieurs spécialisés en Supply Chain \& Transport International :} Leur connaissance des processus industriels, des enjeux logistiques et des méthodologies d'amélioration continue (dont le VSM) est cruciale pour définir les besoins fonctionnels de l'outil, valider sa pertinence métier et orienter sa conception afin qu'il réponde aux attentes concrètes des utilisateurs finaux. Ils sont les garants de l'adéquation de la solution aux problématiques terrain.
+    \item \textbf{Trois élèves-ingénieurs spécialisés en Supply Chain \& Transport International :} Leur connaissance des processus industriels, des enjeux logistiques et des méthodologies d'amélioration continue (dont le VSM) est importante pour définir les besoins fonctionnels de l'outil, valider sa pertinence métier et orienter sa conception afin qu'il réponde aux attentes concrètes des utilisateurs finaux. Ils sont les garants de l'adéquation de la solution aux problématiques terrain.
     \item \textbf{Un élève-ingénieur spécialisé en Intelligence Artificielle et Big Data :} Responsable des aspects techniques du projet (conception de l'architecture logicielle, choix technologiques, conception des fonctionnalités avancées IA/prédictives, gestion des données, coordination technique).
 \end{itemize}
 
@@ -290,7 +400,7 @@ L'équipe projet est constituée de quatre élèves-ingénieurs de l'EIGSI, part
 L'équipe fonctionne de manière collaborative. Les décisions importantes concernant l'orientation du projet, les fonctionnalités majeures et la validation des étapes clés sont prises collectivement. Des réunions sont organisées pour synchroniser l'avancement. La communication est assurée via WhatsApp. La documentation et le suivi des tâches sont gérés via Trello et un dépôt Git partagé (GitHub).
 
 \subsection{Méthodologie utilisée}
-Compte tenu de la nature du projet (conception logicielle sur deux ans, contexte académique), une \textbf{approche Agile légère, inspirée de Scrum et Kanban}, a été adoptée pour la phase de conception (Année 1) et sera poursuivie pour la phase de développement (Année 2).
+Compte tenu de la nature du projet, une \textbf{approche Agile, inspirée de Scrum et Kanban}, a été adoptée pour la phase de conception (Année 1) et sera poursuivie pour la phase de développement (Année 2).
 \begin{itemize}
     \item \textbf{Principes Agiles :} Nous privilégions une approche itérative et incrémentale, permettant d'affiner la conception et de s'adapter aux découvertes faites en cours de projet.
     \item \textbf{Éléments inspirés de Scrum/Kanban (Année 1) :}
@@ -322,7 +432,7 @@ Cette approche permet de structurer le travail de conception tout en conservant 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{../../images/sprints_premiere_annee.png}
+    \includegraphics[width=0.9\textwidth]{../../../images/sprints_premiere_annee.png}
     \caption{Planification des Sprints (Année 1)}
     \label{fig:sprints}
 \end{figure}
@@ -389,7 +499,7 @@ En synthèse, VSM-Tools vise à rendre la démarche VSM plus accessible, rapide,
 \label{sec:annexeA}
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{../../images/vsm_etat_actuel.png}
+    \includegraphics[width=0.9\textwidth]{../../../images/vsm_etat_actuel.png}
     \caption{Exemple de VSM - État Actuel}
     \label{fig:vsm_actuel}
 \end{figure}
@@ -398,7 +508,7 @@ En synthèse, VSM-Tools vise à rendre la démarche VSM plus accessible, rapide,
 \label{sec:annexeB}
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{../../images/vsm_etat_futur.png}
+    \includegraphics[width=0.9\textwidth]{../../../images/vsm_etat_futur.png}
     \caption{Exemple de VSM - État Futur}
     \label{fig:vsm_futur}
 \end{figure}
@@ -407,7 +517,7 @@ En synthèse, VSM-Tools vise à rendre la démarche VSM plus accessible, rapide,
 \label{sec:annexeC}
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{../../images/plan_daction_vsm.png}
+    \includegraphics[width=0.9\textwidth]{../../../images/plan_daction_vsm.png}
     \caption{Exemple de Plan d'Action issu de l'analyse VSM}
     \label{fig:plan_action}
 \end{figure}
@@ -416,18 +526,13 @@ En synthèse, VSM-Tools vise à rendre la démarche VSM plus accessible, rapide,
 \label{sec:annexeD}
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{../../images/dossier_documentation.png}
+    \includegraphics[width=0.9\textwidth]{../../../images/dossier_documentation.png}
     \caption{Dossier de documentation}
     \label{fig:documentation}
 \end{figure}
 
-
-\nocite{github_vsmtools}
-
-% Bibliographie
-\newpage
-\section{Références}
-\bibliographystyle{plainnat}  % Style de bibliographie
-\bibliography{bibliographie}  % Nom du fichier .bib sans extension
+\vspace{1cm}
+\subsection{Dépôt GitHub du Projet}
+\noindent Le code source du projet est disponible sur GitHub : \url{https://github.com/daniozo/VSM-Tools}
 
 \end{document}

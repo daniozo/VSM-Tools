@@ -38,7 +38,7 @@
 % --- Page de Titre ---
 \begin{frame}
   % Logo EIGSI (optionnel, peut être ajouté manuellement si nécessaire)
-  % \node[anchor=south east] at (current page.south east){\includegraphics[height=1cm]{../../images/logo_eigsi.png}};
+  % \node[anchor=south east] at (current page.south east){\includegraphics[height=1cm]{../../../images/logo_eigsi}};
   \titlepage % Affiche la page de titre configurée ci-dessus
 \end{frame}
 
@@ -66,7 +66,7 @@
   \begin{columns}[c] % Centrage vertical des colonnes
     \begin{column}{0.45\textwidth}
       \centering
-      \includegraphics[width=\textwidth]{../../images/vsm_etat_actuel}
+      \includegraphics[width=\textwidth]{../../../images/vsm_etat_actuel}
       \textbf{État Actuel}
     \end{column}
 
@@ -77,7 +77,7 @@
 
     \begin{column}{0.45\textwidth}
       \centering
-      \includegraphics[width=\textwidth]{../../images/vsm_etat_futur}
+      \includegraphics[width=\textwidth]{../../../images/vsm_etat_futur}
       \textbf{État Futur}
     \end{column}
   \end{columns}
@@ -164,40 +164,39 @@
     \item \textbf{Communication :} Exports (PDF, image).
   \end{enumerate}
   % Optionnel : Ajouter une image de l'interface si disponible
-  % \begin{figure} \includegraphics[width=0.5\textwidth]{../../images/img_4.png} \end{figure}
+  % \begin{figure} \includegraphics[width=0.5\textwidth]{../../../images/img_4} \end{figure}
 \end{frame}
 
 % --- Section 4 : Positionnement & Synergies ---
 \section{Positionnement \& Synergies}
 
+
+\begin{frame}{Pyramide d'Automatisation}
+  \frametitle{Pyramide d'Automatisation}
+  \begin{figure}
+    \centering
+    \includegraphics[width=1\textwidth]{../../../images/automation_pyramide}
+  \end{figure}
+\end{frame}
+
 \begin{frame}{Place dans l'Écosystème Industriel}
   \frametitle{VSM-Tools et la Pyramide d'Automatisation}
-  \begin{columns}[T]
-    \begin{column}{0.6\textwidth}
-      \textbf{Pyramide :}
-      \begin{itemize}
-        \item Stratégique (ERP)
-        \item Pilotage (MES)
-        \item Supervision (SCADA)
-        \item Contrôle (PLC)
-        \item Terrain (Capteurs, Actionneurs)
-      \end{itemize}
-      \vfill
-      \textbf{Position VSM-Tools :}
-      \begin{itemize}
-        \item \textbf{Outil d'analyse transverse}, en complément.
-        \item Utilise données ERP/MES.
-        \item Influence stratégie (ERP) \& guide actions (MES).
-        \item Focus : \textbf{Amélioration processus}.
-      \end{itemize}
-    \end{column}
-    \begin{column}{0.4\textwidth}
-      \begin{figure}
-        \includegraphics[width=\textwidth]{../../images/automation_pyramide}
-        % \caption{Pyramide d'Automatisation}
-      \end{figure}
-    \end{column}
-  \end{columns}
+    \textbf{Pyramide :}
+    \begin{itemize}
+      \item Stratégique (ERP)
+      \item Pilotage (MES)
+      \item Supervision (SCADA)
+      \item Contrôle (PLC)
+      \item Terrain (Capteurs, Actionneurs)
+    \end{itemize}
+    \vfill
+    \textbf{Position VSM-Tools :}
+    \begin{itemize}
+      \item \textbf{Outil d'analyse transverse}, en complément.
+      \item Utilise données ERP/MES.
+      \item Influence stratégie (ERP) \& guide actions (MES).
+      \item Focus : \textbf{Amélioration processus}.
+    \end{itemize}
 \end{frame}
 
 \begin{frame}{Synergies Potentielles}
@@ -215,7 +214,21 @@
   \end{itemize}
 \end{frame}
 
-% --- Section 5 : Management de Projet & Avancement ---
+% --- Section 5 : Défis et Limites ---
+\section{Défis et Limites}
+
+\begin{frame}{Défis et Limites Actuelles}
+  \frametitle{Points de Vigilance}
+  \begin{itemize}
+    \item \textbf{Qualité des données :} Pertinence des analyses liée à la fiabilité des données d'entrée.
+    \item \textbf{Outil vs Méthodologie :} VSM-Tools facilite, mais ne remplace pas la compréhension Lean/VSM.
+    \item \textbf{Expertise pour fonctions avancées :} Simulation/prédictif demandent une interprétation correcte.
+    \item \textbf{Conduite du changement :} Nécessité d'accompagner l'adoption par les équipes.
+    \item \textbf{Périmètre fonctionnel actuel :} Intégrations systèmes et collaboration temps réel sont des évolutions futures.
+  \end{itemize}
+\end{frame}
+
+% --- Section 6 : Management de Projet & Avancement ---
 \section{Management de Projet \& Avancement}
 
 \begin{frame}{Équipe et Méthodologie}
@@ -235,6 +248,15 @@
         \item Sprints thématiques (Année 1 : Conception).
         \item Outils : Trello, Réunions, GitHub.
     \end{itemize}
+\end{frame}
+
+
+\begin{frame}{Sprints de l'Année 1}
+  \frametitle{Sprints de l'Année 1}
+  \begin{figure}
+    \centering
+    \includegraphics[width=1\textwidth]{../../../images/sprints_premiere_annee}
+  \end{figure}
 \end{frame}
 
 \begin{frame}{Planification et État d'Avancement}
@@ -257,22 +279,15 @@
     \item Phase conception (Sprints 1--5) \textbf{terminée}.
     \item Dossier de conception détaillé produit.
   \end{itemize}
-  % Optionnel : Ajouter image Gantt/Sprints
-  % \begin{figure} \includegraphics[width=0.7\textwidth]{../../images/sprints_premiere_annee.png} \end{figure}
 \end{frame}
 
-% --- Section 6 : Défis et Limites ---
-\section{Défis et Limites}
 
-\begin{frame}{Défis et Limites Actuelles}
-  \frametitle{Points de Vigilance}
-  \begin{itemize}
-    \item \textbf{Qualité des données :} Pertinence des analyses liée à la fiabilité des données d'entrée.
-    \item \textbf{Outil vs Méthodologie :} VSM-Tools facilite, mais ne remplace pas la compréhension Lean/VSM.
-    \item \textbf{Expertise pour fonctions avancées :} Simulation/prédictif demandent une interprétation correcte.
-    \item \textbf{Conduite du changement :} Nécessité d'accompagner l'adoption par les équipes.
-    \item \textbf{Périmètre fonctionnel actuel :} Intégrations systèmes et collaboration temps réel sont des évolutions futures.
-  \end{itemize}
+\begin{frame}{Dossier de Conception Obtenu}
+  \frametitle{Dossier de Conception Obtenu}
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.5\textwidth]{../../../images/dossier_documentation}
+  \end{figure}
 \end{frame}
 
 % --- Section 7 : Modèle Économique ---
@@ -284,7 +299,7 @@
   % Optionnel: Ajouter une phrase d'introduction si désiré
   % \textit{Synthèse de la stratégie via le Business Model Canvas :}
   \vspace{0.5cm} % Ajoute un petit espace vertical
-  \includegraphics[width=0.9\textwidth]{../../images/business_model_canvas}
+  \includegraphics[width=0.9\textwidth]{../../../images/business_model_canvas}
   \label{fig:bmc_pres}
 \end{frame}
 
@@ -296,11 +311,13 @@
   \begin{itemize}
     \item VSM : Outil clé, mais méthodes traditionnelles limitées.
     \item VSM-Tools : Solution dédiée, intuitive, \textbf{analytiquement puissante}.
-    \item Bénéfices : Temps, analyse (simu, prédictif), décision.
-    \item Positionnement : Complémentaire ERP/MES, focus optimisation flux.
-    \item Projet : Conception terminée, prêt pour dev.
-    \item Vision : Intégrations, collaboration, SaaS, capitalisation.
+    \item Phase de conception terminée, excellente base pour développement.
+    \item Perspectives prometteuses : marché en croissance, besoin réel.
   \end{itemize}
+  
+  \vfill
+  \textbf{Prochaines étapes :} \\
+  Développement (Année 2) : MVP, tests utilisateurs.
 \end{frame}
 
 % --- Diapositive de fin ---
