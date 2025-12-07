@@ -32,6 +32,7 @@ export enum VsmElementType {
   KAIZEN_BURST = 'kaizenBurst',
   DATA_BOX = 'dataBox',
   TEXT = 'text',
+  TIMELINE = 'timeline',
 }
 
 /**

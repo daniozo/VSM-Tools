@@ -1,4 +1,7 @@
 "use strict";
+var __defProp = Object.defineProperty;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
 const electron = require("electron");
 const path = require("path");
 if (typeof electron === "string") {
@@ -51,6 +54,7 @@ class MenuBuilder {
    * @param mainWindow La fenêtre principale de l'application
    */
   constructor(mainWindow2) {
+    __publicField(this, "mainWindow");
     this.mainWindow = mainWindow2;
   }
   /**

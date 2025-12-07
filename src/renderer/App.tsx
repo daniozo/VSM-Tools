@@ -2,17 +2,21 @@ import React, { useEffect, useState, ErrorInfo } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import './styles/App.css';
 
-// Composants qui seront implémentés plus tard
-import EditorCanvas from './components/editor/EditorCanvas';
+// Composants de l'éditeur VSM
 import ToolPalette from './components/editor/ToolPalette';
-import PropertiesPanel from './components/editor/PropertiesPanel';
+// import PropertiesPanel from './components/editor/PropertiesPanel';
 import Toolbar from './components/editor/Toolbar';
+import VsmCanvas from './components/editor/VsmCanvas';
 import StatusBar from './components/ui/StatusBar';
 import ErrorFallback from './components/ui/ErrorFallback';
 import MainMenu from './components/ui/MainMenu';
+import { ConfigurationDialog } from './components/dialogs/configuration/ConfigurationDialog';
 
 const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isConfigDialogOpen, setIsConfigDialogOpen] = useState<boolean>(false);
+  const [showLeftPanel, setShowLeftPanel] = useState<boolean>(true);
+  const [showRightPanel, setShowRightPanel] = useState<boolean>(false);
 
   useEffect(() => {
     // Simulation de chargement initial
@@ -21,6 +25,20 @@ const App: React.FC = () => {
     }, 1000);
 
     return () => clearTimeout(timer);
+  }, []);
+
+  // Raccourcis clavier
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ctrl+K : Ouvrir la configuration
+      if (e.ctrlKey && e.key === 'k') {
+        e.preventDefault();
+        setIsConfigDialogOpen(true);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   // Fonction de gestion des erreurs pour ErrorBoundary
@@ -32,7 +50,21 @@ const App: React.FC = () => {
   // Gestionnaire pour les clics sur les outils de la barre d'outils
   const handleToolClick = (toolId: string) => {
     console.log(`Outil de la barre d'outils cliqué: ${toolId}`);
-    // Implémentez ici la logique spécifique à chaque outil
+    
+    switch (toolId) {
+      case 'configure':
+        setIsConfigDialogOpen(true);
+        break;
+      case 'panelLeft':
+        setShowLeftPanel(!showLeftPanel);
+        break;
+      case 'panelRight':
+        setShowRightPanel(!showRightPanel);
+        break;
+      default:
+        // Implémentez ici la logique spécifique à chaque outil
+        break;
+    }
   };
 
   // Gestionnaire pour la sélection d'outils dans la palette
@@ -44,7 +76,21 @@ const App: React.FC = () => {
   // Gestionnaire pour les clics sur les éléments du menu principal
   const handleMenuItemClick = (menuId: string) => {
     console.log(`Élément de menu cliqué: ${menuId}`);
-    // Implémentez ici la logique pour chaque élément de menu
+    
+    switch (menuId) {
+      case 'carte.configuration':
+        setIsConfigDialogOpen(true);
+        break;
+      case 'affichage.afficher_masquer_panneau_gauche':
+        setShowLeftPanel(!showLeftPanel);
+        break;
+      case 'affichage.afficher_masquer_panneau_droit':
+        setShowRightPanel(!showRightPanel);
+        break;
+      default:
+        // Implémentez ici la logique pour chaque élément de menu
+        break;
+    }
   };
 
   if (isLoading) {
@@ -62,12 +108,22 @@ const App: React.FC = () => {
       <div className="flex flex-col h-screen bg-background select-none">
         <MainMenu onMenuItemClick={handleMenuItemClick} className="flex-shrink-0" />
         <Toolbar onToolClick={handleToolClick} className="flex-shrink-0" />
-        <div className="flex flex-1 overflow-hidden">
-          <ToolPalette onToolSelect={handleToolSelect} className="w-64 flex-shrink-0 border-r border-border-subtle" />
-          <EditorCanvas />
-          <PropertiesPanel className="w-64 flex-shrink-0 border-l border-border-subtle" />
+        <div className="flex flex-1 overflow-hidden min-h-0">
+          {showLeftPanel && (
+            <ToolPalette onToolSelect={handleToolSelect} className="w-64 flex-shrink-0 border-r border-border" />
+          )}
+          <VsmCanvas />
+          {/* {showRightPanel && (
+            <PropertiesPanel className="w-64 flex-shrink-0 border-l border-border" />
+          )} */}
         </div>
         <StatusBar className="flex-shrink-0" />
+        
+        {/* Dialogue de configuration */}
+        <ConfigurationDialog
+          open={isConfigDialogOpen}
+          onOpenChange={setIsConfigDialogOpen}
+        />
       </div>
     </ErrorBoundary>
   );

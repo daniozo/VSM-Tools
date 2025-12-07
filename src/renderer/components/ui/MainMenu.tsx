@@ -68,6 +68,7 @@ const MainMenu: React.FC<MainMenuProps> = ({
     {
       label: 'Carte',
       items: [
+        { label: 'Configuration...', shortcut: 'Ctrl+K' },
         { label: 'Ajouter élément' },
         { label: 'Propriétés de la carte...' },
         { label: 'État actuel/futur' },

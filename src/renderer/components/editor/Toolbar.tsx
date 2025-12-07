@@ -1,6 +1,6 @@
 import React from 'react';
-import IconButton from '../../../shared/components/ui/IconButton';
-import type { IconName } from '../../../shared/components/icons/Icon';
+import { IconButton } from '@/shared/components/ui/IconButton';
+import type { IconName } from '@/shared/components/icons/Icon';
 
 // Définition des groupes d'outils avec leurs icônes (sans les boutons de panneaux)
 const toolGroups = [
@@ -19,6 +19,13 @@ const toolGroups = [
     tools: [
       { id: 'undo', icon: 'Undo', title: 'Annuler' },
       { id: 'redo', icon: 'Redo', title: 'Rétablir' },
+    ]
+  },
+  // Configuration
+  {
+    id: 'config',
+    tools: [
+      { id: 'configure', icon: 'Settings', title: 'Configuration du diagramme (Ctrl+K)' },
     ]
   },
   // Zoom
@@ -45,15 +52,15 @@ const Toolbar: React.FC<ToolbarProps> = ({
   className = '',
 }) => {
   return (
-    <div className={`flex items-center justify-between bg-background-secondary border-b border-border-subtle px-2 py-1 ${className}`}>
+    <div className={`flex items-center justify-between bg-secondary border-b border-border px-2 py-1 ${className}`}>
       {/* Bouton panneau gauche à l'extrémité gauche */}
       <div className="flex-none">
         <IconButton
           icon="PanelLeft"
           title="Afficher/masquer panneau gauche"
           onClick={() => onToolClick('panelLeft')}
-          size="small"
-          variant="subtle"
+          size="sm"
+          variant="ghost"
         />
       </div>
 
@@ -61,7 +68,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
       <div className="flex items-center flex-1 justify-center">
         {toolGroups.map((group, groupIndex) => (
           <React.Fragment key={group.id}>
-            {groupIndex > 0 && <div className="w-px h-6 bg-border-subtle mx-2" />}
+            {groupIndex > 0 && <div className="w-px h-6 bg-border mx-2" />}
             <div className="flex items-center">
               {group.tools.map(tool => (
                 <IconButton
@@ -69,8 +76,8 @@ const Toolbar: React.FC<ToolbarProps> = ({
                   icon={tool.icon as IconName}
                   title={tool.title}
                   onClick={() => onToolClick(tool.id)}
-                  size="small"
-                  variant="subtle"
+                  size="sm"
+                  variant="ghost"
                 />
               ))}
             </div>
@@ -84,15 +91,15 @@ const Toolbar: React.FC<ToolbarProps> = ({
           icon="Maximize"
           title="Mode plein écran"
           onClick={() => onToolClick('fullscreen')}
-          size="small"
-          variant="subtle"
+          size="sm"
+          variant="ghost"
         />
         <IconButton
           icon="PanelRight"
           title="Afficher/masquer panneau droit"
           onClick={() => onToolClick('panelRight')}
-          size="small"
-          variant="subtle"
+          size="sm"
+          variant="ghost"
         />
       </div>
     </div>

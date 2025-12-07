@@ -1,118 +1,196 @@
-import React, { useState } from 'react';
-import IconButton from '../../../shared/components/ui/IconButton';
-import type { IconName } from '../../../shared/components/icons/Icon';
+import React, { useState, useCallback } from 'react'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { useVsmStore } from '@/store/vsmStore'
+import { VsmElementType } from '@/shared/types/vsm-elements'
+import {
+  Box,
+  ArrowRight,
+  Zap,
+  FileText,
+  Users,
+  Truck,
+  Database,
+  MousePointer,
+  Clock
+} from 'lucide-react'
 
-// Définition des catégories d'outils VSM
-const toolCategories = [
-  {
-    id: 'process',
-    title: 'Processus',
-    tools: [
-      { id: 'process', icon: 'Square', title: 'Processus standard' },
-      { id: 'process-value', icon: 'Check', title: 'Processus à valeur ajoutée' },
-      { id: 'process-operator', icon: 'User', title: 'Opérateur' },
-    ]
-  },
-  {
-    id: 'storage',
-    title: 'Stockage',
-    tools: [
-      { id: 'inventory', icon: 'Triangle', title: 'Inventaire' },
-      { id: 'buffer', icon: 'Database', title: 'Buffer' },
-      { id: 'supermarket', icon: 'Layers', title: 'Supermarché' }
-    ]
-  },
-  {
-    id: 'flow',
-    title: 'Flux',
-    tools: [
-      { id: 'flow-push', icon: 'ArrowRight', title: 'Flux poussé' },
-      { id: 'flow-pull', icon: 'ArrowLeft', title: 'Flux tiré' },
-      { id: 'flow-material', icon: 'Truck', title: 'Flux de matière' },
-      { id: 'flow-info', icon: 'FileText', title: 'Flux d\'information' }
-    ]
-  },
-  {
-    id: 'external',
-    title: 'Entités externes',
-    tools: [
-      { id: 'supplier', icon: 'Factory', title: 'Fournisseur' },
-      { id: 'customer', icon: 'Users', title: 'Client' },
-    ]
-  },
-  {
-    id: 'kaizen',
-    title: 'Kaizen/Analyse',
-    tools: [
-      { id: 'kaizen-burst', icon: 'Star', title: 'Opportunité Kaizen' },
-      { id: 'data-box', icon: 'Box', title: 'Boîte de données' },
-      { id: 'timeline', icon: 'BarChart3', title: 'Timeline' },
-    ]
-  },
-];
-
-interface ToolPaletteProps {
-  onToolSelect: (toolId: string) => void;
-  className?: string;
+export interface ToolPaletteProps {
+  onToolSelect?: (toolId: string) => void
+  className?: string
 }
 
-/**
- * Palette d'outils VSM avec icônes Lucide
- * Utilise notre palette de couleurs noir, blanc et gris
- */
-const ToolPalette: React.FC<ToolPaletteProps> = ({
-  onToolSelect,
-  className = '',
-}) => {
-  const [expandedCategories, setExpandedCategories] = useState<string[]>(['process']);
+interface ToolItem {
+  id: string
+  name: string
+  icon: React.ReactNode
+  type: VsmElementType | 'pointer'
+  description: string
+  category: 'selection' | 'elements' | 'flows'
+}
 
-  const toggleCategory = (categoryId: string) => {
-    setExpandedCategories(prev =>
-      prev.includes(categoryId)
-        ? prev.filter(id => id !== categoryId)
-        : [...prev, categoryId]
-    );
-  };
+const tools: ToolItem[] = [
+  // Outils de sélection
+  {
+    id: 'pointer',
+    name: 'Sélection',
+    icon: <MousePointer size={20} />,
+    type: 'pointer',
+    description: 'Sélectionner et déplacer des éléments',
+    category: 'selection'
+  },
+
+  // Éléments VSM principaux
+  {
+    id: 'process',
+    name: 'Processus',
+    icon: <Box size={20} />,
+    type: VsmElementType.PROCESS,
+    description: 'Ajouter un processus de transformation',
+    category: 'elements'
+  },
+  {
+    id: 'stock',
+    name: 'Stock',
+    icon: <Database size={20} />,
+    type: VsmElementType.STOCK,
+    description: 'Ajouter un stock ou inventory',
+    category: 'elements'
+  },
+  {
+    id: 'supplier',
+    name: 'Fournisseur',
+    icon: <Truck size={20} />,
+    type: VsmElementType.SUPPLIER,
+    description: 'Ajouter un fournisseur externe',
+    category: 'elements'
+  },
+  {
+    id: 'customer',
+    name: 'Client',
+    icon: <Users size={20} />,
+    type: VsmElementType.CUSTOMER,
+    description: 'Ajouter un client',
+    category: 'elements'
+  },
+  {
+    id: 'dataBox',
+    name: 'Boîte de données',
+    icon: <FileText size={20} />,
+    type: VsmElementType.DATA_BOX,
+    description: 'Ajouter des métriques et données',
+    category: 'elements'
+  },
+  {
+    id: 'kaizenBurst',
+    name: 'Kaizen',
+    icon: <Zap size={20} />,
+    type: VsmElementType.KAIZEN_BURST,
+    description: 'Ajouter une opportunité d\'amélioration',
+    category: 'elements'
+  },
+  {
+    id: 'text',
+    name: 'Texte',
+    icon: <FileText size={20} />,
+    type: VsmElementType.TEXT,
+    description: 'Ajouter du texte libre',
+    category: 'elements'
+  },
+  {
+    id: 'timeline',
+    name: 'Timeline',
+    icon: <Clock size={20} />,
+    type: VsmElementType.TIMELINE,
+    description: 'Ajouter une timeline de processus',
+    category: 'elements'
+  },
+
+  // Flux
+  {
+    id: 'flowArrow',
+    name: 'Flèche de flux',
+    icon: <ArrowRight size={20} />,
+    type: VsmElementType.FLOW_ARROW,
+    description: 'Connecter des éléments avec un flux',
+    category: 'flows'
+  }
+]
+
+const ToolPalette: React.FC<ToolPaletteProps> = ({ onToolSelect, className }) => {
+  const [selectedTool, setSelectedTool] = useState<string>('pointer')
+  const setActiveTool = useVsmStore(state => state.setActiveTool)
+
+  const handleToolClick = useCallback((tool: ToolItem) => {
+    setSelectedTool(tool.id)
+
+    // Mise à jour du store global
+    setActiveTool(tool.type === 'pointer' ? null : tool.type)
+
+    // Callback externe
+    onToolSelect?.(tool.id)
+  }, [setActiveTool, onToolSelect])
+
+  const renderToolsByCategory = (category: string, title: string) => {
+    const categoryTools = tools.filter(tool => tool.category === category)
+
+    return (
+      <div key={category} className="mb-4">
+        <h3 className="text-sm font-medium text-muted-foreground mb-2 px-2">
+          {title}
+        </h3>
+        <div className="space-y-1">
+          {categoryTools.map(tool => (
+            <Button
+              key={tool.id}
+              variant={selectedTool === tool.id ? "default" : "ghost"}
+              size="sm"
+              className={`
+                w-full justify-start h-10 px-3
+                ${selectedTool === tool.id
+                  ? 'bg-primary text-primary-foreground'
+                  : 'hover:bg-accent hover:text-accent-foreground'
+                }
+              `}
+              onClick={() => handleToolClick(tool)}
+              title={tool.description}
+            >
+              <span className="mr-3 flex-shrink-0">{tool.icon}</span>
+              <span className="text-left truncate">{tool.name}</span>
+            </Button>
+          ))}
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div className={`bg-background-secondary h-full ${className}`}>
-      <div className="flex items-center justify-between px-3 py-2 border-b border-border-subtle bg-gray-100">
-        <h2 className="font-semibold text-sm uppercase tracking-wider text-text-primary">Outils</h2>
-      </div>
-      <div className="p-3">
-        {toolCategories.map(category => (
-          <div key={category.id} className="mb-3">
-            <div
-              className="flex items-center cursor-pointer rounded hover:bg-gray-200 p-1"
-              onClick={() => toggleCategory(category.id)}
-            >
-              <IconButton
-                icon={expandedCategories.includes(category.id) ? 'ChevronDown' : 'ChevronRight'}
-                size="small"
-                variant="subtle"
-              />
-              <span className="font-medium text-sm ml-1 text-text-primary">{category.title}</span>
-            </div>
+    <Card className={`h-full ${className}`}>
+      <CardContent className="p-4 space-y-4 h-full overflow-auto">
+        <div className="border-b pb-2 mb-4">
+          <h2 className="font-semibold text-sm text-foreground">
+            Palette d'outils VSM
+          </h2>
+          <p className="text-xs text-muted-foreground mt-1">
+            Sélectionnez un outil et cliquez sur le canvas
+          </p>
+        </div>
 
-            {expandedCategories.includes(category.id) && (
-              <div className="flex flex-wrap gap-1 mt-2 pl-7">
-                {category.tools.map(tool => (
-                  <IconButton
-                    key={tool.id}
-                    icon={tool.icon as IconName}
-                    title={tool.title}
-                    onClick={() => onToolSelect(tool.id)}
-                    size="large"
-                    variant="default"
-                  />
-                ))}
-              </div>
-            )}
+        {renderToolsByCategory('selection', 'Sélection')}
+        {renderToolsByCategory('elements', 'Éléments VSM')}
+        {renderToolsByCategory('flows', 'Flux')}
+
+        <div className="border-t pt-4 mt-6">
+          <div className="text-xs text-muted-foreground space-y-1">
+            <p><strong>Outil actuel:</strong></p>
+            <p className="text-primary">
+              {tools.find(t => t.id === selectedTool)?.name || 'Aucun'}
+            </p>
           </div>
-        ))}
-      </div>
-    </div>
-  );
-};
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
 
-export default ToolPalette;
+export default ToolPalette
