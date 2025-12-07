@@ -27,7 +27,8 @@ import {
   TrendingUp,
   Package,
   ArrowRight,
-  MessageSquare
+  MessageSquare,
+  Search
 } from 'lucide-react'
 
 // Import des onglets
@@ -39,7 +40,8 @@ import {
   IndicatorsTab,
   InventoriesTab,
   MaterialFlowsTab,
-  InformationFlowsTab
+  InformationFlowsTab,
+  AnalysisTab
 } from './tabs'
 
 /**
@@ -93,6 +95,12 @@ const tabs: TabItem[] = [
     label: 'Flux d\'Information',
     icon: <MessageSquare size={18} />,
     description: 'Communications transverses'
+  },
+  {
+    id: 'analysis',
+    label: 'Analyse & Détection',
+    icon: <Search size={18} />,
+    description: 'Goulots, gaspillages, opportunités'
   }
 ]
 
@@ -264,6 +272,13 @@ export const ConfigurationDialog: React.FC<ConfigurationDialogProps> = ({
       case 'informationFlows':
         return (
           <InformationFlowsTab
+            diagram={localDiagram}
+            onUpdate={updateLocalDiagram}
+          />
+        )
+      case 'analysis':
+        return (
+          <AnalysisTab
             diagram={localDiagram}
             onUpdate={updateLocalDiagram}
           />

@@ -608,3 +608,133 @@ export function createEmptyVSMDiagram(name: string, author: string): VSMDiagram 
 export function generateId(prefix: string = 'id'): string {
   return `${prefix}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 }
+
+// ============================================================================
+// INTERFACES - ANALYSE & DÉTECTION AUTOMATIQUE
+// ============================================================================
+
+/**
+ * Types de problèmes détectables
+ */
+export enum AnalysisType {
+  /** Goulot d'étranglement (étape plus lente que le Takt Time) */
+  BOTTLENECK = 'BOTTLENECK',
+  /** Gaspillage (7 types du Lean) */
+  WASTE = 'WASTE',
+  /** Opportunité d'amélioration */
+  OPPORTUNITY = 'OPPORTUNITY'
+}
+
+/**
+ * Types de gaspillage (7 Muda du Lean + 1)
+ */
+export enum WasteType {
+  /** Surproduction */
+  OVERPRODUCTION = 'OVERPRODUCTION',
+  /** Attente */
+  WAITING = 'WAITING',
+  /** Transport */
+  TRANSPORT = 'TRANSPORT',
+  /** Sur-traitement */
+  OVERPROCESSING = 'OVERPROCESSING',
+  /** Stocks excessifs */
+  INVENTORY = 'INVENTORY',
+  /** Mouvements inutiles */
+  MOTION = 'MOTION',
+  /** Défauts */
+  DEFECTS = 'DEFECTS',
+  /** Sous-utilisation des compétences (8ème muda) */
+  SKILLS = 'SKILLS'
+}
+
+/**
+ * Opérateurs de comparaison pour les règles
+ */
+export type ComparisonOperator = '>' | '<' | '==' | '>=' | '<=' | '!='
+
+/**
+ * Condition d'une règle d'analyse
+ */
+export interface RuleCondition {
+  /** ID de l'indicateur à surveiller */
+  indicatorId?: string
+  /** Nom de l'indicateur standard (alternative à indicatorId) */
+  indicatorName?: string
+  /** Opérateur de comparaison */
+  operator: ComparisonOperator
+  /** Valeur seuil */
+  value: number
+  /** Comparer au Takt Time plutôt qu'à une valeur fixe */
+  compareToTaktTime?: boolean
+  /** Pourcentage du Takt Time (si compareToTaktTime = true) */
+  taktTimePercentage?: number
+}
+
+/**
+ * Règle d'analyse automatique
+ */
+export interface AnalysisRule {
+  /** Identifiant unique */
+  id: string
+  /** Nom de la règle */
+  name: string
+  /** Description détaillée */
+  description: string
+  /** Type de problème détecté */
+  type: AnalysisType
+  /** Sous-type de gaspillage (si type = WASTE) */
+  wasteType?: WasteType
+  /** Condition de déclenchement */
+  condition: RuleCondition
+  /** La règle est-elle active ? */
+  enabled: boolean
+  /** Priorité (1 = haute, 2 = moyenne, 3 = basse) */
+  priority: number
+  /** Action suggérée si la règle est déclenchée */
+  suggestedAction?: string
+  /** Est-ce une règle système (non supprimable) ? */
+  isSystemRule?: boolean
+}
+
+/**
+ * Résultat d'une analyse (problème détecté)
+ */
+export interface AnalysisResult {
+  /** Identifiant unique du résultat */
+  id: string
+  /** ID de la règle qui a déclenché */
+  ruleId: string
+  /** ID du nœud concerné */
+  nodeId: string
+  /** Nom du nœud */
+  nodeName: string
+  /** Type de problème */
+  type: AnalysisType
+  /** Message descriptif */
+  message: string
+  /** Valeur actuelle de l'indicateur */
+  actualValue: number
+  /** Valeur seuil de la règle */
+  thresholdValue: number
+  /** Date de détection */
+  detectedAt: string
+  /** Statut (nouveau, vu, résolu) */
+  status: 'NEW' | 'SEEN' | 'RESOLVED'
+}
+
+/**
+ * Configuration d'analyse du diagramme VSM
+ */
+export interface AnalysisConfig {
+  /** Règles d'analyse configurées */
+  rules: AnalysisRule[]
+  /** Activer l'analyse automatique au chargement */
+  autoAnalyzeOnLoad: boolean
+  /** Afficher les alertes sur le diagramme */
+  showAlertsOnDiagram: boolean
+  /** Dernière date d'analyse */
+  lastAnalysisDate?: string
+  /** Résultats de la dernière analyse */
+  lastAnalysisResults?: AnalysisResult[]
+}
+

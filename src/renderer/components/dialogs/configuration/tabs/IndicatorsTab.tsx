@@ -3,6 +3,10 @@
  * 
  * Gère les indicateurs (KPIs) attachés aux nœuds et stocks
  * Vue master-detail : sélection du nœud à gauche, gestion des indicateurs à droite
+ * 
+ * Fonctionnalités :
+ * - Ajouter un indicateur standard depuis la bibliothèque
+ * - Créer un indicateur personnalisé
  */
 
 import React, { useState } from 'react'
@@ -14,9 +18,12 @@ import {
   DataSourceType,
   generateId
 } from '@/shared/types/vsm-model'
+import { StandardIndicator } from '@/shared/data/standardIndicators'
 import { FormTable, Column } from '../shared/FormTable'
 import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import { IndicatorDialog, IndicatorData } from '../IndicatorDialog'
+import { StandardIndicatorDialog } from '../StandardIndicatorDialog'
 
 interface IndicatorsTabProps {
   diagram: VSMDiagram
@@ -31,6 +38,7 @@ export const IndicatorsTab: React.FC<IndicatorsTabProps> = ({
     diagram.nodes.length > 0 ? diagram.nodes[0].id : null
   )
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [isStandardDialogOpen, setIsStandardDialogOpen] = useState(false)
   const [editingIndicator, setEditingIndicator] = useState<Indicator | null>(null)
 
   // Filtrer uniquement les étapes de production (pas les acteurs)
@@ -87,6 +95,37 @@ export const IndicatorsTab: React.FC<IndicatorsTabProps> = ({
   const handleAdd = () => {
     setEditingIndicator(null)
     setIsDialogOpen(true)
+  }
+
+  const handleAddFromStandard = () => {
+    setIsStandardDialogOpen(true)
+  }
+
+  const handleStandardSelect = (standard: StandardIndicator) => {
+    if (!selectedNode) {
+      alert('Aucune étape sélectionnée')
+      return
+    }
+
+    // Créer un nouvel indicateur à partir du standard
+    const newIndicator: Indicator = {
+      id: generateId('ind'),
+      name: standard.name,
+      unit: standard.unit,
+      mode: standard.defaultMode,
+      value: standard.defaultMode === 'Statique' ? '' : undefined,
+      dataConnection: undefined,
+      lastUpdated: new Date().toISOString()
+    }
+
+    const updatedNode: Node = {
+      ...selectedNode,
+      indicators: [...selectedNode.indicators, newIndicator]
+    }
+
+    onUpdate({
+      nodes: diagram.nodes.map(n => n.id === selectedNode.id ? updatedNode : n)
+    })
   }
 
   const handleEdit = (indicator: Indicator) => {
@@ -192,16 +231,32 @@ export const IndicatorsTab: React.FC<IndicatorsTabProps> = ({
         <div className="col-span-8">
           {selectedNode ? (
             <Card className="p-4">
-              <h4 className="font-semibold mb-3">
-                Indicateurs de : <span className="text-primary">{selectedNode.name}</span>
-              </h4>
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="font-semibold">
+                  Indicateurs de : <span className="text-primary">{selectedNode.name}</span>
+                </h4>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleAddFromStandard}
+                  >
+                    Ajouter depuis Standards
+                  </Button>
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={handleAdd}
+                  >
+                    + Personnalisé
+                  </Button>
+                </div>
+              </div>
               <FormTable
                 columns={columns}
                 data={indicators}
-                onAdd={handleAdd}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
-                addLabel="Ajouter un indicateur"
                 emptyMessage="Aucun indicateur configuré pour cette étape"
                 keyExtractor={(ind) => ind.id}
               />
@@ -230,6 +285,13 @@ export const IndicatorsTab: React.FC<IndicatorsTabProps> = ({
           dataConnection: editingIndicator.dataConnection
         } : undefined}
         onSave={handleSave}
+      />
+
+      {/* Dialog Sélection Indicateur Standard */}
+      <StandardIndicatorDialog
+        open={isStandardDialogOpen}
+        onOpenChange={setIsStandardDialogOpen}
+        onSelect={handleStandardSelect}
       />
     </div>
   )

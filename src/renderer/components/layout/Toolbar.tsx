@@ -1,0 +1,200 @@
+/**
+ * Toolbar - Barre d'outils principale VSM Studio
+ * 
+ * Actions disponibles selon conception_vsm_studio.md :
+ * - Nouveau Projet
+ * - Ouvrir Projet
+ * - Enregistrer / Tout Enregistrer
+ * - Annuler / Rétablir
+ * - Configurer le diagramme
+ * - Zoom avant/arrière
+ */
+
+import React from 'react'
+import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
+import {
+  FolderPlus,
+  FolderOpen,
+  Save,
+  Undo2,
+  Redo2,
+  Settings2,
+  ZoomIn,
+  ZoomOut,
+  Maximize2,
+  PanelLeft,
+  PanelRight,
+  RotateCcw
+} from 'lucide-react'
+import { cn } from '@/lib/utils'
+
+interface ToolbarAction {
+  id: string
+  icon: React.ReactNode
+  label: string
+  shortcut?: string
+  disabled?: boolean
+}
+
+interface ToolbarProps {
+  onAction: (actionId: string) => void
+  leftPanelVisible?: boolean
+  rightPanelVisible?: boolean
+  className?: string
+}
+
+export const Toolbar: React.FC<ToolbarProps> = ({
+  onAction,
+  leftPanelVisible = true,
+  rightPanelVisible = true,
+  className
+}) => {
+  // Groupes d'actions
+  const fileActions: ToolbarAction[] = [
+    { id: 'newProject', icon: <FolderPlus className="h-4 w-4" />, label: 'Nouveau Projet', shortcut: 'Ctrl+N' },
+    { id: 'openProject', icon: <FolderOpen className="h-4 w-4" />, label: 'Ouvrir Projet', shortcut: 'Ctrl+O' },
+    { id: 'save', icon: <Save className="h-4 w-4" />, label: 'Enregistrer', shortcut: 'Ctrl+S' },
+  ]
+
+  const editActions: ToolbarAction[] = [
+    { id: 'undo', icon: <Undo2 className="h-4 w-4" />, label: 'Annuler', shortcut: 'Ctrl+Z' },
+    { id: 'redo', icon: <Redo2 className="h-4 w-4" />, label: 'Rétablir', shortcut: 'Ctrl+Y' },
+  ]
+
+  const configActions: ToolbarAction[] = [
+    { id: 'configure', icon: <Settings2 className="h-4 w-4" />, label: 'Configurer le Diagramme', shortcut: 'Ctrl+K' },
+  ]
+
+  const zoomActions: ToolbarAction[] = [
+    { id: 'zoomIn', icon: <ZoomIn className="h-4 w-4" />, label: 'Zoom Avant', shortcut: 'Ctrl++' },
+    { id: 'zoomOut', icon: <ZoomOut className="h-4 w-4" />, label: 'Zoom Arrière', shortcut: 'Ctrl+-' },
+    { id: 'zoomReset', icon: <RotateCcw className="h-4 w-4" />, label: 'Réinitialiser Zoom', shortcut: 'Ctrl+0' },
+  ]
+
+  const renderActionButton = (action: ToolbarAction) => (
+    <TooltipProvider key={action.id} delayDuration={300}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 w-8 p-0"
+            onClick={() => onAction(action.id)}
+            disabled={action.disabled}
+          >
+            {action.icon}
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent side="bottom">
+          <p>{action.label}</p>
+          {action.shortcut && (
+            <p className="text-xs text-muted-foreground">{action.shortcut}</p>
+          )}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  )
+
+  return (
+    <div className={cn(
+      'flex items-center justify-between h-10 px-2 bg-background border-b',
+      className
+    )}>
+      {/* Bouton panneau gauche */}
+      <div className="flex items-center">
+        <TooltipProvider delayDuration={300}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant={leftPanelVisible ? 'secondary' : 'ghost'}
+                size="sm"
+                className="h-8 w-8 p-0"
+                onClick={() => onAction('toggleLeftPanel')}
+              >
+                <PanelLeft className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>Explorateur de Projets</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
+
+      {/* Actions centrales */}
+      <div className="flex items-center gap-1">
+        {/* Fichier */}
+        <div className="flex items-center">
+          {fileActions.map(renderActionButton)}
+        </div>
+
+        <Separator orientation="vertical" className="h-6 mx-1" />
+
+        {/* Édition */}
+        <div className="flex items-center">
+          {editActions.map(renderActionButton)}
+        </div>
+
+        <Separator orientation="vertical" className="h-6 mx-1" />
+
+        {/* Configuration */}
+        <div className="flex items-center">
+          {configActions.map(renderActionButton)}
+        </div>
+
+        <Separator orientation="vertical" className="h-6 mx-1" />
+
+        {/* Zoom */}
+        <div className="flex items-center">
+          {zoomActions.map(renderActionButton)}
+        </div>
+      </div>
+
+      {/* Boutons panneau droit et plein écran */}
+      <div className="flex items-center gap-1">
+        <TooltipProvider delayDuration={300}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0"
+                onClick={() => onAction('fullscreen')}
+              >
+                <Maximize2 className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>Plein écran</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        <TooltipProvider delayDuration={300}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant={rightPanelVisible ? 'secondary' : 'ghost'}
+                size="sm"
+                className="h-8 w-8 p-0"
+                onClick={() => onAction('toggleRightPanel')}
+              >
+                <PanelRight className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>Panneau des Propriétés</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
+    </div>
+  )
+}

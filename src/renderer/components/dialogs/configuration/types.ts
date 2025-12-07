@@ -11,6 +11,7 @@ export type ConfigurationTab =
   | 'inventories'
   | 'materialFlows'
   | 'informationFlows'
+  | 'analysis'
 
 export interface TabItem {
   id: ConfigurationTab

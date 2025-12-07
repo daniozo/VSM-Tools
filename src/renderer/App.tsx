@@ -2,12 +2,11 @@ import React, { useEffect, useState, ErrorInfo } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import './styles/App.css';
 
+// Nouveau layout Model-First
+import { MainLayout, Toolbar, StatusBar } from './components/layout';
+
 // Composants de l'éditeur VSM
-import ToolPalette from './components/editor/ToolPalette';
-// import PropertiesPanel from './components/editor/PropertiesPanel';
-import Toolbar from './components/editor/Toolbar';
 import VsmCanvas from './components/editor/VsmCanvas';
-import StatusBar from './components/ui/StatusBar';
 import ErrorFallback from './components/ui/ErrorFallback';
 import MainMenu from './components/ui/MainMenu';
 import { ConfigurationDialog } from './components/dialogs/configuration/ConfigurationDialog';
@@ -15,8 +14,6 @@ import { ConfigurationDialog } from './components/dialogs/configuration/Configur
 const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isConfigDialogOpen, setIsConfigDialogOpen] = useState<boolean>(false);
-  const [showLeftPanel, setShowLeftPanel] = useState<boolean>(true);
-  const [showRightPanel, setShowRightPanel] = useState<boolean>(false);
 
   useEffect(() => {
     // Simulation de chargement initial
@@ -44,33 +41,43 @@ const App: React.FC = () => {
   // Fonction de gestion des erreurs pour ErrorBoundary
   const handleError = (error: Error, info: ErrorInfo) => {
     console.error('Erreur capturée par ErrorBoundary:', error, info);
-    // Ici, vous pourriez ajouter une logique pour envoyer les erreurs à un service de monitoring
   };
 
-  // Gestionnaire pour les clics sur les outils de la barre d'outils
-  const handleToolClick = (toolId: string) => {
-    console.log(`Outil de la barre d'outils cliqué: ${toolId}`);
+  // Gestionnaire pour les actions de la toolbar
+  const handleToolbarAction = (action: string) => {
+    console.log(`Action toolbar: ${action}`);
     
-    switch (toolId) {
+    switch (action) {
+      case 'new-project':
+        console.log('Nouveau projet');
+        break;
+      case 'open-project':
+        console.log('Ouvrir projet');
+        break;
+      case 'save':
+        console.log('Sauvegarder');
+        break;
+      case 'undo':
+        console.log('Annuler');
+        break;
+      case 'redo':
+        console.log('Refaire');
+        break;
+      case 'zoom-in':
+        console.log('Zoom +');
+        break;
+      case 'zoom-out':
+        console.log('Zoom -');
+        break;
+      case 'zoom-fit':
+        console.log('Ajuster');
+        break;
       case 'configure':
         setIsConfigDialogOpen(true);
         break;
-      case 'panelLeft':
-        setShowLeftPanel(!showLeftPanel);
-        break;
-      case 'panelRight':
-        setShowRightPanel(!showRightPanel);
-        break;
       default:
-        // Implémentez ici la logique spécifique à chaque outil
         break;
     }
-  };
-
-  // Gestionnaire pour la sélection d'outils dans la palette
-  const handleToolSelect = (toolId: string) => {
-    console.log(`Outil de la palette sélectionné: ${toolId}`);
-    // Implémentez ici la logique pour activer l'outil sélectionné
   };
 
   // Gestionnaire pour les clics sur les éléments du menu principal
@@ -81,14 +88,7 @@ const App: React.FC = () => {
       case 'carte.configuration':
         setIsConfigDialogOpen(true);
         break;
-      case 'affichage.afficher_masquer_panneau_gauche':
-        setShowLeftPanel(!showLeftPanel);
-        break;
-      case 'affichage.afficher_masquer_panneau_droit':
-        setShowRightPanel(!showRightPanel);
-        break;
       default:
-        // Implémentez ici la logique pour chaque élément de menu
         break;
     }
   };
@@ -107,17 +107,11 @@ const App: React.FC = () => {
     <ErrorBoundary FallbackComponent={ErrorFallback} onError={handleError}>
       <div className="flex flex-col h-screen bg-background select-none">
         <MainMenu onMenuItemClick={handleMenuItemClick} className="flex-shrink-0" />
-        <Toolbar onToolClick={handleToolClick} className="flex-shrink-0" />
-        <div className="flex flex-1 overflow-hidden min-h-0">
-          {showLeftPanel && (
-            <ToolPalette onToolSelect={handleToolSelect} className="w-64 flex-shrink-0 border-r border-border" />
-          )}
+        <Toolbar onAction={handleToolbarAction} />
+        <MainLayout>
           <VsmCanvas />
-          {/* {showRightPanel && (
-            <PropertiesPanel className="w-64 flex-shrink-0 border-l border-border" />
-          )} */}
-        </div>
-        <StatusBar className="flex-shrink-0" />
+        </MainLayout>
+        <StatusBar />
         
         {/* Dialogue de configuration */}
         <ConfigurationDialog

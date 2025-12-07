@@ -69,8 +69,8 @@ export const MaterialFlowsTab: React.FC<MaterialFlowsTabProps> = ({
           id: generateId('flow'),
           fromStep: fromStep.name,
           toStep: toStep.name,
-          type: '',
-          description: ''
+          type: FlowType.PUSH,
+          description: 'Flux poussé standard'
         })
       }
     }

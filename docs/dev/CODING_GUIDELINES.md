@@ -2,48 +2,6 @@
 
 ## Table des matières
 
-<!-- TOC -->
-* [Guidelines de Développement VSM-Tools](#guidelines-de-développement-vsm-tools)
-  * [Table des matières](#table-des-matières)
-  * [1. Introduction](#1-introduction)
-  * [2. Structure du Code](#2-structure-du-code)
-    * [2.1 Organisation des Répertoires](#21-organisation-des-répertoires)
-    * [2.2 Architecture des Modules](#22-architecture-des-modules)
-    * [2.3 Séparation des Responsabilités](#23-séparation-des-responsabilités)
-  * [3. Conventions de Nommage](#3-conventions-de-nommage)
-    * [3.1 Nommage Général](#31-nommage-général)
-    * [3.2 Conventions React/TypeScript](#32-conventions-reacttypescript)
-    * [3.3 Fichiers](#33-fichiers)
-  * [4. Style de Codage](#4-style-de-codage)
-    * [4.1 Formatage](#41-formatage)
-    * [4.2 Taille et Complexité](#42-taille-et-complexité)
-    * [4.3 Conventions de Syntaxe](#43-conventions-de-syntaxe)
-  * [5. Documentation du Code](#5-documentation-du-code)
-    * [5.1 Commentaires](#51-commentaires)
-    * [5.2 Documentation API](#52-documentation-api)
-    * [5.3 Exemples et Cas d'Utilisation](#53-exemples-et-cas-dutilisation)
-  * [6. Gestion des Erreurs](#6-gestion-des-erreurs)
-    * [6.1 Approches de Gestion d'Erreurs](#61-approches-de-gestion-derreurs)
-    * [6.2 Validation des Entrées](#62-validation-des-entrées)
-    * [6.3 Journalisation](#63-journalisation)
-  * [7. Tests](#7-tests)
-    * [7.1 Tests Unitaires](#71-tests-unitaires)
-    * [7.2 Tests d'Intégration](#72-tests-dintégration)
-    * [7.3 Tests UI](#73-tests-ui)
-  * [8. Contrôle de Version](#8-contrôle-de-version)
-    * [8.1 Structure des Commits](#81-structure-des-commits)
-    * [8.2 Branches et Workflow](#82-branches-et-workflow)
-    * [8.3 Revue de Code](#83-revue-de-code)
-  * [9. Patterns et Meilleures Pratiques](#9-patterns-et-meilleures-pratiques)
-    * [9.1 Patterns React/Electron Recommandés](#91-patterns-reactelectron-recommandés)
-    * [9.2 Antipatterns à Éviter](#92-antipatterns-à-éviter)
-    * [9.3 Performance et Optimisation](#93-performance-et-optimisation)
-  * [10. Évolutivité et Maintenabilité](#10-évolutivité-et-maintenabilité)
-    * [10.1 Conception Modulaire](#101-conception-modulaire)
-    * [10.2 Gestion des Dépendances](#102-gestion-des-dépendances)
-    * [10.3 Versionnement et Compatibilité](#103-versionnement-et-compatibilité)
-<!-- TOC -->
-
 ## 1. Introduction
 
 Ce document définit les guidelines de développement pour le projet VSM-Tools. Il vise à standardiser les pratiques de codage afin d'assurer la maintenabilité, la lisibilité et l'évolutivité du code. Suivre ces guidelines est essentiel pour faciliter la collaboration entre développeurs et garantir la qualité du logiciel dans le temps.

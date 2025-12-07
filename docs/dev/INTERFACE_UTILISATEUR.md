@@ -260,4 +260,149 @@ Les raccourcis suivants seront implémentés pour une utilisation efficace :
 
 ---
 
+## Approche alternative : Insertion guidée par rangées et bouton +
+
+Afin de simplifier et fluidifier l’expérience utilisateur, une approche alternative à la construction des cartes VSM est proposée :
+
+### Principe
+- Le canevas est structuré en plusieurs rangées horizontales, chacune dédiée à un type d’élément VSM (ex : timeline, boîtes de données, processus, stocks, flux, etc.).
+- Au démarrage, le canevas est vide mais les rangées sont visibles et bien délimitées.
+- Sur chaque rangée, un bouton “+” permet d’ajouter un nouvel élément dans la catégorie correspondante.
+- Au clic sur “+”, l’utilisateur choisit le type d’élément à insérer (menu ou boîte de dialogue).
+- L’élément est automatiquement positionné sur la rangée, à la prochaine place disponible, sans drag-and-drop manuel.
+
+### Fonctionnement détaillé
+- **Placement automatique** : Les éléments sont alignés et espacés de façon cohérente, facilitant la lecture et l’organisation.
+- **Ajout guidé** : L’utilisateur n’a qu’à cliquer sur “+” et sélectionner l’élément ; le système gère le placement.
+- **Édition** : Les propriétés de chaque élément peuvent être modifiées via le panneau latéral droit.
+- **Déplacement latéral** : Optionnellement, l’utilisateur peut réorganiser les éléments horizontalement sur la rangée.
+- **Suppression** : Un bouton ou une action contextuelle permet de retirer un élément.
+
+### Avantages
+- Expérience utilisateur simplifiée, sans drag-and-drop complexe
+- Structure visuelle claire et cohérente
+- Rapidité de création des cartes
+- Moins d’erreurs de manipulation
+- Adapté aux utilisateurs novices ou non techniques
+
+### Exemple visuel
+
+```
++-------------------+-------------------+-------------------+
+|    Flux           |   [ + ]           |                   |
++-------------------+-------------------+-------------------+
+| Boîtes de données |   [ + ]           |                   |
++-------------------+-------------------+-------------------+
+| Processus         |   [ + ]  [ + ]    |                   |
++-------------------+-------------------+-------------------+
+| Stocks            |   [ + ]           |                   |
++-------------------+-------------------+-------------------+
+| Timeline          |                   |                   |
++-------------------+-------------------+-------------------+
+```
+
+### Intégration technique
+- Utilisation de Zustand pour la gestion d’état (éléments, rangées, sélection)
+- Utilisation de maxGraph pour le rendu graphique et le placement automatique
+- Synchronisation entre l’UI (boutons +, menus) et le modèle graphique
+
+### Considérations
+- Cette approche peut coexister avec le drag-and-drop classique pour les utilisateurs avancés
+- Elle peut être activée/désactivée selon le mode d’édition choisi
+- Elle facilite l’édition rapide et la structuration des cartes VSM
+
+---
+
+## Panneaux latéraux : description détaillée et disposition
+
+Dans l’approche “insertion guidée”, les panneaux latéraux jouent un rôle clé pour l’édition, la navigation et l’accès aux outils complémentaires. Voici une description détaillée de chaque panneau :
+
+### 1. Panneau latéral gauche : Navigation, outils et configuration
+
+**Disposition** :
+- Largeur fixe (ex : 280px), bordure nette, fond discret
+- En-tête avec titre (“Outils & Navigation”) et bouton de masquage
+- Sections verticales organisées en accordéons ou onglets
+
+**Contenu principal** :
+
+#### a) Liste des éléments du diagramme
+- Vue synthétique de tous les éléments présents sur le canvas, organisés par type (timeline, données, processus, stocks, flux…)
+- Recherche rapide par nom ou type
+- Sélection d’un élément pour le centrer sur le canvas
+- Indicateur visuel de l’élément sélectionné
+
+#### b) Outils et modules complémentaires
+- Accès aux calculs automatiques (lead time, VA/NVA, indicateurs…)
+- Génération de rapports ou exports (PDF, Excel, PNG, SVG)
+- Visualisation de KPIs et graphiques
+- Historique des modifications et annulation/rétablissement
+- Accès à la configuration générale du diagramme (nom, description, auteur, date…)
+
+#### c) Paramètres d’affichage du canvas
+- Contrôle du zoom (slider, boutons +/-, valeur numérique)
+- Activation/désactivation de la grille, des règles, des couches
+- Filtres d’affichage (masquer certains types d’éléments, afficher uniquement les processus, etc.)
+- Mode plein écran ou mode présentation
+
+**Disposition interne** :
+- Sections collapsibles pour chaque catégorie
+- Icônes claires pour chaque action
+- Boutons d’action en bas du panneau (ex : “Exporter”, “Rapport”, “Aide”)
+
+---
+
+### 2. Panneau latéral droit : Édition et actions contextuelles
+
+**Disposition** :
+- Largeur fixe (ex : 320px), bordure nette, fond discret
+- En-tête avec titre (“Propriétés & Actions”) et bouton de masquage
+- Contenu dynamique selon la sélection sur le canvas
+
+**Contenu principal** :
+
+#### a) Propriétés de l’élément sélectionné
+- Affichage des propriétés principales (nom, type, couleur, notes…)
+- Champs éditables (input, select, color picker, textarea…)
+- Sections spécifiques selon le type d’élément :
+  - **Processus** : temps de cycle, opérateurs, TRS/OEE, commentaires
+  - **Stock** : quantité, unité, délai, politique de gestion
+  - **Flux** : type, fréquence, quantité, mode de déclenchement
+  - **Données** : valeurs, sources, calculs
+  - **Timeline** : points clés, jalons
+- Validation en temps réel des valeurs saisies
+- Affichage des erreurs ou avertissements (ex : incohérence de données)
+
+#### b) Actions sur l’élément
+- Boutons pour dupliquer, supprimer, exporter l’élément
+- Lier/délier à d’autres éléments (ex : connecter un flux à un processus)
+- Historique des modifications sur l’élément
+- Accès rapide à l’aide contextuelle (description, conseils, documentation)
+
+#### c) Informations contextuelles et aide
+- Description détaillée du type d’élément sélectionné
+- Conseils d’utilisation, bonnes pratiques
+- Liens vers la documentation ou tutoriels
+
+**Disposition interne** :
+- Sections collapsibles pour chaque groupe de propriétés
+- Boutons d’action en haut ou en bas selon la logique d’édition
+- Affichage dynamique : si aucune sélection, montrer les propriétés générales de la carte
+
+---
+
+### 3. Disposition générale et interactions
+
+- Les panneaux latéraux sont masquables individuellement (icône “<” ou “>”)
+- Ils peuvent être redimensionnables (drag sur la bordure)
+- Les panneaux s’adaptent au mode plein écran ou présentation (masquage automatique)
+- Les notifications, erreurs ou confirmations s’affichent en overlay ou dans le panneau concerné
+- Les panneaux sont accessibles au clavier et compatibles avec la navigation tab/shift+tab
+
+---
+
+Cette structure pourra évoluer selon les retours utilisateurs et les besoins fonctionnels. Chaque panneau doit rester clair, accessible et orienté vers l’efficacité de l’édition et de la navigation dans les cartes VSM.
+
+---
+
 Ce document constitue une spécification initiale de l'interface utilisateur VSM-Tools et pourra évoluer au fil du développement et des retours utilisateurs.
