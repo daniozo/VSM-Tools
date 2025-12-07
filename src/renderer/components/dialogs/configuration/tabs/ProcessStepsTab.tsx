@@ -37,7 +37,7 @@ export const ProcessStepsTab: React.FC<ProcessStepsTabProps> = ({
     {
       key: 'order',
       label: 'Ordre',
-      width: '20%',
+      width: '15%',
       render: (node) => {
         const index = processSteps.findIndex(n => n.id === node.id)
         return <span className="text-sm font-mono text-left block">{index + 1}</span>
@@ -46,7 +46,17 @@ export const ProcessStepsTab: React.FC<ProcessStepsTabProps> = ({
     {
       key: 'name',
       label: 'Nom de l\'étape',
-      width: '80%'
+      width: '60%'
+    },
+    {
+      key: 'operators',
+      label: 'Opérateurs',
+      width: '25%',
+      render: (node) => (
+        <span className="text-sm text-left block">
+          {node.operators ?? 0}
+        </span>
+      )
     }
   ]
 
@@ -131,6 +141,7 @@ export const ProcessStepsTab: React.FC<ProcessStepsTabProps> = ({
       id: formData.id || generateId('node'),
       name: formData.name.trim(),
       type: NodeType.PROCESS_STEP,
+      operators: formData.operators ?? 1,
       indicators: formData.indicators || []
     }
 
@@ -200,6 +211,13 @@ export const ProcessStepsTab: React.FC<ProcessStepsTabProps> = ({
               value={formData.name || ''}
               onChange={(value) => setFormData({ ...formData, name: value })}
               required
+            />
+            <FormField
+              label="Nombre d'opérateurs"
+              type="number"
+              value={formData.operators ?? 1}
+              onChange={(value) => setFormData({ ...formData, operators: Number(value) })}
+              min={0}
             />
           </div>
 

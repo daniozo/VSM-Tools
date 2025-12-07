@@ -20,13 +20,13 @@ import {
   AlertCircle
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useProjectsStore } from '@/store/projectsStore'
 
 type SyncStatus = 'synced' | 'syncing' | 'error' | 'disconnected'
 
 interface StatusBarProps {
   projectName?: string | null
   zoom?: number
-  syncStatus?: SyncStatus
   hasUnsavedChanges?: boolean
   className?: string
 }
@@ -34,10 +34,17 @@ interface StatusBarProps {
 export const StatusBar: React.FC<StatusBarProps> = ({
   projectName = null,
   zoom = 100,
-  syncStatus = 'disconnected',
   hasUnsavedChanges = false,
   className
 }) => {
+  // Utiliser le store de connexion pour le statut sync
+  const { connectionStatus } = useProjectsStore();
+  
+  // Mapper connectionStatus vers SyncStatus
+  const syncStatus: SyncStatus = 
+    connectionStatus === 'connected' ? 'synced' :
+    connectionStatus === 'connecting' ? 'syncing' :
+    connectionStatus === 'error' ? 'error' : 'disconnected';
   const getSyncIcon = () => {
     switch (syncStatus) {
       case 'synced':

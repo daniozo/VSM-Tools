@@ -9,7 +9,7 @@
  * - Clic sur une entité met en surbrillance sur le canevas
  */
 
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Button } from '@/components/ui/button'
 import {
@@ -26,9 +26,14 @@ import {
   ArrowRight,
   Package,
   Activity,
-  LayoutDashboard
+  LayoutDashboard,
+  FolderPlus,
+  Building2,
+  Triangle
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useVsmStore } from '@/store/vsmStore'
+import { NodeType, VSMDiagram, Node, InformationFlow } from '@/shared/types/vsm-model'
 
 // Types pour l'arborescence
 interface TreeNode {
@@ -45,93 +50,160 @@ interface ProjectExplorerProps {
   activeProject: string | null
   selectedElementId: string | null
   onSelect: (elementId: string, elementType: string) => void
+  onNewProject?: () => void
+  onOpenProject?: () => void
   className?: string
 }
 
-// Données de démonstration - À remplacer par les vraies données du store
-const demoProjects: TreeNode[] = [
-  {
-    id: 'project-1',
-    name: 'Ligne_Production_Cintres',
-    type: 'project',
-    children: [
-      {
-        id: 'diagram-1',
-        name: 'diagram.vsmx',
-        type: 'file',
-        icon: <FileBox className="h-4 w-4 text-blue-500" />,
-        children: [
-          {
-            id: 'actors-group',
-            name: 'Acteurs',
-            type: 'entity-group',
-            icon: <Users className="h-4 w-4" />,
-            children: [
-              { id: 'supplier-1', name: 'Fournisseur Acier', type: 'entity', entityType: 'supplier', icon: <Truck className="h-4 w-4" /> },
-              { id: 'customer-1', name: 'Client Distribution', type: 'entity', entityType: 'customer', icon: <Users className="h-4 w-4" /> },
-            ]
-          },
-          {
-            id: 'steps-group',
-            name: 'Étapes de Processus',
-            type: 'entity-group',
-            icon: <Factory className="h-4 w-4" />,
-            children: [
-              { id: 'step-1', name: 'Nettoyage', type: 'entity', entityType: 'process-step', icon: <Factory className="h-4 w-4" /> },
-              { id: 'step-2', name: 'Façonnage', type: 'entity', entityType: 'process-step', icon: <Factory className="h-4 w-4" /> },
-              { id: 'step-3', name: 'Emballage', type: 'entity', entityType: 'process-step', icon: <Factory className="h-4 w-4" /> },
-            ]
-          },
-          {
-            id: 'flows-group',
-            name: 'Flux',
-            type: 'entity-group',
-            icon: <ArrowRight className="h-4 w-4" />,
-            children: [
-              { id: 'flow-1', name: 'Flux Matériel 1', type: 'entity', entityType: 'material-flow', icon: <ArrowRight className="h-4 w-4" /> },
-            ]
-          },
-          {
-            id: 'inventory-group',
-            name: 'Stocks',
-            type: 'entity-group',
-            icon: <Package className="h-4 w-4" />,
-            children: [
-              { id: 'inv-1', name: 'Stock Initial', type: 'entity', entityType: 'inventory', icon: <Package className="h-4 w-4" /> },
-              { id: 'inv-2', name: 'Stock Final', type: 'entity', entityType: 'inventory', icon: <Package className="h-4 w-4" /> },
-            ]
-          },
-          {
-            id: 'indicators-group',
-            name: 'Indicateurs',
-            type: 'entity-group',
-            icon: <Activity className="h-4 w-4" />,
-            children: []
-          },
-        ]
-      },
-      {
-        id: 'actionplan-1',
-        name: 'action_plan.md',
-        type: 'file',
-        icon: <FileText className="h-4 w-4 text-green-500" />,
-      },
-      {
-        id: 'notes-1',
-        name: 'notes.md',
-        type: 'file',
-        icon: <FileText className="h-4 w-4 text-yellow-500" />,
-      },
-      {
-        id: 'exports-1',
-        name: 'exports',
-        type: 'folder',
-        icon: <Folder className="h-4 w-4" />,
-        children: []
-      },
-    ]
+/**
+ * Construit l'arborescence à partir du diagramme VSM
+ */
+function buildTreeFromDiagram(diagram: VSMDiagram | null): TreeNode[] {
+  if (!diagram) return []
+
+  const actorsChildren: TreeNode[] = []
+  
+  // Fournisseur
+  if (diagram.actors.supplier) {
+    actorsChildren.push({
+      id: 'supplier',
+      name: diagram.actors.supplier.name || 'Fournisseur',
+      type: 'entity',
+      entityType: 'supplier',
+      icon: <Truck className="h-4 w-4 text-purple-500" />
+    })
   }
-]
+  
+  // Client
+  if (diagram.actors.customer) {
+    actorsChildren.push({
+      id: 'customer',
+      name: diagram.actors.customer.name || 'Client',
+      type: 'entity',
+      entityType: 'customer',
+      icon: <Users className="h-4 w-4 text-green-500" />
+    })
+  }
+  
+  // Centre de contrôle
+  if (diagram.actors.controlCenter) {
+    actorsChildren.push({
+      id: 'control-center',
+      name: diagram.actors.controlCenter.name || 'Planification',
+      type: 'entity',
+      entityType: 'control-center',
+      icon: <Building2 className="h-4 w-4 text-blue-500" />
+    })
+  }
+
+  // Étapes de processus
+  const stepsChildren: TreeNode[] = diagram.nodes
+    .filter((n: Node) => n.type === NodeType.PROCESS_STEP)
+    .map((node: Node) => ({
+      id: node.id,
+      name: node.name,
+      type: 'entity' as const,
+      entityType: 'process-step',
+      icon: <Factory className="h-4 w-4 text-blue-600" />
+    }))
+
+  // Inventaires (à partir des flowSequences)
+  const inventoryChildren: TreeNode[] = []
+  for (const seq of diagram.flowSequences) {
+    for (const elem of seq.intermediateElements) {
+      if (elem.type === 'INVENTORY' && elem.inventory) {
+        inventoryChildren.push({
+          id: elem.inventory.id,
+          name: elem.inventory.name || `Stock ${elem.order}`,
+          type: 'entity',
+          entityType: 'inventory',
+          icon: <Triangle className="h-4 w-4 text-amber-500" />
+        })
+      }
+    }
+  }
+
+  // Flux d'information
+  const infoFlowChildren: TreeNode[] = diagram.informationFlows.map((flow: InformationFlow) => ({
+    id: flow.id,
+    name: flow.description || `Flux info`,
+    type: 'entity' as const,
+    entityType: 'information-flow',
+    icon: <ArrowRight className="h-4 w-4 text-cyan-500" />
+  }))
+
+  return [
+    {
+      id: 'project-root',
+      name: diagram.metaData.name || 'Projet VSM',
+      type: 'project',
+      children: [
+        {
+          id: 'diagram-file',
+          name: 'diagram.vsmx',
+          type: 'file',
+          icon: <FileBox className="h-4 w-4 text-blue-500" />,
+          children: [
+            {
+              id: 'actors-group',
+              name: 'Acteurs',
+              type: 'entity-group',
+              icon: <Users className="h-4 w-4" />,
+              children: actorsChildren
+            },
+            {
+              id: 'steps-group',
+              name: 'Étapes de Processus',
+              type: 'entity-group',
+              icon: <Factory className="h-4 w-4" />,
+              children: stepsChildren
+            },
+            {
+              id: 'inventory-group',
+              name: 'Stocks',
+              type: 'entity-group',
+              icon: <Package className="h-4 w-4" />,
+              children: inventoryChildren
+            },
+            {
+              id: 'info-flows-group',
+              name: 'Flux Information',
+              type: 'entity-group',
+              icon: <ArrowRight className="h-4 w-4" />,
+              children: infoFlowChildren
+            },
+            {
+              id: 'indicators-group',
+              name: 'Indicateurs',
+              type: 'entity-group',
+              icon: <Activity className="h-4 w-4" />,
+              children: []
+            },
+          ]
+        },
+        {
+          id: 'actionplan-file',
+          name: 'action_plan.md',
+          type: 'file',
+          icon: <FileText className="h-4 w-4 text-green-500" />,
+        },
+        {
+          id: 'notes-file',
+          name: 'notes.md',
+          type: 'file',
+          icon: <FileText className="h-4 w-4 text-yellow-500" />,
+        },
+        {
+          id: 'exports-folder',
+          name: 'exports',
+          type: 'folder',
+          icon: <Folder className="h-4 w-4" />,
+          children: []
+        },
+      ]
+    }
+  ]
+}
 
 // Composant pour un noeud de l'arbre
 interface TreeNodeItemProps {
@@ -235,10 +307,23 @@ export const ProjectExplorer: React.FC<ProjectExplorerProps> = ({
   activeProject: _activeProject,
   selectedElementId,
   onSelect,
+  onNewProject,
+  onOpenProject,
   className
 }) => {
-  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set(['project-1', 'diagram-1']))
+  // Store VSM
+  const { diagram, selectElement } = useVsmStore()
+  
+  // Construire l'arborescence à partir du diagramme
+  const projectTree = useMemo(() => buildTreeFromDiagram(diagram), [diagram])
+  
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(
+    new Set(['project-root', 'diagram-file', 'actors-group', 'steps-group'])
+  )
   const [localSelectedId, setLocalSelectedId] = useState<string | null>(selectedElementId)
+
+  // Vérifier si un projet est ouvert (via le store)
+  const hasOpenProject = diagram !== null
 
   const handleToggle = (id: string) => {
     setExpandedIds(prev => {
@@ -256,6 +341,15 @@ export const ProjectExplorer: React.FC<ProjectExplorerProps> = ({
     setLocalSelectedId(node.id)
     if (node.type === 'entity' && node.entityType) {
       onSelect(node.id, node.entityType)
+      
+      // Sélectionner aussi dans le store pour synchroniser avec le canvas
+      if (node.entityType === 'process-step') {
+        selectElement({ type: 'node', id: node.id })
+      } else if (node.entityType === 'inventory') {
+        // Pour l'inventaire, on a besoin de trouver sequenceOrder et elementOrder
+        // Pour l'instant, on log juste
+        console.log('Sélection inventaire:', node.id)
+      }
     }
   }
 
@@ -279,30 +373,54 @@ export const ProjectExplorer: React.FC<ProjectExplorerProps> = ({
         <span className="text-sm font-medium">Explorateur</span>
       </div>
 
-      {/* Arborescence */}
-      <ScrollArea className="flex-1">
-        <div className="py-2">
-          {demoProjects.map(project => (
-            <TreeNodeItem
-              key={project.id}
-              node={project}
-              level={0}
-              selectedId={localSelectedId}
-              expandedIds={expandedIds}
-              onToggle={handleToggle}
-              onSelect={handleSelect}
-              onDoubleClick={handleDoubleClick}
-            />
-          ))}
+      {hasOpenProject ? (
+        /* Arborescence du projet */
+        <ScrollArea className="flex-1">
+          <div className="py-2">
+            {projectTree.map(project => (
+              <TreeNodeItem
+                key={project.id}
+                node={project}
+                level={0}
+                selectedId={localSelectedId}
+                expandedIds={expandedIds}
+                onToggle={handleToggle}
+                onSelect={handleSelect}
+                onDoubleClick={handleDoubleClick}
+              />
+            ))}
+          </div>
+        </ScrollArea>
+      ) : (
+        /* État vide - Aucun projet ouvert */
+        <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
+          <FolderPlus className="h-12 w-12 text-muted-foreground/50 mb-4" />
+          <h3 className="text-sm font-semibold mb-2">Aucun projet ouvert</h3>
+          <p className="text-xs text-muted-foreground mb-6 max-w-[200px]">
+            Pour commencer, créez un nouveau projet ou ouvrez un projet existant.
+          </p>
+          <div className="flex flex-col gap-2 w-full max-w-[180px]">
+            <Button 
+              variant="default" 
+              size="sm" 
+              className="w-full"
+              onClick={onNewProject}
+            >
+              <FolderPlus className="h-4 w-4 mr-2" />
+              Créer un projet
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full"
+              onClick={onOpenProject}
+            >
+              <FolderOpen className="h-4 w-4 mr-2" />
+              Ouvrir un projet
+            </Button>
+          </div>
         </div>
-      </ScrollArea>
-
-      {/* Pied avec boutons d'action */}
-      <div className="flex items-center gap-1 p-2 border-t">
-        <Button variant="ghost" size="sm" className="h-7 text-xs">
-          Nouveau Projet
-        </Button>
-      </div>
+      )}
     </div>
   )
 }

@@ -8,12 +8,28 @@ import { MainLayout, Toolbar, StatusBar } from './components/layout';
 // Composants de l'éditeur VSM
 import VsmCanvas from './components/editor/VsmCanvas';
 import ErrorFallback from './components/ui/ErrorFallback';
-import MainMenu from './components/ui/MainMenu';
 import { ConfigurationDialog } from './components/dialogs/configuration/ConfigurationDialog';
+
+// Store et données
+import { useVsmStore } from '@/store/vsmStore';
+import { useProjectsStore } from '@/store/projectsStore';
+import { demoDiagram } from '@/shared/data/demo-diagram';
+
+// Hook de connexion backend
+import { useBackendConnection } from './hooks/useBackendConnection';
 
 const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isConfigDialogOpen, setIsConfigDialogOpen] = useState<boolean>(false);
+  const [leftPanelVisible, setLeftPanelVisible] = useState<boolean>(true);
+  const [rightPanelVisible, setRightPanelVisible] = useState<boolean>(true);
+
+  // Store VSM
+  const { loadDiagram, createNewDiagram } = useVsmStore();
+  
+  // Connexion backend (auto-connect)
+  useBackendConnection();
+  const { connectionStatus } = useProjectsStore();
 
   useEffect(() => {
     // Simulation de chargement initial
@@ -38,6 +54,33 @@ const App: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  // Écoute des événements du menu natif Electron
+  useEffect(() => {
+    // @ts-expect-error - electron preload
+    const ipcRenderer = window.electron?.ipcRenderer;
+    if (!ipcRenderer) return;
+
+    const handlers: Record<string, () => void> = {
+      'menu:new-map': handleNewProject,
+      'menu:open-map': handleOpenProject,
+      'menu:open-configuration': () => setIsConfigDialogOpen(true),
+      'menu:toggle-palette': () => setLeftPanelVisible(prev => !prev),
+      'menu:toggle-properties': () => setRightPanelVisible(prev => !prev),
+    };
+
+    // Enregistrer tous les listeners
+    Object.entries(handlers).forEach(([channel, handler]) => {
+      ipcRenderer.on(channel, handler);
+    });
+
+    // Cleanup
+    return () => {
+      Object.entries(handlers).forEach(([channel, handler]) => {
+        ipcRenderer.removeListener(channel, handler);
+      });
+    };
+  }, []);
+
   // Fonction de gestion des erreurs pour ErrorBoundary
   const handleError = (error: Error, info: ErrorInfo) => {
     console.error('Erreur capturée par ErrorBoundary:', error, info);
@@ -48,11 +91,11 @@ const App: React.FC = () => {
     console.log(`Action toolbar: ${action}`);
     
     switch (action) {
-      case 'new-project':
-        console.log('Nouveau projet');
+      case 'newProject':
+        handleNewProject();
         break;
-      case 'open-project':
-        console.log('Ouvrir projet');
+      case 'openProject':
+        handleOpenProject();
         break;
       case 'save':
         console.log('Sauvegarder');
@@ -63,34 +106,45 @@ const App: React.FC = () => {
       case 'redo':
         console.log('Refaire');
         break;
-      case 'zoom-in':
+      case 'zoomIn':
         console.log('Zoom +');
         break;
-      case 'zoom-out':
+      case 'zoomOut':
         console.log('Zoom -');
         break;
-      case 'zoom-fit':
-        console.log('Ajuster');
+      case 'zoomReset':
+        console.log('Zoom reset');
         break;
       case 'configure':
         setIsConfigDialogOpen(true);
+        break;
+      case 'loadDemo':
+        handleLoadDemo();
+        break;
+      case 'toggleLeftPanel':
+        setLeftPanelVisible(!leftPanelVisible);
+        break;
+      case 'toggleRightPanel':
+        setRightPanelVisible(!rightPanelVisible);
         break;
       default:
         break;
     }
   };
 
-  // Gestionnaire pour les clics sur les éléments du menu principal
-  const handleMenuItemClick = (menuId: string) => {
-    console.log(`Élément de menu cliqué: ${menuId}`);
-    
-    switch (menuId) {
-      case 'carte.configuration':
-        setIsConfigDialogOpen(true);
-        break;
-      default:
-        break;
-    }
+  // Actions projet
+  const handleNewProject = () => {
+    console.log('Nouveau projet');
+    createNewDiagram('Nouveau Diagramme', 'Utilisateur');
+  };
+
+  const handleOpenProject = () => {
+    console.log('Ouvrir projet - TODO: ouvrir dialogue fichier');
+  };
+
+  const handleLoadDemo = () => {
+    console.log('Chargement du diagramme de démonstration');
+    loadDiagram(demoDiagram);
   };
 
   if (isLoading) {
@@ -106,9 +160,17 @@ const App: React.FC = () => {
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback} onError={handleError}>
       <div className="flex flex-col h-screen bg-background select-none">
-        <MainMenu onMenuItemClick={handleMenuItemClick} className="flex-shrink-0" />
-        <Toolbar onAction={handleToolbarAction} />
-        <MainLayout>
+        <Toolbar 
+          onAction={handleToolbarAction}
+          leftPanelVisible={leftPanelVisible}
+          rightPanelVisible={rightPanelVisible}
+        />
+        <MainLayout
+          leftPanelVisible={leftPanelVisible}
+          rightPanelVisible={rightPanelVisible}
+          onNewProject={handleNewProject}
+          onOpenProject={handleOpenProject}
+        >
           <VsmCanvas />
         </MainLayout>
         <StatusBar />

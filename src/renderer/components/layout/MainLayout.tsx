@@ -16,16 +16,22 @@ import { cn } from '@/lib/utils'
 
 interface MainLayoutProps {
   children: React.ReactNode
+  leftPanelVisible?: boolean
+  rightPanelVisible?: boolean
+  onNewProject?: () => void
+  onOpenProject?: () => void
   className?: string
 }
 
 export const MainLayout: React.FC<MainLayoutProps> = ({
   children,
+  leftPanelVisible = true,
+  rightPanelVisible = true,
+  onNewProject,
+  onOpenProject,
   className
 }) => {
-  // État des panneaux
-  const [leftPanelVisible, setLeftPanelVisible] = useState(true)
-  const [rightPanelVisible, setRightPanelVisible] = useState(true)
+  // État des panneaux (largeur)
   const [leftPanelWidth, setLeftPanelWidth] = useState(280)
   const [rightPanelWidth, setRightPanelWidth] = useState(280)
 
@@ -74,6 +80,8 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
             activeProject={activeProject}
             selectedElementId={selectedElementId}
             onSelect={handleExplorerSelect}
+            onNewProject={onNewProject}
+            onOpenProject={onOpenProject}
             className="flex-shrink-0"
           />
           {/* Poignée de redimensionnement gauche */}

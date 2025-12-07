@@ -249,6 +249,31 @@ class MenuBuilder {
             }
           }
         ]
+      },
+      {
+        label: "&Carte",
+        submenu: [
+          {
+            label: "&Configuration du diagramme...",
+            accelerator: "CmdOrCtrl+K",
+            click: () => {
+              this.mainWindow.webContents.send("menu:open-configuration");
+            }
+          },
+          { type: "separator" },
+          {
+            label: "&Régénérer le layout",
+            click: () => {
+              this.mainWindow.webContents.send("menu:regenerate-layout");
+            }
+          },
+          {
+            label: "&Valider le diagramme",
+            click: () => {
+              this.mainWindow.webContents.send("menu:validate-diagram");
+            }
+          }
+        ]
       }
     ];
     templateDefault.push({

@@ -17,6 +17,9 @@ interface FormFieldProps {
   error?: string
   helperText?: string
   rows?: number
+  min?: number
+  max?: number
+  step?: number
 }
 
 export const FormField: React.FC<FormFieldProps> = ({
@@ -29,7 +32,10 @@ export const FormField: React.FC<FormFieldProps> = ({
   disabled = false,
   error,
   helperText,
-  rows = 3
+  rows = 3,
+  min,
+  max,
+  step
 }) => {
   return (
     <div className="space-y-2">
@@ -57,6 +63,9 @@ export const FormField: React.FC<FormFieldProps> = ({
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           disabled={disabled}
+          min={min}
+          max={max}
+          step={step}
           className={cn(error && 'border-red-500')}
         />
       )}

@@ -147,12 +147,11 @@ export const AnalysisTab: React.FC<AnalysisTabProps> = ({
       {/* Header */}
       <div>
         <h3 className="text-lg font-semibold mb-2">
-          Analyse & Détection Automatique
+          Analyse & Détection
         </h3>
         <p className="text-sm text-muted-foreground">
           Configurez les règles pour détecter automatiquement les goulots d'étranglement,
-          les gaspillages et les opportunités d'amélioration. L'analyse s'effectue en temps réel
-          et les alertes sont systématiquement affichées sur le diagramme.
+          les gaspillages et les opportunités d'amélioration
         </p>
       </div>
 

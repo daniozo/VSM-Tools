@@ -28,10 +28,10 @@ import {
   Settings2,
   ZoomIn,
   ZoomOut,
-  Maximize2,
   PanelLeft,
   PanelRight,
-  RotateCcw
+  RotateCcw,
+  Play
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -70,6 +70,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
   const configActions: ToolbarAction[] = [
     { id: 'configure', icon: <Settings2 className="h-4 w-4" />, label: 'Configurer le Diagramme', shortcut: 'Ctrl+K' },
+    { id: 'loadDemo', icon: <Play className="h-4 w-4" />, label: 'Charger Démo', shortcut: '' },
   ]
 
   const zoomActions: ToolbarAction[] = [
@@ -157,26 +158,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         </div>
       </div>
 
-      {/* Boutons panneau droit et plein écran */}
-      <div className="flex items-center gap-1">
-        <TooltipProvider delayDuration={300}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0"
-                onClick={() => onAction('fullscreen')}
-              >
-                <Maximize2 className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <p>Plein écran</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-
+      {/* Bouton panneau droit */}
+      <div className="flex items-center">
         <TooltipProvider delayDuration={300}>
           <Tooltip>
             <TooltipTrigger asChild>
