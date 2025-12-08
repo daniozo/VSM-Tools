@@ -12,6 +12,8 @@
 import React, { useState, useCallback } from 'react'
 import { ProjectExplorer } from './ProjectExplorer'
 import { PropertiesPanel } from './PropertiesPanel'
+import { RightSidebar, RightSidebarPanel } from './RightSidebar'
+import { ChatAssistant } from './ChatAssistant'
 import { cn } from '@/lib/utils'
 
 interface MainLayoutProps {
@@ -33,11 +35,14 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
 }) => {
   // État des panneaux (largeur)
   const [leftPanelWidth, setLeftPanelWidth] = useState(280)
-  const [rightPanelWidth, setRightPanelWidth] = useState(280)
+  const [rightPanelWidth, setRightPanelWidth] = useState(320)
 
   // État du projet actif
   const [activeProject] = useState<string | null>(null)
   const [selectedElementId, setSelectedElementId] = useState<string | null>(null)
+
+  // État du panneau de droite (sidebar + contenu)
+  const [activeRightPanel, setActiveRightPanel] = useState<RightSidebarPanel>('properties')
 
   // Gestion du redimensionnement des panneaux
   const [isResizingLeft, setIsResizingLeft] = useState(false)
@@ -66,7 +71,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
   }
 
   return (
-    <div 
+    <div
       className={cn('flex flex-1 overflow-hidden min-h-0', className)}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
@@ -97,18 +102,38 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
         {children}
       </div>
 
-      {/* Panneau droit - Propriétés */}
+      {/* Section droite - Barre verticale + Panneau */}
       {rightPanelVisible && (
         <>
           {/* Poignée de redimensionnement droite */}
-          <div
-            className="w-1 cursor-col-resize hover:bg-primary/50 active:bg-primary transition-colors"
-            onMouseDown={() => setIsResizingRight(true)}
-          />
-          <PropertiesPanel
-            width={rightPanelWidth}
-            selectedElementId={selectedElementId}
-            className="flex-shrink-0"
+          {activeRightPanel && (
+            <div
+              className="w-1 cursor-col-resize hover:bg-primary/50 active:bg-primary transition-colors"
+              onMouseDown={() => setIsResizingRight(true)}
+            />
+          )}
+
+          {/* Contenu du panneau selon la sélection */}
+          {activeRightPanel === 'properties' && (
+            <PropertiesPanel
+              width={rightPanelWidth}
+              selectedElementId={selectedElementId}
+              className="flex-shrink-0"
+            />
+          )}
+
+          {activeRightPanel === 'assistant' && (
+            <ChatAssistant
+              width={rightPanelWidth}
+              projectContext={activeProject || undefined}
+              className="flex-shrink-0"
+            />
+          )}
+
+          {/* Barre verticale avec icônes */}
+          <RightSidebar
+            activePanel={activeRightPanel}
+            onPanelChange={setActiveRightPanel}
           />
         </>
       )}

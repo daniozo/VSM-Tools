@@ -9,6 +9,8 @@ import { MainLayout, Toolbar, StatusBar } from './components/layout';
 import VsmCanvas from './components/editor/VsmCanvas';
 import ErrorFallback from './components/ui/ErrorFallback';
 import { ConfigurationDialog } from './components/dialogs/configuration/ConfigurationDialog';
+import { NewProjectDialog } from './components/dialogs/NewProjectDialog';
+import { OpenProjectDialog } from './components/dialogs/OpenProjectDialog';
 
 // Store et données
 import { useVsmStore } from '@/store/vsmStore';
@@ -21,15 +23,25 @@ import { useBackendConnection } from './hooks/useBackendConnection';
 const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isConfigDialogOpen, setIsConfigDialogOpen] = useState<boolean>(false);
+  const [isNewProjectDialogOpen, setIsNewProjectDialogOpen] = useState<boolean>(false);
+  const [isOpenProjectDialogOpen, setIsOpenProjectDialogOpen] = useState<boolean>(false);
   const [leftPanelVisible, setLeftPanelVisible] = useState<boolean>(true);
   const [rightPanelVisible, setRightPanelVisible] = useState<boolean>(true);
 
   // Store VSM
   const { loadDiagram, createNewDiagram } = useVsmStore();
-  
+
   // Connexion backend (auto-connect)
   useBackendConnection();
-  const { connectionStatus } = useProjectsStore();
+  const {
+    connectionStatus,
+    projects,
+    currentProject,
+    isLoadingProjects,
+    fetchProjects,
+    createProject,
+    selectProject,
+  } = useProjectsStore();
 
   useEffect(() => {
     // Simulation de chargement initial
@@ -89,7 +101,7 @@ const App: React.FC = () => {
   // Gestionnaire pour les actions de la toolbar
   const handleToolbarAction = (action: string) => {
     console.log(`Action toolbar: ${action}`);
-    
+
     switch (action) {
       case 'newProject':
         handleNewProject();
@@ -118,9 +130,6 @@ const App: React.FC = () => {
       case 'configure':
         setIsConfigDialogOpen(true);
         break;
-      case 'loadDemo':
-        handleLoadDemo();
-        break;
       case 'toggleLeftPanel':
         setLeftPanelVisible(!leftPanelVisible);
         break;
@@ -134,12 +143,48 @@ const App: React.FC = () => {
 
   // Actions projet
   const handleNewProject = () => {
-    console.log('Nouveau projet');
-    createNewDiagram('Nouveau Diagramme', 'Utilisateur');
+    setIsNewProjectDialogOpen(true);
   };
 
   const handleOpenProject = () => {
-    console.log('Ouvrir projet - TODO: ouvrir dialogue fichier');
+    setIsOpenProjectDialogOpen(true);
+  };
+
+  const handleCreateProject = async (name: string, description?: string) => {
+    try {
+      const newProject = await createProject(name, description);
+      await selectProject(newProject);
+      console.log('Projet créé:', newProject);
+    } catch (error) {
+      console.error('Erreur lors de la création du projet:', error);
+      throw error;
+    }
+  };
+
+  const handleImportVSMX = async (file: File, projectName: string, description?: string) => {
+    try {
+      // TODO: Parser le fichier VSMX et extraire les données
+      // Pour l'instant, on crée juste un projet vide
+      console.log('Import VSMX:', file.name);
+      const newProject = await createProject(projectName, description);
+      await selectProject(newProject);
+
+      // TODO: Charger les données du fichier VSMX dans le diagramme
+      console.log('Projet créé depuis VSMX:', newProject);
+    } catch (error) {
+      console.error('Erreur lors de l\'import VSMX:', error);
+      throw error;
+    }
+  };
+
+  const handleSelectProject = async (project: typeof currentProject) => {
+    try {
+      await selectProject(project);
+      console.log('Projet sélectionné:', project);
+    } catch (error) {
+      console.error('Erreur lors de la sélection du projet:', error);
+      throw error;
+    }
   };
 
   const handleLoadDemo = () => {
@@ -160,7 +205,7 @@ const App: React.FC = () => {
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback} onError={handleError}>
       <div className="flex flex-col h-screen bg-background select-none">
-        <Toolbar 
+        <Toolbar
           onAction={handleToolbarAction}
           leftPanelVisible={leftPanelVisible}
           rightPanelVisible={rightPanelVisible}
@@ -174,11 +219,27 @@ const App: React.FC = () => {
           <VsmCanvas />
         </MainLayout>
         <StatusBar />
-        
-        {/* Dialogue de configuration */}
+
+        {/* Dialogues */}
         <ConfigurationDialog
           open={isConfigDialogOpen}
           onOpenChange={setIsConfigDialogOpen}
+        />
+
+        <NewProjectDialog
+          open={isNewProjectDialogOpen}
+          onOpenChange={setIsNewProjectDialogOpen}
+          onCreateProject={handleCreateProject}
+          onImportVSMX={handleImportVSMX}
+        />
+
+        <OpenProjectDialog
+          open={isOpenProjectDialogOpen}
+          onOpenChange={setIsOpenProjectDialogOpen}
+          projects={projects}
+          isLoading={isLoadingProjects}
+          onSelectProject={handleSelectProject}
+          onRefresh={fetchProjects}
         />
       </div>
     </ErrorBoundary>

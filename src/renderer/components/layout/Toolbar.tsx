@@ -30,8 +30,7 @@ import {
   ZoomOut,
   PanelLeft,
   PanelRight,
-  RotateCcw,
-  Play
+  RotateCcw
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -70,7 +69,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
   const configActions: ToolbarAction[] = [
     { id: 'configure', icon: <Settings2 className="h-4 w-4" />, label: 'Configurer le Diagramme', shortcut: 'Ctrl+K' },
-    { id: 'loadDemo', icon: <Play className="h-4 w-4" />, label: 'Charger Démo', shortcut: '' },
   ]
 
   const zoomActions: ToolbarAction[] = [
