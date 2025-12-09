@@ -88,6 +88,7 @@ const VsmCanvas: React.FC = () => {
     graph.setEnabled(true)
     graph.setCellsMovable(false) // Positions calculées par layout
     graph.setCellsResizable(false) // Tailles fixes
+    graph.setCellsEditable(false) // Désactiver l'édition au double-clic
 
     // Définir la taille de la grille
     const gAny = graph as any

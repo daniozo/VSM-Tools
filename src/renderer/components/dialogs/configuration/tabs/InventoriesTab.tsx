@@ -82,6 +82,11 @@ export const InventoriesTab: React.FC<InventoriesTabProps> = ({
   const [initialStockJsonPath, setInitialStockJsonPath] = useState('')
   const [initialStockParameters, setInitialStockParameters] = useState('')
 
+  // Effet pour sauvegarder le stock initial
+  useEffect(() => {
+    saveInitialStock()
+  }, [initialStockEnabled, initialStockName, initialStockType, initialStockMode, initialStockQty, initialStockDuration])
+
   // Stock Final
   const [finalStockEnabled, setFinalStockEnabled] = useState(true)
   const [finalStockType, setFinalStockType] = useState<InventoryType>(InventoryType.FINISHED_GOODS)
@@ -94,6 +99,11 @@ export const InventoriesTab: React.FC<InventoriesTabProps> = ({
   const [finalStockRestEndpoint, setFinalStockRestEndpoint] = useState('')
   const [finalStockJsonPath, setFinalStockJsonPath] = useState('')
   const [finalStockParameters, setFinalStockParameters] = useState('')
+
+  // Effet pour sauvegarder le stock final
+  useEffect(() => {
+    saveFinalStock()
+  }, [finalStockEnabled, finalStockName, finalStockType, finalStockMode, finalStockQty, finalStockDuration])
 
   // Dialogue de configuration dynamique
   const [isDynamicConfigDialogOpen, setIsDynamicConfigDialogOpen] = useState(false)
@@ -162,9 +172,12 @@ export const InventoriesTab: React.FC<InventoriesTabProps> = ({
   const handleSave = () => {
     if (!editingStock) return
 
-    setBetweenStocks(prev =>
-      prev.map(s => (s.id === editingStock.id ? editingStock : s))
-    )
+    const updatedStocks = betweenStocks.map(s => (s.id === editingStock.id ? editingStock : s))
+    setBetweenStocks(updatedStocks)
+    
+    // Synchroniser vers flowSequences
+    syncBetweenStocksToFlowSequences(updatedStocks)
+    
     setIsDialogOpen(false)
     setEditingStock(null)
   }
@@ -184,9 +197,183 @@ export const InventoriesTab: React.FC<InventoriesTabProps> = ({
     
     setBetweenStocks(updatedStocks)
     
-    // Marquer comme modifié et auto-sauvegarder
-    // Note: betweenStocks sera synchronisé vers flowSequences lors du prochain save
-    onUpdate({ flowSequences: diagram.flowSequences })
+    // Synchroniser vers flowSequences
+    syncBetweenStocksToFlowSequences(updatedStocks)
+  }
+
+  /**
+   * Synchronise betweenStocks vers diagram.flowSequences
+   */
+  const syncBetweenStocksToFlowSequences = (stocks: BetweenStockData[]) => {
+    const updatedFlowSequences = [...diagram.flowSequences]
+    
+    // Pour chaque stock activé, créer/mettre à jour l'inventory dans flowSequences
+    stocks.forEach((stock) => {
+      // Trouver les nodes correspondants
+      const fromNode = diagram.nodes.find(n => n.name === stock.fromStep)
+      const toNode = diagram.nodes.find(n => n.name === stock.toStep)
+      
+      if (!fromNode || !toNode) return
+      
+      // Trouver ou créer la flowSequence
+      let flowSeq = updatedFlowSequences.find(fs => fs.fromNodeId === fromNode.id && fs.toNodeId === toNode.id)
+      
+      if (!flowSeq) {
+        flowSeq = {
+          order: updatedFlowSequences.length,
+          fromNodeId: fromNode.id,
+          toNodeId: toNode.id,
+          intermediateElements: []
+        }
+        updatedFlowSequences.push(flowSeq)
+      }
+      
+      // Gérer l'inventory dans intermediateElements
+      const invIndex = flowSeq.intermediateElements.findIndex(el => el.type === 'INVENTORY')
+      
+      if (stock.enabled) {
+        // Créer/mettre à jour l'inventory
+        const inventory: Inventory = {
+          id: stock.id,
+          name: stock.name,
+          type: stock.type,
+          quantity: stock.quantity.toString(),
+          duration: stock.durationDays.toString(),
+          unit: 'unités',
+          mode: stock.mode === 'Dynamique' ? 'dynamic' : stock.mode === 'Manuel' ? 'manual' : 'static',
+          indicators: [],
+          dataConnection: stock.dataConnection
+        }
+        
+        if (invIndex >= 0) {
+          // Mettre à jour
+          flowSeq.intermediateElements[invIndex].inventory = inventory
+        } else {
+          // Ajouter
+          flowSeq.intermediateElements.push({
+            order: flowSeq.intermediateElements.length + 1,
+            type: 'INVENTORY',
+            inventory
+          })
+        }
+      } else {
+        // Retirer l'inventory si désactivé
+        if (invIndex >= 0) {
+          flowSeq.intermediateElements.splice(invIndex, 1)
+        }
+      }
+    })
+    
+    // Sauvegarder
+    onUpdate({ flowSequences: updatedFlowSequences })
+  }
+
+  /**
+   * Sauvegarde le stock initial dans flowSequences
+   */
+  const saveInitialStock = () => {
+    const updatedFlowSequences = [...diagram.flowSequences]
+    const firstNode = diagram.nodes.find(n => n.type === NodeType.PROCESS_STEP)
+    
+    if (!firstNode) return
+    
+    // Chercher la séquence supplier -> firstNode (ou créer)
+    let flowSeq = updatedFlowSequences.find(fs => fs.toNodeId === firstNode.id && (!fs.fromNodeId || fs.fromNodeId === 'supplier'))
+    
+    if (!flowSeq) {
+      flowSeq = {
+        order: 0,
+        fromNodeId: 'supplier',
+        toNodeId: firstNode.id,
+        intermediateElements: []
+      }
+      updatedFlowSequences.unshift(flowSeq)
+    }
+    
+    const invIndex = flowSeq.intermediateElements.findIndex(el => el.type === 'INVENTORY')
+    
+    if (initialStockEnabled) {
+      const inventory: Inventory = {
+        id: generateId('stock-initial'),
+        name: initialStockName,
+        type: initialStockType,
+        quantity: initialStockQty,
+        duration: initialStockDuration,
+        unit: 'unités',
+        mode: initialStockMode === 'Dynamique' ? 'dynamic' : initialStockMode === 'Manuel' ? 'manual' : 'static',
+        indicators: []
+      }
+      
+      if (invIndex >= 0) {
+        flowSeq.intermediateElements[invIndex].inventory = inventory
+      } else {
+        flowSeq.intermediateElements.push({
+          order: 1,
+          type: 'INVENTORY',
+          inventory
+        })
+      }
+    } else {
+      if (invIndex >= 0) {
+        flowSeq.intermediateElements.splice(invIndex, 1)
+      }
+    }
+    
+    onUpdate({ flowSequences: updatedFlowSequences })
+  }
+
+  /**
+   * Sauvegarde le stock final dans flowSequences
+   */
+  const saveFinalStock = () => {
+    const updatedFlowSequences = [...diagram.flowSequences]
+    const lastNode = diagram.nodes.filter(n => n.type === NodeType.PROCESS_STEP).pop()
+    
+    if (!lastNode) return
+    
+    // Chercher la séquence lastNode -> customer (ou créer)
+    let flowSeq = updatedFlowSequences.find(fs => fs.fromNodeId === lastNode.id && (!fs.toNodeId || fs.toNodeId === 'customer'))
+    
+    if (!flowSeq) {
+      flowSeq = {
+        order: updatedFlowSequences.length,
+        fromNodeId: lastNode.id,
+        toNodeId: 'customer',
+        intermediateElements: []
+      }
+      updatedFlowSequences.push(flowSeq)
+    }
+    
+    const invIndex = flowSeq.intermediateElements.findIndex(el => el.type === 'INVENTORY')
+    
+    if (finalStockEnabled) {
+      const inventory: Inventory = {
+        id: generateId('stock-final'),
+        name: finalStockName,
+        type: finalStockType,
+        quantity: finalStockQty,
+        duration: finalStockDuration,
+        unit: 'unités',
+        mode: finalStockMode === 'Dynamique' ? 'dynamic' : finalStockMode === 'Manuel' ? 'manual' : 'static',
+        indicators: []
+      }
+      
+      if (invIndex >= 0) {
+        flowSeq.intermediateElements[invIndex].inventory = inventory
+      } else {
+        flowSeq.intermediateElements.push({
+          order: 1,
+          type: 'INVENTORY',
+          inventory
+        })
+      }
+    } else {
+      if (invIndex >= 0) {
+        flowSeq.intermediateElements.splice(invIndex, 1)
+      }
+    }
+    
+    onUpdate({ flowSequences: updatedFlowSequences })
   }
 
   const columns: Column<BetweenStockData>[] = [

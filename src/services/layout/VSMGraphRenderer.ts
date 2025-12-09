@@ -33,9 +33,7 @@ const VSMStyles: Record<string, StyleObject> = {
     shape: 'rectangle',
     fillColor: '#f3f4f6',
     strokeColor: '#6b7280',
-    strokeWidth: 1,
-    dashed: true,
-    dashPattern: '5 5',
+    strokeWidth: 2,
     rounded: false,
     fontColor: '#6b7280',
     fontSize: 10,
@@ -46,6 +44,7 @@ const VSMStyles: Record<string, StyleObject> = {
 
   inventory: {
     shape: 'triangle',
+    direction: 'north',  // Pointe vers le haut, base en bas
     fillColor: '#fef3c7',
     strokeColor: '#d97706',
     strokeWidth: 1.5,
@@ -154,6 +153,7 @@ const VSMStyles: Record<string, StyleObject> = {
     endArrow: 'classic',
     endSize: 8,
     rounded: true,
+    edgeStyle: 'orthogonalEdgeStyle',  // Routing en escalier
   },
 
   informationFlow: {
@@ -309,6 +309,9 @@ export class VSMGraphRenderer {
 
   /**
    * Rend une connexion (edge)
+   * Selon algo.md Étape B - Ligne 2 (InformationFlow):
+   * - Point d'ancrage de départ: milieu du côté INFÉRIEUR de la source
+   * - Point d'ancrage d'arrivée: milieu du côté SUPÉRIEUR de la cible
    */
   private renderConnection(parent: Cell, connection: LayoutConnection): Cell | null {
     const { id, sourceId, targetId, type, label } = connection
@@ -323,6 +326,72 @@ export class VSMGraphRenderer {
 
     const styleName = type === 'material-flow' ? 'materialFlow' : 'informationFlow'
     
+    // Définir les points d'ancrage selon le type de flux et les éléments
+    let exitX = 0.5  // milieu horizontal par défaut
+    let exitY = 0.5  // milieu vertical par défaut
+    let entryX = 0.5 // milieu horizontal par défaut
+    let entryY = 0.5 // milieu vertical par défaut
+    
+    if (type === 'information-flow') {
+      // Flux d'information Ligne 1 : utiliser les côtés
+      if (sourceId === 'customer') {
+        // Customer : sortie par le côté gauche
+        exitX = 0.0
+        exitY = 0.5
+      } else if (sourceId === 'control-center') {
+        // ControlCenter : sortie par le côté gauche vers supplier
+        exitX = 0.0
+        exitY = 0.5
+      } else {
+        // Autres : sortie par le bas (vers process steps)
+        exitX = 0.5
+        exitY = 1.0
+      }
+      
+      if (targetId === 'control-center') {
+        // ControlCenter : entrée par le côté droit
+        entryX = 1.0
+        entryY = 0.5
+      } else if (targetId === 'supplier') {
+        // Supplier : entrée par le côté droit
+        entryX = 1.0
+        entryY = 0.5
+      } else {
+        // Process steps : entrée par le haut
+        entryX = 0.5
+        entryY = 0.0
+      }
+    } else if (type === 'material-flow') {
+      // Flux matériel : cas spéciaux pour actors et pseudo-steps
+      if (sourceId === 'supplier') {
+        // Supplier -> reception : sortie par le bas
+        exitX = 0.5
+        exitY = 1.0
+      } else if (sourceId === 'livraison') {
+        // Livraison -> customer : sortie par le côté droit
+        exitX = 1.0
+        exitY = 0.5
+      } else {
+        // Autres : sortie par le côté droit
+        exitX = 1.0
+        exitY = 0.5
+      }
+      
+      if (targetId === 'reception') {
+        // Reception : entrée par le côté gauche
+        entryX = 0.0
+        entryY = 0.5
+      } else if (targetId === 'customer') {
+        // Customer : entrée par le bas
+        entryX = 0.5
+        entryY = 1.0
+      } else {
+        // Autres : entrée par le côté gauche
+        entryX = 0.0
+        entryY = 0.5
+      }
+    }
+    
     // Nouvelle API maxGraph avec objet de paramètres
     const edge = this.graph.insertEdge({
       parent,
@@ -330,7 +399,15 @@ export class VSMGraphRenderer {
       value: label || '',
       source: sourceCell,
       target: targetCell,
-      style: { baseStyleNames: [styleName] }
+      style: { 
+        baseStyleNames: [styleName],
+        exitX,
+        exitY,
+        entryX,
+        entryY,
+        exitPerimeter: true,
+        entryPerimeter: true
+      }
     })
 
     return edge
@@ -347,7 +424,8 @@ export class VSMGraphRenderer {
     const operators = metadata.operators as number | undefined
 
     if (operators && operators > 0) {
-      return `${name}\n\n👤 ${operators}`
+      const operatorText = operators === 1 ? '1 Opérateur' : `${operators} Opérateurs`
+      return `${name}\n\n${operatorText}`
     }
     return name
   }
@@ -358,13 +436,20 @@ export class VSMGraphRenderer {
     const name = metadata.name as string || ''
     const role = metadata.role as string || ''
     
-    const icon = role === 'supplier' ? '🏭' : role === 'customer' ? '🏪' : '🏢'
-    return `${icon}\n${name}`
+    // Texte simple selon le rôle
+    const roleLabel = role === 'supplier' ? 'Fournisseur' : role === 'customer' ? 'Client' : 'Entreprise'
+    return name ? `${roleLabel}\n${name}` : roleLabel
   }
 
   private formatDataBoxLabel(metadata?: Record<string, unknown>): string {
     if (!metadata) return ''
 
+    // Si c'est une data box pour pseudo-étape (texte simple)
+    if (metadata.text) {
+      return metadata.text as string
+    }
+
+    // Sinon, afficher les indicateurs
     const indicators = metadata.indicators as Array<{ code: string; value: string; unit: string }> || []
     
     return indicators

@@ -734,6 +734,14 @@ VSM-Tools/
 - ✅ **Suppression bordures arrondies** : Tous rectangles avec `rounded: false` (Actors, Control Center)
 - ✅ **Déclenchement sauvegarde** : Toggle checkbox stock entre étapes appelle `onUpdate()` → auto-save
 
+### Gestion des Stocks Initial/Final (Session 3)
+- ✅ **Synchronisation flowSequences** : Fonction `syncBetweenStocksToFlowSequences()` convertit betweenStocks → intermediateElements
+- ✅ **Sauvegarde automatique** : Toggle et édition déclenchent auto-save vers backend
+- ✅ **Stock Initial** : Interface complète avec checkbox, type, nom, mode (Statique/Dynamique/Manuel)
+- ✅ **Stock Final** : Interface complète avec checkbox, type, nom, mode
+- ✅ **Data boxes Réception/Livraison** : Affichage du nom du stock sous les pseudo-étapes
+- ✅ **Rendu texte centré** : formatDataBoxLabel() gère `metadata.text` pour pseudo-étapes
+
 ### Composants modifiés
 - `src/renderer/components/editor/VsmCanvas.tsx` : Retiré légende swimlanes
 - `src/services/layout/VSMLayoutEngine.ts` : 

@@ -24,7 +24,7 @@ export const LayoutConstants = {
   ACTOR_HEIGHT: 60,
   INVENTORY_WIDTH: 60,
   INVENTORY_HEIGHT: 50,
-  CONTROL_CENTER_WIDTH: 140,
+  CONTROL_CENTER_WIDTH: 180,
   CONTROL_CENTER_HEIGHT: 60,
   DATA_BOX_WIDTH: 120, // MÊME LARGEUR QUE PROCESS_STEP
   DATA_BOX_MIN_HEIGHT: 60,
@@ -38,12 +38,12 @@ export const LayoutConstants = {
   MARGIN_RIGHT: 150,
   MARGIN_BOTTOM: 50,
 
-  // Positions Y des swimlanes
-  ACTORS_Y: 50,
-  INFO_FLOW_Y: 150,
-  PRODUCTION_Y: 250,
-  DATA_Y: 380,
-  TIMELINE_Y: 500,
+  // Positions Y des swimlanes (selon algo.md)
+  Y_ACTORS_CONTROL: 50,
+  Y_INFO_FLOWS: 150,
+  Y_PRODUCTION_FLOW: 250,
+  Y_DATA_BOXES: 360,  // Réduit de 380 à 360 (écart de 110px au lieu de 130px)
+  Y_TIMELINE: 500,
 
   // Timeline
   TIMELINE_LINE_THICKNESS: 3,
@@ -135,19 +135,19 @@ export class VSMLayoutEngine {
 
     this.currentX = startX
 
-    // Étape 1 : Positionner les acteurs et le centre de contrôle
-    this.layoutActorsAndControlCenter(diagram, result, productionWidth, startX)
-
-    // Étape 2 : Positionner le flux de production principal (nodes + inventories)
+    // Étape A : Positionner le flux de production principal (Ligne 3) - CALCUL HORIZONTAL
     this.layoutProductionFlow(diagram, result)
 
-    // Étape 3 : Positionner les data boxes (indicateurs)
+    // Étape B - Ligne 1 : Positionner les acteurs et le centre de contrôle (APRÈS Ligne 3)
+    this.layoutActorsAndControlCenterAfterProduction(diagram, result, productionWidth, startX)
+
+    // Étape B - Ligne 4 : Positionner les data boxes (indicateurs)
     this.layoutDataBoxes(diagram, result)
 
-    // Étape 4 : Calculer la timeline
+    // Étape B - Ligne 5 : Calculer la timeline
     this.layoutTimeline(diagram, result)
 
-    // Étape 5 : Calculer les connexions (flux d'information)
+    // Étape B - Ligne 2 : Calculer les connexions (flux d'information)
     this.layoutConnections(diagram, result)
 
     // Normaliser et calculer les dimensions totales
@@ -186,7 +186,11 @@ export class VSMLayoutEngine {
   }
 
   /**
-   * Étape 1 : Positionne les acteurs et le centre de contrôle
+   * Étape 1 : Positionne les acteurs et le centre de contrôle (Ligne 1)
+   * Selon algo.md Étape B - Ligne 1:
+   * - Supplier: centre horizontal aligné sur centre du PREMIER élément de Ligne 3
+   * - Customer: centre horizontal aligné sur centre du DERNIER élément de Ligne 3  
+   * - ControlCenter: centre horizontal au milieu de TOTAL_PRODUCTION_WIDTH
    */
   private layoutActorsAndControlCenter(
     diagram: VSMDiagram, 
@@ -194,14 +198,39 @@ export class VSMLayoutEngine {
     productionWidth: number,
     startX: number
   ): void {
+    // NOTE: Cette méthode sera appelée APRÈS layoutProductionFlow
+    // pour pouvoir aligner sur les éléments de Ligne 3
+  }
+
+  /**
+   * Positionne les acteurs APRÈS avoir placé le flux de production
+   * (pour aligner sur les centres des éléments de Ligne 3)
+   */
+  private layoutActorsAndControlCenterAfterProduction(
+    diagram: VSMDiagram,
+    result: LayoutResult,
+    productionWidth: number,
+    startX: number
+  ): void {
     const { actors } = diagram
 
-    // Fournisseur à gauche - MÊME LIGNE QUE CONTROL CENTER
+    // Trouver le premier et dernier élément de la production (Ligne 3)
+    const productionElements = Array.from(result.positions.values())
+      .filter(p => p.type === 'process-step' || p.type === 'inventory')
+      .sort((a, b) => a.x - b.x)
+
+    if (productionElements.length === 0) return
+
+    const firstElem = productionElements[0]
+    const lastElem = productionElements[productionElements.length - 1]
+
+    // Supplier: son centre horizontal aligné sur le centre du PREMIER élément
     if (actors.supplier) {
+      const supplierCenterX = firstElem.x + firstElem.width / 2
       result.positions.set('supplier', {
         id: 'supplier',
-        x: LayoutConstants.MARGIN_LEFT - LayoutConstants.ACTOR_WIDTH - 30,
-        y: LayoutConstants.ACTORS_Y,
+        x: supplierCenterX - LayoutConstants.ACTOR_WIDTH / 2,
+        y: LayoutConstants.Y_ACTORS_CONTROL,
         width: LayoutConstants.ACTOR_WIDTH,
         height: LayoutConstants.ACTOR_HEIGHT,
         type: 'actor',
@@ -213,12 +242,13 @@ export class VSMLayoutEngine {
       })
     }
 
-    // Client à droite - MÊME LIGNE QUE CONTROL CENTER
+    // Customer: son centre horizontal aligné sur le centre du DERNIER élément
     if (actors.customer) {
+      const customerCenterX = lastElem.x + lastElem.width / 2
       result.positions.set('customer', {
         id: 'customer',
-        x: startX + productionWidth + 30,
-        y: LayoutConstants.ACTORS_Y,
+        x: customerCenterX - LayoutConstants.ACTOR_WIDTH / 2,
+        y: LayoutConstants.Y_ACTORS_CONTROL,
         width: LayoutConstants.ACTOR_WIDTH,
         height: LayoutConstants.ACTOR_HEIGHT,
         type: 'actor',
@@ -230,13 +260,24 @@ export class VSMLayoutEngine {
       })
     }
 
-    // Centre de contrôle en haut au centre
+    // ControlCenter: centré entre Supplier et Customer
     if (actors.controlCenter) {
-      const centerX = (LayoutConstants.DEFAULT_CANVAS_WIDTH - LayoutConstants.CONTROL_CENTER_WIDTH) / 2
+      const supplierPos = result.positions.get('supplier')
+      const customerPos = result.positions.get('customer')
+      
+      let controlCenterX = startX + productionWidth / 2 - LayoutConstants.CONTROL_CENTER_WIDTH / 2
+      
+      // Si Supplier et Customer existent, centrer entre les deux
+      if (supplierPos && customerPos) {
+        const supplierCenter = supplierPos.x + supplierPos.width / 2
+        const customerCenter = customerPos.x + customerPos.width / 2
+        controlCenterX = (supplierCenter + customerCenter) / 2 - LayoutConstants.CONTROL_CENTER_WIDTH / 2
+      }
+      
       result.positions.set('control-center', {
         id: 'control-center',
-        x: centerX,
-        y: LayoutConstants.ACTORS_Y,
+        x: controlCenterX,
+        y: LayoutConstants.Y_ACTORS_CONTROL,
         width: LayoutConstants.CONTROL_CENTER_WIDTH,
         height: LayoutConstants.CONTROL_CENTER_HEIGHT,
         type: 'control-center',
@@ -257,7 +298,7 @@ export class VSMLayoutEngine {
     result.positions.set('reception', {
       id: 'reception',
       x: this.currentX,
-      y: LayoutConstants.PRODUCTION_Y,
+      y: LayoutConstants.Y_PRODUCTION_FLOW,
       width: LayoutConstants.PROCESS_STEP_WIDTH,
       height: LayoutConstants.PROCESS_STEP_HEIGHT,
       type: 'process-step',
@@ -337,7 +378,7 @@ export class VSMLayoutEngine {
         result.positions.set(node.id, {
           id: node.id,
           x: this.currentX,
-          y: LayoutConstants.PRODUCTION_Y,
+          y: LayoutConstants.Y_PRODUCTION_FLOW,
           width: LayoutConstants.PROCESS_STEP_WIDTH,
           height: LayoutConstants.PROCESS_STEP_HEIGHT,
           type: 'process-step',
@@ -353,7 +394,7 @@ export class VSMLayoutEngine {
         result.positions.set(inventory.id, {
           id: inventory.id,
           x: this.currentX,
-          y: LayoutConstants.PRODUCTION_Y + 20, // Légèrement décalé pour centrer visuellement
+          y: LayoutConstants.Y_PRODUCTION_FLOW + 20, // Légèrement décalé pour centrer visuellement
           width: LayoutConstants.INVENTORY_WIDTH,
           height: LayoutConstants.INVENTORY_HEIGHT,
           type: 'inventory',
@@ -372,7 +413,7 @@ export class VSMLayoutEngine {
     result.positions.set('livraison', {
       id: 'livraison',
       x: this.currentX,
-      y: LayoutConstants.PRODUCTION_Y,
+      y: LayoutConstants.Y_PRODUCTION_FLOW,
       width: LayoutConstants.PROCESS_STEP_WIDTH,
       height: LayoutConstants.PROCESS_STEP_HEIGHT,
       type: 'process-step',
@@ -407,7 +448,7 @@ export class VSMLayoutEngine {
       result.positions.set(`databox-${node.id}`, {
         id: `databox-${node.id}`,
         x: nodePos.x,
-        y: LayoutConstants.DATA_Y,
+        y: LayoutConstants.Y_DATA_BOXES,
         width: nodePos.width, // MÊME LARGEUR que le ProcessStep
         height,
         type: 'data-box',
@@ -418,6 +459,48 @@ export class VSMLayoutEngine {
             value: ind.value || '—',
             unit: ind.unit
           }))
+        }
+      })
+    }
+
+    // Data boxes pour pseudo-étapes (Réception et Livraison) affichant les stocks
+    // Stock Initial sous Réception
+    const receptionPos = result.positions.get('reception')
+    const initialSeq = diagram.flowSequences.find(fs => !fs.fromNodeId || fs.fromNodeId === 'supplier')
+    const initialInventory = initialSeq?.intermediateElements.find(el => el.type === 'INVENTORY')?.inventory
+    
+    if (receptionPos && initialInventory) {
+      result.positions.set('databox-reception', {
+        id: 'databox-reception',
+        x: receptionPos.x,
+        y: LayoutConstants.Y_DATA_BOXES,
+        width: receptionPos.width,
+        height: 50,
+        type: 'data-box',
+        metadata: {
+          nodeId: 'reception',
+          text: initialInventory.name || 'Stock Initial'
+        }
+      })
+    }
+
+    // Stock Final sous Livraison
+    const livraisonPos = result.positions.get('livraison')
+    const lastNode = diagram.nodes.filter(n => n.type === NodeType.PROCESS_STEP).pop()
+    const finalSeq = lastNode ? diagram.flowSequences.find(fs => fs.fromNodeId === lastNode.id) : null
+    const finalInventory = finalSeq?.intermediateElements.find(el => el.type === 'INVENTORY')?.inventory
+    
+    if (livraisonPos && finalInventory) {
+      result.positions.set('databox-livraison', {
+        id: 'databox-livraison',
+        x: livraisonPos.x,
+        y: LayoutConstants.Y_DATA_BOXES,
+        width: livraisonPos.width,
+        height: 50,
+        type: 'data-box',
+        metadata: {
+          nodeId: 'livraison',
+          text: finalInventory.name || 'Stock Final'
         }
       })
     }
@@ -449,7 +532,7 @@ export class VSMLayoutEngine {
         result.positions.set(`timeline-va-${pos.id}`, {
           id: `timeline-va-${pos.id}`,
           x: pos.x, // MÊME X que ProcessStep
-          y: LayoutConstants.TIMELINE_Y,
+          y: LayoutConstants.Y_TIMELINE,
           width: pos.width, // MÊME largeur que ProcessStep
           height: LayoutConstants.TIMELINE_VA_HEIGHT,
           type: 'timeline-va',
@@ -458,16 +541,21 @@ export class VSMLayoutEngine {
         
         vaTotal += parseFloat(cycleTime) || 0
       } else if (pos.type === 'inventory') {
-        // NVA - temps d'attente - ALIGNÉ avec Inventory (même X, même largeur)
+        // NVA - temps d'attente - largeur uniformisée avec VA (PROCESS_STEP_WIDTH)
         const quantity = pos.metadata?.quantity as string || '0'
         const duration = parseFloat(pos.metadata?.duration as string || '0') || 0
         
         // Afficher même si quantity=0 (placeholder)
+        // NVA posé EN DESSOUS de la ligne timeline
+        // LARGEUR = PROCESS_STEP_WIDTH pour uniformité avec VA
+        // X ajusté pour centrer : décalage de (PROCESS_STEP_WIDTH - INVENTORY_WIDTH) / 2
+        const nvaX = pos.x - (LayoutConstants.PROCESS_STEP_WIDTH - LayoutConstants.INVENTORY_WIDTH) / 2
+        
         result.positions.set(`timeline-nva-${pos.id}`, {
           id: `timeline-nva-${pos.id}`,
-          x: pos.x, // MÊME X que Inventory
-          y: LayoutConstants.TIMELINE_Y,
-          width: pos.width, // MÊME largeur que Inventory
+          x: nvaX, // Centré sous l'inventory
+          y: LayoutConstants.Y_TIMELINE + LayoutConstants.TIMELINE_VA_HEIGHT + LayoutConstants.TIMELINE_LINE_THICKNESS + 5,
+          width: LayoutConstants.PROCESS_STEP_WIDTH, // Uniformisé avec VA
           height: LayoutConstants.TIMELINE_NVA_HEIGHT,
           type: 'timeline-nva',
           metadata: { 
@@ -481,7 +569,7 @@ export class VSMLayoutEngine {
       }
     }
 
-    // Ligne de timeline horizontale
+    // Ligne de timeline horizontale (entre VA et NVA)
     const firstX = productionPositions[0].x
     const lastPos = productionPositions[productionPositions.length - 1]
     const lastX = lastPos.x + lastPos.width
@@ -489,7 +577,7 @@ export class VSMLayoutEngine {
     result.positions.set('timeline-line', {
       id: 'timeline-line',
       x: firstX,
-      y: LayoutConstants.TIMELINE_Y + LayoutConstants.TIMELINE_VA_HEIGHT + 5,
+      y: LayoutConstants.Y_TIMELINE + LayoutConstants.TIMELINE_VA_HEIGHT + 2,
       width: lastX - firstX,
       height: LayoutConstants.TIMELINE_LINE_THICKNESS,
       type: 'timeline-line',
@@ -501,14 +589,24 @@ export class VSMLayoutEngine {
    * Étape 5 : Calcule les connexions
    */
   private layoutConnections(diagram: VSMDiagram, result: LayoutResult): void {
-    // Connexions matérielles (supplier -> nodes -> customer)
+    // Connexions matérielles avec pseudo-étapes (supplier -> reception -> nodes -> livraison -> customer)
     const processNodes = diagram.nodes.filter(n => n.type === NodeType.PROCESS_STEP)
     
-    // Supplier -> premier node
-    if (diagram.actors.supplier && processNodes.length > 0) {
+    // Supplier -> reception
+    if (diagram.actors.supplier) {
       result.connections.push({
-        id: 'flow-supplier-start',
+        id: 'flow-supplier-reception',
         sourceId: 'supplier',
+        targetId: 'reception',
+        type: 'material-flow'
+      })
+    }
+
+    // Reception -> premier node
+    if (processNodes.length > 0) {
+      result.connections.push({
+        id: 'flow-reception-first',
+        sourceId: 'reception',
         targetId: processNodes[0].id,
         type: 'material-flow'
       })
@@ -527,17 +625,48 @@ export class VSMLayoutEngine {
       }
     }
 
-    // Dernier node -> customer
-    if (diagram.actors.customer && processNodes.length > 0) {
+    // Dernier node -> livraison
+    if (processNodes.length > 0) {
       result.connections.push({
-        id: 'flow-end-customer',
+        id: 'flow-last-livraison',
         sourceId: processNodes[processNodes.length - 1].id,
+        targetId: 'livraison',
+        type: 'material-flow'
+      })
+    }
+
+    // Livraison -> customer
+    if (diagram.actors.customer) {
+      result.connections.push({
+        id: 'flow-livraison-customer',
+        sourceId: 'livraison',
         targetId: 'customer',
         type: 'material-flow'
       })
     }
 
-    // Flux d'information
+    // Flux d'information par défaut (Customer -> ControlCenter -> Supplier)
+    if (diagram.actors.customer && diagram.actors.controlCenter) {
+      result.connections.push({
+        id: 'info-flow-customer-controlcenter',
+        sourceId: 'customer',
+        targetId: 'control-center',
+        type: 'information-flow',
+        label: 'Commandes'
+      })
+    }
+    
+    if (diagram.actors.controlCenter && diagram.actors.supplier) {
+      result.connections.push({
+        id: 'info-flow-controlcenter-supplier',
+        sourceId: 'control-center',
+        targetId: 'supplier',
+        type: 'information-flow',
+        label: 'Prévisions'
+      })
+    }
+
+    // Flux d'information du modèle (ControlCenter -> ProcessSteps)
     for (const flow of diagram.informationFlows) {
       result.connections.push({
         id: flow.id,
