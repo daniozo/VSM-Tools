@@ -170,19 +170,23 @@ export const InventoriesTab: React.FC<InventoriesTabProps> = ({
   }
 
   const handleToggleStock = (stockId: string) => {
-    setBetweenStocks(prev =>
-      prev.map(s => {
-        if (s.id === stockId) {
-          const newEnabled = !s.enabled
-          return {
-            ...s,
-            enabled: newEnabled,
-            name: newEnabled && s.name === '(aucun)' ? 'Stock En-Cours' : s.name
-          }
+    const updatedStocks = betweenStocks.map(s => {
+      if (s.id === stockId) {
+        const newEnabled = !s.enabled
+        return {
+          ...s,
+          enabled: newEnabled,
+          name: newEnabled && s.name === '(aucun)' ? 'Stock En-Cours' : s.name
         }
-        return s
-      })
-    )
+      }
+      return s
+    })
+    
+    setBetweenStocks(updatedStocks)
+    
+    // Marquer comme modifié et auto-sauvegarder
+    // Note: betweenStocks sera synchronisé vers flowSequences lors du prochain save
+    onUpdate({ flowSequences: diagram.flowSequences })
   }
 
   const columns: Column<BetweenStockData>[] = [

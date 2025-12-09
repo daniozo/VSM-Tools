@@ -17,7 +17,7 @@ import {
 // ============================================
 
 export const LayoutConstants = {
-  // Dimensions des éléments
+  // Dimensions des éléments (UNIFORMISÉES pour alignement)
   PROCESS_STEP_WIDTH: 120,
   PROCESS_STEP_HEIGHT: 80,
   ACTOR_WIDTH: 100,
@@ -26,7 +26,7 @@ export const LayoutConstants = {
   INVENTORY_HEIGHT: 50,
   CONTROL_CENTER_WIDTH: 140,
   CONTROL_CENTER_HEIGHT: 60,
-  DATA_BOX_WIDTH: 100,
+  DATA_BOX_WIDTH: 120, // MÊME LARGEUR QUE PROCESS_STEP
   DATA_BOX_MIN_HEIGHT: 60,
   DATA_BOX_LINE_HEIGHT: 16,
 
@@ -196,12 +196,12 @@ export class VSMLayoutEngine {
   ): void {
     const { actors } = diagram
 
-    // Fournisseur à gauche
+    // Fournisseur à gauche - MÊME LIGNE QUE CONTROL CENTER
     if (actors.supplier) {
       result.positions.set('supplier', {
         id: 'supplier',
         x: LayoutConstants.MARGIN_LEFT - LayoutConstants.ACTOR_WIDTH - 30,
-        y: LayoutConstants.PRODUCTION_Y,
+        y: LayoutConstants.ACTORS_Y,
         width: LayoutConstants.ACTOR_WIDTH,
         height: LayoutConstants.ACTOR_HEIGHT,
         type: 'actor',
@@ -213,12 +213,12 @@ export class VSMLayoutEngine {
       })
     }
 
-    // Client à droite
+    // Client à droite - MÊME LIGNE QUE CONTROL CENTER
     if (actors.customer) {
       result.positions.set('customer', {
         id: 'customer',
         x: startX + productionWidth + 30,
-        y: LayoutConstants.PRODUCTION_Y,
+        y: LayoutConstants.ACTORS_Y,
         width: LayoutConstants.ACTOR_WIDTH,
         height: LayoutConstants.ACTOR_HEIGHT,
         type: 'actor',
@@ -285,17 +285,46 @@ export class VSMLayoutEngine {
     for (let i = 0; i < nodes.length; i++) {
       const node = nodes[i]
       
-      // Trouver la séquence qui a ce node comme source
-      const flowSeq = diagram.flowSequences.find(fs => fs.fromNodeId === node.id)
-
       // Ajouter le node
       sequence.push({ type: 'node', item: node })
 
-      // Ajouter les inventories après ce node
-      if (flowSeq) {
-        for (const elem of flowSeq.intermediateElements) {
-          if (elem.type === 'INVENTORY' && elem.inventory) {
-            sequence.push({ type: 'inventory', item: elem.inventory })
+      // Trouver la séquence qui a ce node comme source
+      const flowSeq = diagram.flowSequences.find(fs => fs.fromNodeId === node.id)
+
+      // Si c'est pas le dernier nœud, ajouter un inventory (existant ou placeholder)
+      if (i < nodes.length - 1) {
+        let hasInventory = false
+        
+        if (flowSeq) {
+          for (const elem of flowSeq.intermediateElements) {
+            if (elem.type === 'INVENTORY' && elem.inventory) {
+              sequence.push({ type: 'inventory', item: elem.inventory })
+              hasInventory = true
+            }
+          }
+        }
+        
+        // Si pas d'inventory défini, créer un placeholder (stock vide = 0)
+        if (!hasInventory) {
+          const placeholderInventory: Inventory = {
+            id: `placeholder-${node.id}-${nodes[i + 1].id}`,
+            name: '',
+            type: 'WIP',
+            quantity: '0',
+            duration: '0',
+            unit: 'unités',
+            mode: 'static',
+            indicators: []
+          }
+          sequence.push({ type: 'inventory', item: placeholderInventory })
+        }
+      } else {
+        // Pour le dernier nœud, ajouter les inventories s'ils existent
+        if (flowSeq) {
+          for (const elem of flowSeq.intermediateElements) {
+            if (elem.type === 'INVENTORY' && elem.inventory) {
+              sequence.push({ type: 'inventory', item: elem.inventory })
+            }
           }
         }
       }
@@ -374,14 +403,12 @@ export class VSMLayoutEngine {
         lineCount * LayoutConstants.DATA_BOX_LINE_HEIGHT + 20
       )
 
-      // Centrer horizontalement sous le node
-      const x = nodePos.x + (nodePos.width - LayoutConstants.DATA_BOX_WIDTH) / 2
-
+      // ALIGNER avec le node (même X, même largeur)
       result.positions.set(`databox-${node.id}`, {
         id: `databox-${node.id}`,
-        x,
+        x: nodePos.x,
         y: LayoutConstants.DATA_Y,
-        width: LayoutConstants.DATA_BOX_WIDTH,
+        width: nodePos.width, // MÊME LARGEUR que le ProcessStep
         height,
         type: 'data-box',
         metadata: {
@@ -407,7 +434,6 @@ export class VSMLayoutEngine {
 
     if (productionPositions.length === 0) return
 
-    let timelineX = productionPositions[0].x
     let vaTotal = 0
     let nvaTotal = 0
 
@@ -415,44 +441,43 @@ export class VSMLayoutEngine {
       const pos = productionPositions[i]
       
       if (pos.type === 'process-step') {
-        // VA - temps de cycle (simulé, en minutes)
+        // VA - temps de cycle - ALIGNÉ avec ProcessStep (même X, même largeur)
         const cycleTime = (pos.metadata?.indicators as any[])?.find(
           (ind: any) => ind.code?.toLowerCase().includes('cycle') || ind.code?.toLowerCase().includes('ct')
         )?.value || '10'
         
         result.positions.set(`timeline-va-${pos.id}`, {
           id: `timeline-va-${pos.id}`,
-          x: timelineX,
+          x: pos.x, // MÊME X que ProcessStep
           y: LayoutConstants.TIMELINE_Y,
-          width: pos.width,
+          width: pos.width, // MÊME largeur que ProcessStep
           height: LayoutConstants.TIMELINE_VA_HEIGHT,
           type: 'timeline-va',
           metadata: { value: cycleTime, unit: 'min' }
         })
         
         vaTotal += parseFloat(cycleTime) || 0
-        timelineX += pos.width
       } else if (pos.type === 'inventory') {
-        // NVA - temps d'attente (en jours)
-        const duration = (pos.metadata?.duration as number) || 1
+        // NVA - temps d'attente - ALIGNÉ avec Inventory (même X, même largeur)
+        const quantity = pos.metadata?.quantity as string || '0'
+        const duration = parseFloat(pos.metadata?.duration as string || '0') || 0
         
+        // Afficher même si quantity=0 (placeholder)
         result.positions.set(`timeline-nva-${pos.id}`, {
           id: `timeline-nva-${pos.id}`,
-          x: timelineX,
-          y: LayoutConstants.TIMELINE_Y + LayoutConstants.TIMELINE_VA_HEIGHT + 10,
-          width: Math.max(pos.width, LayoutConstants.HORIZONTAL_SPACING),
+          x: pos.x, // MÊME X que Inventory
+          y: LayoutConstants.TIMELINE_Y,
+          width: pos.width, // MÊME largeur que Inventory
           height: LayoutConstants.TIMELINE_NVA_HEIGHT,
           type: 'timeline-nva',
-          metadata: { value: String(duration), unit: 'j' }
+          metadata: { 
+            value: quantity === '0' ? '0' : String(duration), 
+            unit: quantity === '0' ? '' : 'j',
+            isPlaceholder: quantity === '0'
+          }
         })
         
         nvaTotal += duration
-        timelineX += Math.max(pos.width, LayoutConstants.HORIZONTAL_SPACING)
-      }
-
-      // Espacement entre les éléments
-      if (i < productionPositions.length - 1) {
-        timelineX += 10 // petit espace
       }
     }
 

@@ -29,6 +29,21 @@ const VSMStyles: Record<string, StyleObject> = {
     verticalAlign: 'middle',
   },
 
+  pseudoStep: {
+    shape: 'rectangle',
+    fillColor: '#f3f4f6',
+    strokeColor: '#6b7280',
+    strokeWidth: 1,
+    dashed: true,
+    dashPattern: '5 5',
+    rounded: false,
+    fontColor: '#6b7280',
+    fontSize: 10,
+    fontStyle: 0, // Normal (not bold)
+    align: 'center',
+    verticalAlign: 'middle',
+  },
+
   inventory: {
     shape: 'triangle',
     fillColor: '#fef3c7',
@@ -40,13 +55,25 @@ const VSMStyles: Record<string, StyleObject> = {
     verticalAlign: 'bottom',
   },
 
+  inventoryPlaceholder: {
+    shape: 'rectangle',
+    fillColor: '#ffffff',
+    strokeColor: '#9ca3af',
+    strokeWidth: 1,
+    dashed: true,
+    dashPattern: '3 3',
+    fontColor: '#6b7280',
+    fontSize: 8,
+    align: 'center',
+    verticalAlign: 'middle',
+  },
+
   actor: {
     shape: 'rectangle',
     fillColor: '#f0fdf4',
     strokeColor: '#16a34a',
     strokeWidth: 2,
-    rounded: true,
-    arcSize: 10,
+    rounded: false,
     fontColor: '#166534',
     fontSize: 10,
     fontStyle: 1,
@@ -59,8 +86,7 @@ const VSMStyles: Record<string, StyleObject> = {
     fillColor: '#eff6ff',
     strokeColor: '#3b82f6',
     strokeWidth: 2,
-    rounded: true,
-    arcSize: 8,
+    rounded: false,
     fontColor: '#1e40af',
     fontSize: 11,
     fontStyle: 1,
@@ -98,6 +124,19 @@ const VSMStyles: Record<string, StyleObject> = {
     strokeWidth: 1,
     fontColor: '#991b1b',
     fontSize: 9,
+    align: 'center',
+    verticalAlign: 'middle',
+  },
+
+  timelineNvaPlaceholder: {
+    shape: 'rectangle',
+    fillColor: '#ffffff',
+    strokeColor: '#d1d5db',
+    strokeWidth: 1,
+    dashed: true,
+    dashPattern: '3 3',
+    fontColor: '#9ca3af',
+    fontSize: 8,
     align: 'center',
     verticalAlign: 'middle',
   },
@@ -206,13 +245,18 @@ export class VSMGraphRenderer {
 
     switch (type) {
       case 'process-step':
-        styleName = 'processStep'
+        // Vérifier si c'est une pseudo-étape (Réception/Livraison)
+        const isPseudo = metadata?.isPseudo === true
+        styleName = isPseudo ? 'pseudoStep' : 'processStep'
         label = this.formatProcessStepLabel(metadata)
         break
 
       case 'inventory':
-        styleName = 'inventory'
-        label = (metadata?.name as string) || ''
+        // Vérifier si c'est un placeholder (id commence par "placeholder-" et quantity = 0)
+        const isPlaceholder = id.startsWith('placeholder-') || 
+                             (metadata?.quantity === '0' && !metadata?.name)
+        styleName = isPlaceholder ? 'inventoryPlaceholder' : 'inventory'
+        label = isPlaceholder ? '' : ((metadata?.name as string) || '')
         break
 
       case 'actor':
@@ -236,7 +280,9 @@ export class VSMGraphRenderer {
         break
 
       case 'timeline-nva':
-        styleName = 'timelineNva'
+        // Vérifier si c'est un placeholder (stock vide)
+        const isNvaPlaceholder = metadata?.isPlaceholder === true
+        styleName = isNvaPlaceholder ? 'timelineNvaPlaceholder' : 'timelineNva'
         label = this.formatTimelineLabel(metadata)
         break
 

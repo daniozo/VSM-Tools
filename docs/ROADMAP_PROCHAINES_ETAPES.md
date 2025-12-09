@@ -696,10 +696,107 @@ VSM-Tools/
 - [ ] Cliquer sur un problème centre le canvas
 
 ### Phase 5 Complète quand :
-- [ ] Le polling automatique fonctionne
-- [ ] Les données se rafraîchissent sans interaction
-- [ ] Les notifications temps réel arrivent
+- [x] Le polling automatique fonctionne
+- [x] Les données se rafraîchissent sans interaction
+- [x] Les notifications temps réel arrivent
 
 ---
 
-**Prêt à commencer ?** Quelle phase souhaitez-vous attaquer en premier ?
+## Phase 6 : Layout & Disposition du Diagramme ✅ (COMPLÉTÉ - 9 décembre 2025)
+
+### Objectifs
+- ✅ Retirer la liste des éléments à gauche du canvas (Acteurs, Production, etc.)
+- ✅ Implémenter l'algorithme de layout automatique selon `LAYOUT_ALGORITHM.md`
+- ✅ Disposer les éléments en swimlanes (Acteurs, Flux Info, Production, KPIs, Timeline)
+- ✅ Afficher rectangles de stocks même si non définis (valeur = 0 dans calcul NVA)
+- ✅ Espacements et dimensions conformes aux constantes (PROCESS_STEP_WIDTH, etc.)
+
+### Réalisations Initiales
+- ✅ **VsmCanvas.tsx** : Retiré la légende des swimlanes (Acteurs/Production/Données/Timeline)
+- ✅ **VSMLayoutEngine.ts** : Ajout automatique de placeholders pour stocks non définis
+  - Entre deux ProcessSteps sans inventory défini, crée un placeholder (quantity=0)
+  - Le placeholder est comptabilisé comme 0 dans le calcul NVA de la timeline
+- ✅ **VSMGraphRenderer.ts** : 
+  - Nouveau style `inventoryPlaceholder` (rectangle blanc en pointillés)
+  - Différenciation automatique entre inventories réels (triangles jaunes) et placeholders (rectangles vides)
+- ✅ **Algorithme de layout** : Conforme à LAYOUT_ALGORITHM.md
+  - 5 swimlanes : Acteurs (Y=50), Info (Y=150), Production (Y=250), Data (Y=380), Timeline (Y=500)
+  - Espacements respectés : HORIZONTAL_SPACING=80px, VERTICAL_LANE_SPACING=100px
+  - Dimensions fixes : PROCESS_STEP (120×80), INVENTORY (60×50), ACTOR (100×60)
+  - Timeline avec segments VA (vert) et NVA (rouge) alignés sur les éléments
+
+### Corrections Visuelles & Alignement (Session 2)
+- ✅ **Alignement Acteurs** : Supplier, Customer et Control Center sur même ligne (ACTORS_Y=50)
+- ✅ **Rectangles NVA vides** : Style `timelineNvaPlaceholder` (blanc, pointillés) pour stocks à 0
+- ✅ **Alignement Timeline** : Chaque segment VA/NVA aligné avec ProcessStep/Inventory (même X, même largeur)
+- ✅ **Uniformisation largeurs** : DATA_BOX_WIDTH = PROCESS_STEP_WIDTH (120px) pour alignement parfait
+- ✅ **Pseudo-étapes Réception/Livraison** : Style `pseudoStep` (gris clair, pointillés) pour différenciation
+- ✅ **Suppression bordures arrondies** : Tous rectangles avec `rounded: false` (Actors, Control Center)
+- ✅ **Déclenchement sauvegarde** : Toggle checkbox stock entre étapes appelle `onUpdate()` → auto-save
+
+### Composants modifiés
+- `src/renderer/components/editor/VsmCanvas.tsx` : Retiré légende swimlanes
+- `src/services/layout/VSMLayoutEngine.ts` : 
+  - Placeholders + layout complet
+  - Alignement Actors sur ACTORS_Y
+  - Timeline alignée sur éléments (même X, même width)
+  - DATA_BOX_WIDTH = PROCESS_STEP_WIDTH
+- `src/services/layout/VSMGraphRenderer.ts` : 
+  - Styles inventoryPlaceholder, timelineNvaPlaceholder, pseudoStep
+  - Détection automatique pseudo-étapes (isPseudo metadata)
+  - `rounded: false` pour Actors et Control Center
+- `src/renderer/components/dialogs/configuration/tabs/InventoriesTab.tsx` : 
+  - handleToggleStock appelle onUpdate() pour déclencher auto-save
+
+---
+
+## Phase 7 : Intégration Visuelle des Problèmes
+
+### Objectifs
+- ⏳ Afficher badges IssueBadge sur les nœuds problématiques du canvas
+- ⏳ Couleurs de bordure selon sévérité (rouge=critique, orange=haute, jaune=moyenne)
+- ⏳ Navigation : Clic sur problème dans AnalysisPanel → centrer canvas sur nœud
+- ⏳ Highlight du nœud sélectionné avec animation
+
+### Composants à modifier
+- `VSMGraphRenderer.tsx` : Intégrer IssueBadge dans le rendu des nœuds
+- `AnalysisPanel.tsx` : Ajouter handler pour centrer la vue canvas
+- `VSMCanvas.tsx` : Méthode pour centrer et highlight un nœud
+
+---
+
+## Phase 8 : Interface Opérateur
+
+### Objectifs
+- ⏳ Créer `OperatorInputPanel` pour saisie manuelle des valeurs
+- ⏳ Support modification en temps réel des indicateurs en mode manuel
+- ⏳ Historique des saisies avec timestamp
+- ⏳ Validation des valeurs (min/max, format)
+- ⏳ Export CSV des saisies pour analyse externe
+
+### Nouveaux composants
+- `components/panels/OperatorInputPanel.tsx`
+- `components/forms/ManualInputForm.tsx`
+- Backend : `routes/operatorInputs.ts`
+- Base de données : Table `operator_inputs` (déjà existante)
+
+---
+
+## Phase 9 : Tests End-to-End
+
+### Objectifs
+- ⏳ Scénario 1 : Créer projet → Ajouter sources SQL → Configurer règles → Voir analyse
+- ⏳ Scénario 2 : Mode manuel → Saisir valeurs → Recalculer → Vérifier résultats
+- ⏳ Scénario 3 : Mode hybride (certains auto, certains manuels)
+- ⏳ Tests de performance : 100+ ProcessSteps, 50+ règles d'analyse
+- ⏳ Tests WebSocket : Mise à jour temps réel multi-utilisateurs
+
+---
+
+**Ordre d'exécution prioritaire :**
+
+1. ✅ Phases 1-5 : Infrastructure et analyse dynamique (COMPLÉTÉ)
+2. 🔄 **Phase 6 : Layout & Disposition** ← **EN COURS**
+3. ⏳ Phase 7 : Badges visuels et navigation
+4. ⏳ Phase 8 : Interface opérateur
+5. ⏳ Phase 9 : Tests end-to-end

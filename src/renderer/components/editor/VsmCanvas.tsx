@@ -186,16 +186,6 @@ const VsmCanvas: React.FC = () => {
         />
       )}
 
-      {/* Légende des swimlanes (indicateurs visuels) */}
-      {diagram && diagram.nodes && diagram.nodes.length > 0 && (
-        <div className="absolute left-2 top-2 z-10 text-xs text-muted-foreground space-y-1 pointer-events-none">
-          <div style={{ marginTop: LayoutConstants.ACTORS_Y - 10 }}>Acteurs</div>
-          <div style={{ marginTop: LayoutConstants.PRODUCTION_Y - LayoutConstants.ACTORS_Y - 20 }}>Production</div>
-          <div style={{ marginTop: LayoutConstants.DATA_Y - LayoutConstants.PRODUCTION_Y - 20 }}>Données</div>
-          <div style={{ marginTop: LayoutConstants.TIMELINE_Y - LayoutConstants.DATA_Y - 20 }}>Timeline</div>
-        </div>
-      )}
-      
       {/* Message si diagramme vide ET projet ouvert */}
       {diagram && (!diagram.nodes || diagram.nodes.length === 0) && (
         <div className="absolute inset-0 flex items-center justify-center">
