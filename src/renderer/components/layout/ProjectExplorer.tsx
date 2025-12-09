@@ -10,8 +10,8 @@
  */
 
 import React, { useState, useMemo } from 'react'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Button } from '@/components/ui/button'
+import { ScrollArea } from '@/renderer/components/ui/scroll-area'
+import { Button } from '@/renderer/components/ui/button'
 import {
   ChevronRight,
   ChevronDown,

@@ -21,7 +21,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue
-} from '@/components/ui/select'
+} from '@/renderer/components/ui/select'
 
 interface MaterialFlowsTabProps {
   diagram: VSMDiagram

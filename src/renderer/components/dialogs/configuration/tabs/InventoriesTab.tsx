@@ -19,25 +19,25 @@ import {
 } from '@/shared/types/vsm-model'
 import { FormTable, Column } from '../shared/FormTable'
 import { FormField } from '../shared/FormField'
-import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Card } from '@/components/ui/card'
+import { Button } from '@/renderer/components/ui/button'
+import { Checkbox } from '@/renderer/components/ui/checkbox'
+import { Card } from '@/renderer/components/ui/card'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter
-} from '@/components/ui/dialog'
+} from '@/renderer/components/ui/dialog'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue
-} from '@/components/ui/select'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
+} from '@/renderer/components/ui/select'
+import { Label } from '@/renderer/components/ui/label'
+import { Textarea } from '@/renderer/components/ui/textarea'
 
 interface InventoriesTabProps {
   diagram: VSMDiagram

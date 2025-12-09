@@ -9,12 +9,12 @@
  */
 
 import React from 'react'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
+import { ScrollArea } from '@/renderer/components/ui/scroll-area'
+import { Label } from '@/renderer/components/ui/label'
+import { Input } from '@/renderer/components/ui/input'
+import { Badge } from '@/renderer/components/ui/badge'
+import { Button } from '@/renderer/components/ui/button'
+import { Separator } from '@/renderer/components/ui/separator'
 import {
   Settings2,
   Info,

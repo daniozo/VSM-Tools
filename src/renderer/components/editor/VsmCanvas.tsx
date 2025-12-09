@@ -11,6 +11,7 @@ export interface VsmCanvasHandle {
   zoomIn: () => void
   zoomOut: () => void
   zoomReset: () => void
+  updateBottlenecks: (bottleneckIds: string[]) => void
 }
 
 /**
@@ -174,8 +175,14 @@ const VsmCanvas = forwardRef<VsmCanvasHandle>((props, ref) => {
       if (rendererRef.current) {
         rendererRef.current.zoomReset()
       }
+    },
+    updateBottlenecks: (bottleneckIds: string[]) => {
+      if (rendererRef.current && diagram) {
+        const allNodeIds = diagram.nodes.map(n => n.id)
+        rendererRef.current.updateBottlenecks(bottleneckIds, allNodeIds)
+      }
     }
-  }), [])
+  }), [diagram])
 
   // Vérifier si le diagramme a du contenu
   const hasContent = diagram && diagram.nodes && diagram.nodes.length > 0;

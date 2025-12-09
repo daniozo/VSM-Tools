@@ -7,17 +7,17 @@
  */
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/renderer/components/ui/button';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip';
-import { Settings, MessageSquare, Search } from 'lucide-react';
+} from '@/renderer/components/ui/tooltip';
+import { Settings, MessageSquare, Search, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export type RightSidebarPanel = 'properties' | 'assistant' | 'analysis' | null;
+export type RightSidebarPanel = 'properties' | 'assistant' | 'analysis' | 'simulation' | null;
 
 interface RightSidebarProps {
   activePanel: RightSidebarPanel;
@@ -95,6 +95,23 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
           </TooltipTrigger>
           <TooltipContent side="left">
             <p>Analyse</p>
+          </TooltipContent>
+        </Tooltip>
+
+        {/* Simulation */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant={activePanel === 'simulation' ? 'default' : 'ghost'}
+              size="icon"
+              className="h-10 w-10"
+              onClick={() => handlePanelClick('simulation')}
+            >
+              <Zap className="h-5 w-5" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="left">
+            <p>Simulation</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>

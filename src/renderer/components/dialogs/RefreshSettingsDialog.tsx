@@ -15,17 +15,17 @@ import {
   DialogTitle,
   DialogFooter,
   DialogDescription
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
+} from '@/renderer/components/ui/dialog';
+import { Button } from '@/renderer/components/ui/button';
+import { Label } from '@/renderer/components/ui/label';
+import { Switch } from '@/renderer/components/ui/switch';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue
-} from '@/components/ui/select';
+} from '@/renderer/components/ui/select';
 import { RefreshCw, Clock, Zap } from 'lucide-react';
 
 interface RefreshSettings {

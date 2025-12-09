@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react'
-import { Card, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/renderer/components/ui/card'
+import { Button } from '@/renderer/components/ui/button'
 import { useVsmStore } from '@/store/vsmStore'
 import { VsmElementType } from '@/shared/types/vsm-elements'
 import {

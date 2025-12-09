@@ -20,8 +20,8 @@ import {
 } from '@/shared/types/vsm-model'
 import { StandardIndicator } from '@/shared/data/standardIndicators'
 import { FormTable, Column } from '../shared/FormTable'
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+import { Card } from '@/renderer/components/ui/card'
+import { Button } from '@/renderer/components/ui/button'
 import { IndicatorDialog, IndicatorData } from '../IndicatorDialog'
 import { StandardIndicatorDialog } from '../StandardIndicatorDialog'
 

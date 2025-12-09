@@ -6,13 +6,13 @@ import React from 'react';
 import { Wifi, WifiOff, Loader2, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useProjectsStore, ConnectionStatus as Status } from '@/store/projectsStore';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/renderer/components/ui/button';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip';
+} from '@/renderer/components/ui/tooltip';
 
 const statusConfig: Record<Status, { icon: React.ReactNode; label: string; className: string }> = {
   disconnected: {

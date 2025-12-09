@@ -8,17 +8,18 @@
  * - Annuler / Rétablir
  * - Configurer le diagramme
  * - Zoom avant/arrière
+ * - Onglets (Notes, Plan d'action, Analyse)
  */
 
 import React from 'react'
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
+import { Button } from '@/renderer/components/ui/button'
+import { Separator } from '@/renderer/components/ui/separator'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip'
+} from '@/renderer/components/ui/tooltip'
 import {
   FolderPlus,
   FolderOpen,

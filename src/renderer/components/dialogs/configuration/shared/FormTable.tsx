@@ -3,7 +3,7 @@
  */
 
 import React from 'react'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/renderer/components/ui/button'
 import { Plus, Pencil, Trash2, ChevronUp, ChevronDown } from 'lucide-react'
 
 export interface Column<T> {

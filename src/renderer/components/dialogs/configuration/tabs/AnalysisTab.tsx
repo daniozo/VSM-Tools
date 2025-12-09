@@ -18,33 +18,33 @@ import {
 } from '@/shared/types/vsm-model'
 import { STANDARD_ANALYSIS_RULES } from '@/shared/data/standardAnalysisRules'
 import { STANDARD_INDICATORS } from '@/shared/data/standardIndicators'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Switch } from '@/components/ui/switch'
-import { Badge } from '@/components/ui/badge'
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
+import { Card, CardContent, CardHeader, CardTitle } from '@/renderer/components/ui/card'
+import { Button } from '@/renderer/components/ui/button'
+import { Switch } from '@/renderer/components/ui/switch'
+import { Badge } from '@/renderer/components/ui/badge'
+import { Label } from '@/renderer/components/ui/label'
+import { Input } from '@/renderer/components/ui/input'
+import { Textarea } from '@/renderer/components/ui/textarea'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter
-} from '@/components/ui/dialog'
+} from '@/renderer/components/ui/dialog'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue
-} from '@/components/ui/select'
+} from '@/renderer/components/ui/select'
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger
-} from '@/components/ui/accordion'
+} from '@/renderer/components/ui/accordion'
 import { AlertTriangle, AlertCircle, Lightbulb, Pencil, Trash2 } from 'lucide-react'
 
 interface AnalysisTabProps {

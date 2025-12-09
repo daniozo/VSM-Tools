@@ -17,6 +17,7 @@ import { useVsmStore } from '@/store/vsmStore';
 import { useProjectsStore } from '@/store/projectsStore';
 import { demoDiagram } from '@/shared/data/demo-diagram';
 import { diagramsApi } from '@/services/api';
+import { saveDiagram } from '@/services/sync/diagramSync';
 
 // Hook de connexion backend
 import { useBackendConnection } from './hooks/useBackendConnection';
@@ -138,7 +139,7 @@ const App: React.FC = () => {
         handleOpenProject();
         break;
       case 'save':
-        console.log('Sauvegarder');
+        handleSave();
         break;
       case 'undo':
         console.log('Annuler');
@@ -248,6 +249,26 @@ const App: React.FC = () => {
     loadDiagram(demoDiagram);
   };
 
+  const handleSave = async () => {
+    const diagram = useVsmStore.getState().diagram;
+    const currentDiagram = useProjectsStore.getState().currentDiagram;
+
+    if (!diagram || !currentDiagram) {
+      console.warn('⚠️ Aucun diagramme à sauvegarder');
+      return;
+    }
+
+    try {
+      console.log('💾 Sauvegarde du diagramme...', currentDiagram.id);
+      await saveDiagram(diagram, currentDiagram.id);
+      useVsmStore.getState().markAsSaved();
+      console.log('✅ Diagramme sauvegardé avec succès');
+    } catch (error) {
+      console.error('❌ Erreur lors de la sauvegarde:', error);
+      // TODO: Afficher une notification d'erreur à l'utilisateur
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-background">
@@ -267,11 +288,8 @@ const App: React.FC = () => {
           rightPanelVisible={rightPanelVisible}
         />
         <MainLayout
-          leftPanelVisible={leftPanelVisible}
-          rightPanelVisible={rightPanelVisible}
-          onNewProject={handleNewProject}
-          onOpenProject={handleOpenProject}
           currentProject={currentProject}
+          canvasRef={canvasRef}
         >
           <VsmCanvas ref={canvasRef} />
         </MainLayout>

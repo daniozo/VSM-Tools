@@ -5,7 +5,7 @@
  */
 
 import React from 'react'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/renderer/components/ui/button'
 import { cn } from '@/lib/utils'
 import { ConfigurationTab, TabItem } from './types'
 

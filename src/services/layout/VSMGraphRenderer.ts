@@ -29,6 +29,20 @@ const VSMStyles: Record<string, StyleObject> = {
     verticalAlign: 'middle',
   },
 
+  // Style pour les goulots d'étranglement
+  processStepBottleneck: {
+    shape: 'rectangle',
+    fillColor: '#fef2f2',
+    strokeColor: '#dc2626',
+    strokeWidth: 3,
+    rounded: false,
+    fontColor: '#991b1b',
+    fontSize: 11,
+    fontStyle: 1, // Bold
+    align: 'center',
+    verticalAlign: 'middle',
+  },
+
   pseudoStep: {
     shape: 'rectangle',
     fillColor: '#f3f4f6',
@@ -580,6 +594,44 @@ export class VSMGraphRenderer {
    */
   zoomReset(): void {
     this.fitToContainer()
+  }
+
+  /**
+   * Marque un node comme goulot d'étranglement (style visuel rouge)
+   */
+  markAsBottleneck(id: string, isBottleneck: boolean): void {
+    const cell = this.cellMap.get(id)
+    if (cell) {
+      const styleName = isBottleneck ? 'processStepBottleneck' : 'processStep'
+      const style = VSMStyles[styleName]
+      if (style) {
+        this.graph.batchUpdate(() => {
+          this.graph.setCellStyle(style, [cell])
+        })
+      }
+    }
+  }
+
+  /**
+   * Met à jour les indicateurs visuels de plusieurs goulots
+   */
+  updateBottlenecks(bottleneckIds: string[], allNodeIds: string[]): void {
+    this.graph.batchUpdate(() => {
+      // Réinitialiser tous les nodes au style normal
+      for (const nodeId of allNodeIds) {
+        const cell = this.cellMap.get(nodeId)
+        if (cell) {
+          this.graph.setCellStyle(VSMStyles.processStep, [cell])
+        }
+      }
+      // Marquer les goulots
+      for (const bottleneckId of bottleneckIds) {
+        const cell = this.cellMap.get(bottleneckId)
+        if (cell) {
+          this.graph.setCellStyle(VSMStyles.processStepBottleneck, [cell])
+        }
+      }
+    })
   }
 }
 

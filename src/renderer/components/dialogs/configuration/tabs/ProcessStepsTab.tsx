@@ -8,14 +8,14 @@ import React, { useState } from 'react'
 import { VSMDiagram, Node, NodeType, generateId } from '@/shared/types/vsm-model'
 import { FormTable, Column } from '../shared/FormTable'
 import { FormField } from '../shared/FormField'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/renderer/components/ui/button'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter
-} from '@/components/ui/dialog'
+} from '@/renderer/components/ui/dialog'
 
 interface ProcessStepsTabProps {
   diagram: VSMDiagram

@@ -15,11 +15,11 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
+} from '@/renderer/components/ui/dialog';
+import { Button } from '@/renderer/components/ui/button';
+import { Input } from '@/renderer/components/ui/input';
+import { Badge } from '@/renderer/components/ui/badge';
+import { ScrollArea } from '@/renderer/components/ui/scroll-area';
 import { Loader2, Search, FolderOpen, Calendar, FileText } from 'lucide-react';
 import type { Project } from '@/services/api';
 

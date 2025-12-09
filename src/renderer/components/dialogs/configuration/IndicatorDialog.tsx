@@ -16,24 +16,24 @@ import {
   generateId
 } from '@/shared/types/vsm-model'
 import { FormField } from './shared/FormField'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/renderer/components/ui/button'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter
-} from '@/components/ui/dialog'
+} from '@/renderer/components/ui/dialog'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue
-} from '@/components/ui/select'
-import { Label } from '@/components/ui/label'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Textarea } from '@/components/ui/textarea'
+} from '@/renderer/components/ui/select'
+import { Label } from '@/renderer/components/ui/label'
+import { RadioGroup, RadioGroupItem } from '@/renderer/components/ui/radio-group'
+import { Textarea } from '@/renderer/components/ui/textarea'
 
 export interface IndicatorData {
   id: string

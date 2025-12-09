@@ -9,10 +9,10 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
+import { Button } from '@/renderer/components/ui/button';
+import { Input } from '@/renderer/components/ui/input';
+import { ScrollArea } from '@/renderer/components/ui/scroll-area';
+import { Badge } from '@/renderer/components/ui/badge';
 import { Send, Loader2, Bot, User, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { geminiService } from '@/services/gemini';

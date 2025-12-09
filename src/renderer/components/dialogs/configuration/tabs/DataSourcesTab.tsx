@@ -13,21 +13,21 @@ import {
   generateId
 } from '@/shared/types/vsm-model'
 import { FormTable, Column } from '../shared/FormTable'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/renderer/components/ui/button'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter
-} from '@/components/ui/dialog'
+} from '@/renderer/components/ui/dialog'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue
-} from '@/components/ui/select'
+} from '@/renderer/components/ui/select'
 import { FormField } from '../shared/FormField'
 
 interface DataSourcesTabProps {

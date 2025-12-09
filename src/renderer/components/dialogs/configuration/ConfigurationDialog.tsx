@@ -13,8 +13,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter
-} from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
+} from '@/renderer/components/ui/dialog'
+import { Button } from '@/renderer/components/ui/button'
 import { useVsmStore } from '@/store/vsmStore'
 import { useDynamicDataRefresh } from '@/renderer/hooks/useDynamicDataRefresh'
 import { TabNavigation } from './TabNavigation'
