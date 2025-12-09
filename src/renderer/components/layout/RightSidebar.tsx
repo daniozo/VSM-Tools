@@ -14,10 +14,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { Settings, MessageSquare } from 'lucide-react';
+import { Settings, MessageSquare, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export type RightSidebarPanel = 'properties' | 'assistant' | null;
+export type RightSidebarPanel = 'properties' | 'assistant' | 'analysis' | null;
 
 interface RightSidebarProps {
   activePanel: RightSidebarPanel;
@@ -78,6 +78,23 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
           </TooltipTrigger>
           <TooltipContent side="left">
             <p>Assistant</p>
+          </TooltipContent>
+        </Tooltip>
+
+        {/* Analyse */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant={activePanel === 'analysis' ? 'default' : 'ghost'}
+              size="icon"
+              className="h-10 w-10"
+              onClick={() => handlePanelClick('analysis')}
+            >
+              <Search className="h-5 w-5" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="left">
+            <p>Analyse</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>

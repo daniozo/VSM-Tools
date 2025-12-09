@@ -2,7 +2,7 @@
 
 *Date : 9 décembre 2025*
 
-## ✅ Complété Aujourd'hui
+## ✅ Complété Aujourd'hui (9 décembre 2025)
 
 ### Connexion Studio-Engine
 - ✅ Connexion backend établie (CORS configuré)
@@ -21,9 +21,53 @@
 
 ### Interface Utilisateur
 - ✅ ChatAssistant avec Gemini API (géré en interne)
-- ✅ RightSidebar avec Propriétés/Assistant
+- ✅ RightSidebar avec Propriétés/Assistant/Analyse
 - ✅ ProjectExplorer avec arborescence VSM
 - ✅ Dialogues corrigés (boutons ne débordent plus)
+
+### Phase 1 : Infrastructure Sources de Données ✅
+- ✅ Onglet Sources de Données simplifié (connexions SQL/REST uniquement)
+- ✅ Backend : Routes dataCollection.ts (execute-sql, execute-rest, test-connection)
+- ✅ Frontend : dataCollectionService.ts pour récupération automatique
+- ✅ Support : Authentification (Bearer, API Key, Basic)
+- ✅ Support : JSON Path pour extraction de valeurs REST
+
+### Phase 2 : Mode Dynamique pour Indicateurs/Stocks ✅
+- ✅ Modèle : Ajout de `mode` et `dataConnection` dans Indicator et Inventory
+- ✅ IndicatorDialog : Sauvegarde complète de DataConnection
+- ✅ InventoriesTab : Support DataConnection pour stocks dynamiques
+- ✅ Service : fetchIndicatorValue et fetchInventoryValue
+- ✅ Service : updateDynamicIndicators et updateDynamicInventories
+
+### Phase 3 : Moteur d'Analyse Dynamique ✅
+- ✅ AnalysisEngine : Lit les règles depuis analysisConfig
+- ✅ AnalysisEngine : Applique uniquement les règles activées
+- ✅ AnalysisEngine : Support opérateurs flexibles (>, <, >=, <=, =, !=)
+- ✅ AnalysisEngine : Comparaison au Takt Time avec pourcentage
+- ✅ Route : POST /api/diagrams/:id/recalculate avec analysisConfig
+- ✅ Détection : Goulots d'étranglement basée sur règles
+- ✅ Détection : Gaspillages (7 types LEAN) basée sur règles
+- ✅ Détection : Opportunités basée sur règles
+- ✅ Sévérité : Calculée selon priorité des règles (1=critique, 2=haute, 3=moyenne)
+
+### Phase 4 : Visualisation des Résultats ✅
+- ✅ AnalysisPanel : Affichage complet des résultats
+- ✅ AnalysisPanel : Filtres par type et sévérité
+- ✅ AnalysisPanel : Score global avec barre de progression
+- ✅ AnalysisPanel : Click sur problème pour navigation
+- ✅ IssueBadge : Composant pour badges visuels sur canvas
+- ✅ IssueBadge : Couleurs dynamiques selon sévérité
+- ✅ IssueBadge : Fonction groupIssuesByNode
+- ✅ RightSidebar : Icône "Analyse" ajoutée
+- ✅ MainLayout : Intégration du panneau d'analyse
+
+### Phase 5 : Polling & Auto-refresh ✅
+- ✅ Hook : useDynamicDataRefresh avec intervalle configurable
+- ✅ ConfigurationDialog : Intégration du hook (30s par défaut)
+- ✅ RefreshSettingsDialog : Interface de configuration
+- ✅ Support : Intervalles de 10 secondes à 10 minutes
+- ✅ Affichage : Dernier rafraîchissement et état
+- ✅ Service : Collecte automatique des données dynamiques
 
 ---
 
@@ -561,19 +605,29 @@ VSM-Tools/
 7. ✅ Moteur : Supporte les conditions dynamiques (comparaison au Takt Time, opérateurs flexibles)
 8. ✅ Moteur : Calcule la sévérité selon la priorité des règles (1=critique, 2=haute, 3=moyenne)
 
-### Phase 4 : Visualisation
-1. Frontend : AnalysisPanel (liste problèmes)
-2. Frontend : Badges sur nodes (canvas)
-3. Frontend : Couleurs selon sévérité
-4. Frontend : Tooltip avec détails
-5. Test : Affichage visuel des problèmes
+### Phase 4 : Visualisation ✅ COMPLÉTÉ
+1. ✅ Frontend : AnalysisPanel avec filtres (type, sévérité)
+2. ✅ Frontend : Affichage du score global et résumé
+3. ✅ Frontend : Liste détaillée des goulots d'étranglement
+4. ✅ Frontend : Liste détaillée des gaspillages (7 types LEAN)
+5. ✅ Frontend : Liste des opportunités d'amélioration
+6. ✅ Frontend : Composant IssueBadge pour badges sur canvas
+7. ✅ Frontend : Fonction groupIssuesByNode pour organiser les problèmes
+8. ✅ Frontend : Couleurs dynamiques selon sévérité (critique=rouge, haute=orange, moyenne=jaune, basse=bleu)
+9. ✅ Frontend : Click sur un problème pour naviguer vers le nœud concerné
+10. ✅ Frontend : Intégration dans RightSidebar avec icône dédiée
 
-### Phase 5 : Polling & Auto-refresh
-1. Backend : ScheduleManager (cron jobs)
-2. Backend : Polling automatique
-3. Frontend : Configuration intervalles
-4. WebSocket : Notifications temps réel
-5. Test : Refresh automatique
+### Phase 5 : Polling & Auto-refresh ✅ COMPLÉTÉ
+1. ✅ Frontend : Hook useDynamicDataRefresh avec intervalle configurable
+2. ✅ Frontend : Intégré dans ConfigurationDialog (30 secondes par défaut)
+3. ✅ Frontend : RefreshSettingsDialog pour configuration utilisateur
+4. ✅ Frontend : Support des intervalles de 10s à 10min
+5. ✅ Frontend : Affichage du dernier rafraîchissement
+6. ✅ Frontend : Activation/désactivation du polling
+7. ✅ Frontend : Avertissements pour intervalles courts
+8. ✅ Backend : Endpoints de collecte de données (SQL/REST) déjà implémentés
+9. ✅ Service : dataCollectionService.ts récupère les données automatiquement
+10. ✅ Service : updateDynamicIndicators et updateDynamicInventories fonctionnels
 
 ---
 

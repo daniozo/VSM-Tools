@@ -14,6 +14,8 @@ import { ProjectExplorer } from './ProjectExplorer'
 import { PropertiesPanel } from './PropertiesPanel'
 import { RightSidebar, RightSidebarPanel } from './RightSidebar'
 import { ChatAssistant } from './ChatAssistant'
+import { AnalysisPanel } from '../panels/AnalysisPanel'
+import { useVsmStore } from '@/store/vsmStore'
 import { cn } from '@/lib/utils'
 
 interface MainLayoutProps {
@@ -124,9 +126,29 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
           {activeRightPanel === 'assistant' && (
             <ChatAssistant
               width={rightPanelWidth}
-              projectContext={activeProject || undefined}
+              projectContext={currentProject || undefined}
               className="flex-shrink-0"
             />
+          )}
+
+          {activeRightPanel === 'analysis' && (
+            <div
+              className="flex-shrink-0 bg-background border-l overflow-hidden flex flex-col"
+              style={{ width: `${rightPanelWidth}px` }}
+            >
+              <div className="p-4 border-b">
+                <h2 className="font-semibold text-lg">Analyse VSM</h2>
+              </div>
+              <div className="flex-1 overflow-hidden p-4">
+                <AnalysisPanel
+                  analysis={(useVsmStore.getState().diagram as any)?.analysis}
+                  onIssueClick={(nodeId) => {
+                    console.log('Centrer sur le nœud:', nodeId);
+                    // TODO: Implémenter la navigation vers le nœud
+                  }}
+                />
+              </div>
+            </div>
           )}
 
           {/* Barre verticale avec icônes */}
