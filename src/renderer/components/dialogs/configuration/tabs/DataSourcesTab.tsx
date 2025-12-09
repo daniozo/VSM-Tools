@@ -1,13 +1,18 @@
 /**
  * Onglet 2 : Sources de Données
  * 
- * Gère les connexions aux systèmes externes (SQL, REST, STATIC)
+ * Gère uniquement l'enregistrement des connexions SQL/REST
+ * Les indicateurs et stocks configurent leurs propres sources dans leurs onglets respectifs
  */
 
 import React, { useState } from 'react'
-import { VSMDiagram, DataSource, DataSourceType, AuthType, generateId } from '@/shared/types/vsm-model'
+import {
+  VSMDiagram,
+  DataSource,
+  DataSourceType,
+  generateId
+} from '@/shared/types/vsm-model'
 import { FormTable, Column } from '../shared/FormTable'
-import { FormField } from '../shared/FormField'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -16,7 +21,14 @@ import {
   DialogTitle,
   DialogFooter
 } from '@/components/ui/dialog'
-import { CheckCircle, XCircle, Circle } from 'lucide-react'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import { FormField } from '../shared/FormField'
 
 interface DataSourcesTabProps {
   diagram: VSMDiagram
@@ -28,325 +40,269 @@ export const DataSourcesTab: React.FC<DataSourcesTabProps> = ({
   onUpdate
 }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [editingIndex, setEditingIndex] = useState<number | null>(null)
-  const [formData, setFormData] = useState<Partial<DataSource>>({})
-  const [testingConnection, setTestingConnection] = useState(false)
-  const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null)
+  const [editingSource, setEditingSource] = useState<DataSource | null>(null)
+  
+  // États du formulaire
+  const [name, setName] = useState('')
+  const [type, setType] = useState<DataSourceType>(DataSourceType.SQL)
+  const [host, setHost] = useState('')
+  const [port, setPort] = useState('')
+  const [database, setDatabase] = useState('')
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [url, setUrl] = useState('')
+  const [authType, setAuthType] = useState<'none' | 'bearer' | 'apikey' | 'basic'>('none')
+  const [authToken, setAuthToken] = useState('')
+
+  const dataSources = diagram.dataSources || []
 
   const columns: Column<DataSource>[] = [
     {
       key: 'name',
       label: 'Nom',
-      width: '30%'
+      width: '25%'
     },
     {
       key: 'type',
       label: 'Type',
-      width: '20%'
+      width: '15%'
     },
     {
-      key: 'status',
-      label: 'Statut',
-      width: '20%',
-      render: (ds) => (
-        <div className="flex items-center gap-2">
-          {ds.status === 'OK' && <CheckCircle size={16} className="text-green-600" />}
-          {ds.status === 'ERROR' && <XCircle size={16} className="text-red-600" />}
-          {ds.status === 'UNTESTED' && <Circle size={16} className="text-gray-400" />}
-          <span className="text-sm">
-            {ds.status === 'OK' && 'Connecté'}
-            {ds.status === 'ERROR' && 'Erreur'}
-            {ds.status === 'UNTESTED' && 'Non testé'}
-          </span>
-        </div>
-      )
+      key: 'connectionString',
+      label: 'Connexion',
+      width: '50%',
+      render: (ds) => {
+        if (ds.type === DataSourceType.SQL) {
+          return `${ds.host}:${ds.port}/${ds.database}`
+        }
+        return ds.url || ''
+      }
     }
   ]
 
   const handleAdd = () => {
-    setEditingIndex(null)
-    setFormData({
-      id: generateId('ds'),
-      name: '',
-      type: DataSourceType.REST,
-      status: 'UNTESTED',
-      config: { baseUrl: '', authType: AuthType.NONE }
-    })
-    setTestResult(null)
+    setEditingSource(null)
+    resetForm()
     setIsDialogOpen(true)
   }
 
-  const handleEdit = (ds: DataSource, index: number) => {
-    setEditingIndex(index)
-    setFormData(ds)
-    setTestResult(null)
+  const handleEdit = (source: DataSource) => {
+    setEditingSource(source)
+    setName(source.name)
+    setType(source.type)
+    
+    if (source.type === DataSourceType.SQL) {
+      setHost(source.host || '')
+      setPort(source.port?.toString() || '')
+      setDatabase(source.database || '')
+      setUsername(source.username || '')
+      setPassword(source.password || '')
+    } else {
+      setUrl(source.url || '')
+      setAuthType(source.authType || 'none')
+      setAuthToken(source.authToken || '')
+    }
+    
     setIsDialogOpen(true)
   }
 
-  const handleDelete = (ds: DataSource) => {
-    const confirmed = window.confirm(`Supprimer la source "${ds.name}" ?`)
+  const handleDelete = (source: DataSource) => {
+    const confirmed = window.confirm(`Supprimer la source "${source.name}" ?`)
     if (confirmed) {
       onUpdate({
-        dataSources: diagram.dataSources.filter(d => d.id !== ds.id)
+        dataSources: dataSources.filter(ds => ds.id !== source.id)
       })
     }
   }
 
-  const handleTestConnection = async () => {
-    if (!formData.type) {
-      return
-    }
-
-    setTestingConnection(true)
-    setTestResult(null)
-
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1500))
-
-      if (formData.type === DataSourceType.SQL) {
-        const config = formData.config as any
-        if (!config?.dbType || !config?.serverUrl) {
-          setTestResult({ success: false, message: 'Veuillez remplir tous les champs SQL requis' })
-          setTestingConnection(false)
-          return
-        }
-        setTestResult({ success: true, message: 'Connexion SQL établie avec succès' })
-        setFormData({ ...formData, status: 'OK' })
-      } else if (formData.type === DataSourceType.REST) {
-        const config = formData.config as any
-        if (!config?.baseUrl) {
-          setTestResult({ success: false, message: 'Veuillez fournir une URL de base' })
-          setTestingConnection(false)
-          return
-        }
-        setTestResult({ success: true, message: 'API REST accessible' })
-        setFormData({ ...formData, status: 'OK' })
-      }
-    } catch (error) {
-      setTestResult({ success: false, message: 'Erreur lors du test de connexion: ' + (error as Error).message })
-      setFormData({ ...formData, status: 'ERROR' })
-    } finally {
-      setTestingConnection(false)
-    }
+  const resetForm = () => {
+    setName('')
+    setType(DataSourceType.SQL)
+    setHost('')
+    setPort('')
+    setDatabase('')
+    setUsername('')
+    setPassword('')
+    setUrl('')
+    setAuthType('none')
+    setAuthToken('')
   }
 
   const handleSave = () => {
-    if (!formData.name || !formData.type) {
-      alert('Veuillez remplir tous les champs requis')
+    if (!name.trim()) {
+      alert('Veuillez saisir un nom')
       return
     }
 
-    const newDataSource: DataSource = formData as DataSource
+    if (type === DataSourceType.SQL) {
+      if (!host || !port || !database) {
+        alert('Veuillez remplir tous les champs de connexion SQL')
+        return
+      }
+    } else if (type === DataSourceType.REST) {
+      if (!url) {
+        alert('Veuillez saisir l\'URL')
+        return
+      }
+    }
 
-    if (editingIndex !== null) {
-      const updated = [...diagram.dataSources]
-      updated[editingIndex] = newDataSource
-      onUpdate({ dataSources: updated })
+    const newSource: DataSource = {
+      id: editingSource?.id || generateId('ds'),
+      name: name.trim(),
+      type,
+      host: type === DataSourceType.SQL ? host : undefined,
+      port: type === DataSourceType.SQL ? parseInt(port) : undefined,
+      database: type === DataSourceType.SQL ? database : undefined,
+      username: type === DataSourceType.SQL ? username : undefined,
+      password: type === DataSourceType.SQL ? password : undefined,
+      url: type === DataSourceType.REST ? url : undefined,
+      authType: type === DataSourceType.REST ? authType : undefined,
+      authToken: type === DataSourceType.REST ? authToken : undefined
+    }
+
+    if (editingSource) {
+      onUpdate({
+        dataSources: dataSources.map(ds => ds.id === editingSource.id ? newSource : ds)
+      })
     } else {
       onUpdate({
-        dataSources: [...diagram.dataSources, newDataSource]
+        dataSources: [...dataSources, newSource]
       })
     }
 
     setIsDialogOpen(false)
-    setTestResult(null)
-  }
-
-  const renderConfigFields = () => {
-    if (!formData.type) return null
-
-    switch (formData.type) {
-      case DataSourceType.SQL:
-        return (
-          <>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">
-                Type de base de données <span className="text-red-500">*</span>
-              </label>
-              <select
-                value={(formData.config as any)?.dbType || 'PostgreSQL'}
-                onChange={(e) => setFormData({
-                  ...formData,
-                  config: { ...(formData.config as any), dbType: e.target.value }
-                })}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-              >
-                <option value="PostgreSQL">PostgreSQL</option>
-                <option value="MySQL">MySQL</option>
-              </select>
-            </div>
-
-            <FormField
-              label="Serveur"
-              value={(formData.config as any)?.serverUrl || ''}
-              onChange={(v) => setFormData({
-                ...formData,
-                config: { ...(formData.config as any), serverUrl: v }
-              })}
-              helperText="Format: host:port/database"
-              required
-            />
-
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                label="Utilisateur"
-                value={(formData.config as any)?.username || ''}
-                onChange={(v) => setFormData({
-                  ...formData,
-                  config: { ...(formData.config as any), username: v }
-                })}
-                required
-              />
-              <FormField
-                label="Mot de passe"
-                value={(formData.config as any)?.passwordRef || ''}
-                onChange={(v) => setFormData({
-                  ...formData,
-                  config: { ...(formData.config as any), passwordRef: v }
-                })}
-                helperText="Sera chiffré automatiquement"
-              />
-            </div>
-          </>
-        )
-
-      case DataSourceType.REST:
-        return (
-          <>
-            <FormField
-              label="URL de Base"
-              value={(formData.config as any)?.baseUrl || ''}
-              onChange={(v) => setFormData({
-                ...formData,
-                config: { ...(formData.config as any), baseUrl: v }
-              })}
-              placeholder="https://api.example.com"
-              required
-            />
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Type d'Authentification</label>
-              <select
-                value={(formData.config as any)?.authType || AuthType.NONE}
-                onChange={(e) => setFormData({
-                  ...formData,
-                  config: { ...(formData.config as any), authType: e.target.value }
-                })}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-              >
-                <option value={AuthType.NONE}>Aucune</option>
-                <option value={AuthType.API_KEY}>API Key</option>
-                <option value={AuthType.BEARER_TOKEN}>Bearer Token</option>
-                <option value={AuthType.BASIC}>Basic Auth</option>
-              </select>
-            </div>
-            {(formData.config as any)?.authType !== AuthType.NONE && (
-              <FormField
-                label="Référence Secret"
-                value={(formData.config as any)?.authSecretRef || ''}
-                onChange={(v) => setFormData({
-                  ...formData,
-                  config: { ...(formData.config as any), authSecretRef: v }
-                })}
-                placeholder="{API_KEY}"
-              />
-            )}
-          </>
-        )
-
-      default:
-        return null
-    }
+    resetForm()
   }
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div>
-        <h3 className="text-lg font-semibold mb-2">
-          Sources de Données
-        </h3>
+        <h3 className="text-lg font-semibold mb-2">Sources de Données</h3>
         <p className="text-sm text-muted-foreground">
-          Configurez les connexions aux systèmes externes pour alimenter les indicateurs dynamiques
+          Enregistrez les connexions SQL et REST. Les indicateurs et stocks pourront ensuite les utiliser.
         </p>
       </div>
 
+      {/* Bouton Ajouter */}
+      <div>
+        <Button onClick={handleAdd}>Ajouter une Source</Button>
+      </div>
+
+      {/* Table */}
       <FormTable
         columns={columns}
-        data={diagram.dataSources}
-        onAdd={handleAdd}
+        data={dataSources}
         onEdit={handleEdit}
         onDelete={handleDelete}
-        addLabel="Ajouter une source"
-        emptyMessage="Aucune source de données configurée"
-        keyExtractor={(ds) => ds.id}
       />
 
+      {/* Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {editingIndex !== null ? 'Modifier' : 'Ajouter'} une Source de Données
+              {editingSource ? 'Modifier la Source' : 'Nouvelle Source'}
             </DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
+            {/* Nom */}
             <FormField
               label="Nom"
-              value={formData.name || ''}
-              onChange={(v) => setFormData({ ...formData, name: v })}
-              placeholder="Nom de la source de données"
+              value={name}
+              onChange={setName}
               required
             />
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium">
-                Type de Source <span className="text-red-500">*</span>
-              </label>
-              <select
-                value={formData.type || DataSourceType.REST}
-                onChange={(e) => {
-                  const newType = e.target.value as DataSourceType
-                  setFormData({
-                    ...formData,
-                    type: newType,
-                    config: newType === DataSourceType.REST
-                      ? { baseUrl: '', authType: AuthType.NONE }
-                      : { dbType: 'PostgreSQL', serverUrl: '' },
-                    status: 'UNTESTED'
-                  })
-                  setTestResult(null)
-                }}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-              >
-                <option value={DataSourceType.REST}>API REST</option>
-                <option value={DataSourceType.SQL}>Base de Données SQL</option>
-              </select>
+            {/* Type */}
+            <div>
+              <label className="text-sm font-medium mb-2 block">Type :</label>
+              <Select value={type} onValueChange={(v) => setType(v as DataSourceType)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={DataSourceType.SQL}>Base de données SQL</SelectItem>
+                  <SelectItem value={DataSourceType.REST}>API REST</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
-            {renderConfigFields()}
-
-            {/* Test Connection Section */}
-            {formData.type && (
-              <div className="border-t pt-4 space-y-3">
-                <div className="flex items-center gap-3">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleTestConnection}
-                    disabled={testingConnection}
-                  >
-                    {testingConnection ? 'Test en cours...' : 'Tester la connexion'}
-                  </Button>
-
-                  {testResult && (
-                    <div className={`flex items-center gap-2 text-sm ${testResult.success ? 'text-green-600' : 'text-red-600'}`}>
-                      {testResult.success ? <CheckCircle size={16} /> : <XCircle size={16} />}
-                      <span>{testResult.message}</span>
-                    </div>
-                  )}
+            {/* SQL Fields */}
+            {type === DataSourceType.SQL && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    label="Hôte"
+                    value={host}
+                    onChange={setHost}
+                    required
+                  />
+                  <FormField
+                    label="Port"
+                    type="number"
+                    value={port}
+                    onChange={setPort}
+                    required
+                  />
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Vérifiez que la connexion fonctionne avant de sauvegarder
-                </p>
+                <FormField
+                  label="Base de données"
+                  value={database}
+                  onChange={setDatabase}
+                  required
+                />
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    label="Utilisateur"
+                    value={username}
+                    onChange={setUsername}
+                  />
+                  <FormField
+                    label="Mot de passe"
+                    type="password"
+                    value={password}
+                    onChange={setPassword}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* REST Fields */}
+            {type === DataSourceType.REST && (
+              <div className="space-y-4">
+                <FormField
+                  label="URL de base"
+                  value={url}
+                  onChange={setUrl}
+                  required
+                  placeholder="https://api.example.com"
+                />
+                
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Authentification :</label>
+                  <Select value={authType} onValueChange={(v) => setAuthType(v as any)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Aucune</SelectItem>
+                      <SelectItem value="bearer">Bearer Token</SelectItem>
+                      <SelectItem value="apikey">API Key</SelectItem>
+                      <SelectItem value="basic">Basic Auth</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {authType !== 'none' && (
+                  <FormField
+                    label={authType === 'bearer' ? 'Token' : authType === 'apikey' ? 'API Key' : 'Credentials'}
+                    type="password"
+                    value={authToken}
+                    onChange={setAuthToken}
+                  />
+                )}
               </div>
             )}
           </div>
@@ -355,9 +311,7 @@ export const DataSourcesTab: React.FC<DataSourcesTabProps> = ({
             <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
               Annuler
             </Button>
-            <Button onClick={handleSave}>
-              {editingIndex !== null ? 'Modifier' : 'Ajouter'}
-            </Button>
+            <Button onClick={handleSave}>Enregistrer</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

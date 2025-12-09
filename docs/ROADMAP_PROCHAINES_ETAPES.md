@@ -551,13 +551,15 @@ VSM-Tools/
 9. Test : Indicateur alimenté automatiquement
 10. Test : Saisie opérateur remonte au Studio
 
-### Phase 3 : Moteur d'Analyse (selon onglet Analyse et Détection)
-1. Backend : AnalysisEngine (3 types définis)
-2. Backend : Endpoint POST /api/diagrams/:id/recalculate
-3. Backend : Détection des **Goulots d'étranglement**
-4. Backend : Détection des **Gaspillages** (7 types LEAN)
-5. Backend : Détection des **Opportunités d'amélioration**
-6. Test : Analyse d'un diagramme test avec les 3 types
+### Phase 3 : Moteur d'Analyse ✅ COMPLÉTÉ
+1. ✅ Backend : AnalysisEngine (utilise les règles configurées)
+2. ✅ Backend : Endpoint POST /api/diagrams/:id/recalculate
+3. ✅ Backend : Détection des **Goulots d'étranglement** (selon règles activées)
+4. ✅ Backend : Détection des **Gaspillages** (7 types LEAN selon règles)
+5. ✅ Backend : Détection des **Opportunités d'amélioration** (selon règles)
+6. ✅ Moteur : Applique uniquement les règles **activées** dans l'onglet Analyse & Détection
+7. ✅ Moteur : Supporte les conditions dynamiques (comparaison au Takt Time, opérateurs flexibles)
+8. ✅ Moteur : Calcule la sévérité selon la priorité des règles (1=critique, 2=haute, 3=moyenne)
 
 ### Phase 4 : Visualisation
 1. Frontend : AnalysisPanel (liste problèmes)

@@ -407,7 +407,11 @@ export interface Inventory {
   quantity: number
   /** Durée équivalente (en jours) */
   duration: number
-  /** Référence à une source de données (pour valeurs dynamiques) */
+  /** Mode de saisie: Statique, Dynamique, ou Manuel */
+  mode?: 'Statique' | 'Dynamique' | 'Manuel'
+  /** Configuration de connexion dynamique (si mode = Dynamique) */
+  dataConnection?: DataConnection
+  /** Référence à une source de données (pour valeurs dynamiques) - DEPRECATED, utiliser dataConnection */
   dataSourceId?: string
   /** Indicateurs attachés à ce stock */
   indicators: Indicator[]

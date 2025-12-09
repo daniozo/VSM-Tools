@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { useVsmStore } from '@/store/vsmStore'
+import { useDynamicDataRefresh } from '@/renderer/hooks/useDynamicDataRefresh'
 import { TabNavigation } from './TabNavigation'
 import { ConfigurationTab, TabItem } from './types'
 import { VSMDiagram, DeliveryFrequency } from '@/shared/types/vsm-model'
@@ -122,6 +123,19 @@ export const ConfigurationDialog: React.FC<ConfigurationDialogProps> = ({
   const [localDiagram, setLocalDiagram] = useState<VSMDiagram | null>(null)
   const [hasChanges, setHasChanges] = useState(false)
 
+  // Hook pour le rafraîchissement automatique des données dynamiques
+  const { refreshing, lastUpdate, forceRefresh } = useDynamicDataRefresh(
+    localDiagram,
+    {
+      intervalMs: 30000, // 30 secondes
+      enabled: open && localDiagram !== null, // Actif seulement quand le dialogue est ouvert
+      onUpdate: (updatedDiagram) => {
+        setLocalDiagram(updatedDiagram)
+        console.log('Données dynamiques rafraîchies:', lastUpdate)
+      }
+    }
+  )
+
   // Récupérer le projet actuel pour avoir son nom
   const getCurrentProjectName = async (): Promise<string> => {
     try {
@@ -204,16 +218,28 @@ export const ConfigurationDialog: React.FC<ConfigurationDialogProps> = ({
     setLocalDiagram(updatedDiagram);
     setHasChanges(true);
     
-    // Auto-sauvegarde dans la BD (debounced via useEffect séparé)
-    // Pour l'instant, on sauvegarde directement
+    // Auto-sauvegarde dans la BD + Recalcul automatique
     try {
       const { useProjectsStore } = await import('@/store/projectsStore');
       const { currentDiagram } = useProjectsStore.getState();
       
       if (currentDiagram) {
-        const { configurationApi } = await import('@/services/api');
+        const { configurationApi, analysisApi } = await import('@/services/api');
+        
+        // Sauvegarder la configuration
         await configurationApi.updateConfiguration(currentDiagram.id, updatedDiagram);
-        console.log('Configuration auto-sauvegardée');
+        
+        // Recalculer les métriques et l'analyse
+        const result = await analysisApi.recalculateDiagram(currentDiagram.id, updatedDiagram);
+        
+        // Mettre à jour le diagramme local avec les résultats
+        setLocalDiagram({
+          ...updatedDiagram,
+          metrics: result.metrics,
+          analysis: result.analysis
+        });
+        
+        console.log('Configuration auto-sauvegardée et recalculée');
       }
     } catch (error) {
       console.error('Erreur lors de l\'auto-sauvegarde:', error);

@@ -1,4 +1,14 @@
+import axios from 'axios';
 import { API_CONFIG } from './config';
+
+// Create axios instance for use by other API services
+export const apiClient = axios.create({
+  baseURL: API_CONFIG.baseUrl,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  timeout: 10000,
+});
 
 // Types
 export interface Project {

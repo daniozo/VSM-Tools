@@ -12,3 +12,5 @@ export {
   type NodeIndicators,
 } from './client';
 export { configurationApi, type ConfigurationSection } from './configuration';
+export * as dataSourcesApi from './dataSources';
+export * as analysisApi from './analysis';

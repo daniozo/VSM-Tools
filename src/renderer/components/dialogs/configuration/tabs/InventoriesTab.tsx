@@ -13,6 +13,7 @@ import {
   Inventory,
   InventoryType,
   DataSourceType,
+  DataConnection,
   generateId,
   NodeType
 } from '@/shared/types/vsm-model'
@@ -53,7 +54,7 @@ interface BetweenStockData {
   quantity: number
   durationDays: number
   mode: 'Statique' | 'Dynamique' | 'Manuel'
-  dataSourceId?: string
+  dataConnection?: DataConnection
 }
 
 // Mapping des labels français pour les types d'inventaire
@@ -531,7 +532,7 @@ export const InventoriesTab: React.FC<InventoriesTabProps> = ({
               {/* Configuration Dynamique : Affichée directement dans le dialogue */}
               {editingStock.mode === 'Dynamique' && (() => {
                 // Déterminer le type de la DataSource sélectionnée
-                const selectedDataSource = availableDataSources.find(ds => ds.id === editingStock.dataSourceId)
+                const selectedDataSource = availableDataSources.find(ds => ds.id === editingStock.dataConnection?.dataSourceId)
                 const isSQL = selectedDataSource?.type === DataSourceType.SQL
                 const isREST = selectedDataSource?.type === DataSourceType.REST
 
@@ -543,9 +544,15 @@ export const InventoriesTab: React.FC<InventoriesTabProps> = ({
                     <div className="space-y-2">
                       <Label>Source :</Label>
                       <Select
-                        value={editingStock.dataSourceId || ''}
+                        value={editingStock.dataConnection?.dataSourceId || ''}
                         onValueChange={(value) =>
-                          setEditingStock({ ...editingStock, dataSourceId: value })
+                          setEditingStock({ 
+                            ...editingStock, 
+                            dataConnection: { 
+                              ...(editingStock.dataConnection || {}), 
+                              dataSourceId: value 
+                            } as DataConnection
+                          })
                         }
                       >
                         <SelectTrigger>
@@ -572,8 +579,14 @@ export const InventoriesTab: React.FC<InventoriesTabProps> = ({
                         <div className="space-y-2">
                           <Label>Requête SQL :</Label>
                           <Textarea
-                            value={stockSqlQuery}
-                            onChange={(e) => setStockSqlQuery(e.target.value)}
+                            value={editingStock.dataConnection?.sqlQuery || ''}
+                            onChange={(e) => setEditingStock({ 
+                              ...editingStock, 
+                              dataConnection: { 
+                                ...(editingStock.dataConnection || { dataSourceId: '' }), 
+                                sqlQuery: e.target.value 
+                              } as DataConnection
+                            })}
                             rows={4}
                             className="font-mono text-sm"
                             placeholder="SELECT quantity FROM inventory WHERE..."
@@ -585,8 +598,14 @@ export const InventoriesTab: React.FC<InventoriesTabProps> = ({
                           <FormField
                             label=""
                             type="text"
-                            value={stockParameters}
-                            onChange={setStockParameters}
+                            value={editingStock.dataConnection?.parameters || ''}
+                            onChange={(value) => setEditingStock({ 
+                              ...editingStock, 
+                              dataConnection: { 
+                                ...(editingStock.dataConnection || { dataSourceId: '' }), 
+                                parameters: value 
+                              } as DataConnection
+                            })}
                             helperText="Format: key1=value1;key2=value2"
                           />
                         </div>
@@ -599,8 +618,14 @@ export const InventoriesTab: React.FC<InventoriesTabProps> = ({
                         <FormField
                           label="Endpoint REST"
                           type="text"
-                          value={stockRestEndpoint}
-                          onChange={setStockRestEndpoint}
+                          value={editingStock.dataConnection?.restEndpoint || ''}
+                          onChange={(value) => setEditingStock({ 
+                            ...editingStock, 
+                            dataConnection: { 
+                              ...(editingStock.dataConnection || { dataSourceId: '' }), 
+                              restEndpoint: value 
+                            } as DataConnection
+                          })}
                           required
                           placeholder="/api/inventory/quantity"
                         />
@@ -608,8 +633,14 @@ export const InventoriesTab: React.FC<InventoriesTabProps> = ({
                         <FormField
                           label="JSON Path"
                           type="text"
-                          value={stockJsonPath}
-                          onChange={setStockJsonPath}
+                          value={editingStock.dataConnection?.jsonPath || ''}
+                          onChange={(value) => setEditingStock({ 
+                            ...editingStock, 
+                            dataConnection: { 
+                              ...(editingStock.dataConnection || { dataSourceId: '' }), 
+                              jsonPath: value 
+                            } as DataConnection
+                          })}
                           helperText="Ex: $.data.value"
                         />
 
@@ -618,8 +649,14 @@ export const InventoriesTab: React.FC<InventoriesTabProps> = ({
                           <FormField
                             label=""
                             type="text"
-                            value={stockParameters}
-                            onChange={setStockParameters}
+                            value={editingStock.dataConnection?.parameters || ''}
+                            onChange={(value) => setEditingStock({ 
+                              ...editingStock, 
+                              dataConnection: { 
+                                ...(editingStock.dataConnection || { dataSourceId: '' }), 
+                                parameters: value 
+                              } as DataConnection
+                            })}
                             helperText="Format: key1=value1;key2=value2"
                           />
                         </div>
