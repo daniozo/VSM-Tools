@@ -59,12 +59,12 @@ interface ProjectExplorerProps {
  * Construit l'arborescence à partir du diagramme VSM
  */
 function buildTreeFromDiagram(diagram: VSMDiagram | null): TreeNode[] {
-  if (!diagram) return []
+  if (!diagram || !diagram.actors) return []
 
   const actorsChildren: TreeNode[] = []
   
   // Fournisseur
-  if (diagram.actors.supplier) {
+  if (diagram.actors?.supplier) {
     actorsChildren.push({
       id: 'supplier',
       name: diagram.actors.supplier.name || 'Fournisseur',
@@ -75,7 +75,7 @@ function buildTreeFromDiagram(diagram: VSMDiagram | null): TreeNode[] {
   }
   
   // Client
-  if (diagram.actors.customer) {
+  if (diagram.actors?.customer) {
     actorsChildren.push({
       id: 'customer',
       name: diagram.actors.customer.name || 'Client',
@@ -86,7 +86,7 @@ function buildTreeFromDiagram(diagram: VSMDiagram | null): TreeNode[] {
   }
   
   // Centre de contrôle
-  if (diagram.actors.controlCenter) {
+  if (diagram.actors?.controlCenter) {
     actorsChildren.push({
       id: 'control-center',
       name: diagram.actors.controlCenter.name || 'Planification',
@@ -97,7 +97,7 @@ function buildTreeFromDiagram(diagram: VSMDiagram | null): TreeNode[] {
   }
 
   // Étapes de processus
-  const stepsChildren: TreeNode[] = diagram.nodes
+  const stepsChildren: TreeNode[] = (diagram.nodes || [])
     .filter((n: Node) => n.type === NodeType.PROCESS_STEP)
     .map((node: Node) => ({
       id: node.id,
@@ -109,8 +109,8 @@ function buildTreeFromDiagram(diagram: VSMDiagram | null): TreeNode[] {
 
   // Inventaires (à partir des flowSequences)
   const inventoryChildren: TreeNode[] = []
-  for (const seq of diagram.flowSequences) {
-    for (const elem of seq.intermediateElements) {
+  for (const seq of (diagram.flowSequences || [])) {
+    for (const elem of (seq.intermediateElements || [])) {
       if (elem.type === 'INVENTORY' && elem.inventory) {
         inventoryChildren.push({
           id: elem.inventory.id,
@@ -124,7 +124,7 @@ function buildTreeFromDiagram(diagram: VSMDiagram | null): TreeNode[] {
   }
 
   // Flux d'information
-  const infoFlowChildren: TreeNode[] = diagram.informationFlows.map((flow: InformationFlow) => ({
+  const infoFlowChildren: TreeNode[] = (diagram.informationFlows || []).map((flow: InformationFlow) => ({
     id: flow.id,
     name: flow.description || `Flux info`,
     type: 'entity' as const,
@@ -135,7 +135,7 @@ function buildTreeFromDiagram(diagram: VSMDiagram | null): TreeNode[] {
   return [
     {
       id: 'project-root',
-      name: diagram.metaData.name || 'Projet VSM',
+      name: diagram.metaData?.name || 'Projet VSM',
       type: 'project',
       children: [
         {

@@ -86,7 +86,7 @@ export const OpenProjectDialog: React.FC<OpenProjectDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] max-h-[80vh]">
+      <DialogContent className="sm:max-w-[700px]">
         <DialogHeader>
           <DialogTitle>Ouvrir un Projet VSM</DialogTitle>
           <DialogDescription>
@@ -106,7 +106,7 @@ export const OpenProjectDialog: React.FC<OpenProjectDialogProps> = ({
         </div>
 
         {/* Liste des projets */}
-        <ScrollArea className="h-[400px] pr-4">
+        <ScrollArea className="h-[350px] pr-4">
           {isLoading ? (
             <div className="flex items-center justify-center h-40">
               <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -171,7 +171,7 @@ export const OpenProjectDialog: React.FC<OpenProjectDialogProps> = ({
           )}
         </ScrollArea>
 
-        <DialogFooter>
+        <DialogFooter className="mt-4">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Annuler
           </Button>

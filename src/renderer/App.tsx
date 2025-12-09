@@ -16,6 +16,7 @@ import { OpenProjectDialog } from './components/dialogs/OpenProjectDialog';
 import { useVsmStore } from '@/store/vsmStore';
 import { useProjectsStore } from '@/store/projectsStore';
 import { demoDiagram } from '@/shared/data/demo-diagram';
+import { diagramsApi } from '@/services/api';
 
 // Hook de connexion backend
 import { useBackendConnection } from './hooks/useBackendConnection';
@@ -39,6 +40,7 @@ const App: React.FC = () => {
     currentProject,
     isLoadingProjects,
     fetchProjects,
+    fetchDiagrams,
     createProject,
     selectProject,
   } = useProjectsStore();
@@ -155,6 +157,22 @@ const App: React.FC = () => {
       const newProject = await createProject(name, description);
       await selectProject(newProject);
       console.log('Projet créé:', newProject);
+      
+      // Charger le diagramme du projet dans vsmStore
+      const diagrams = await fetchDiagrams(newProject.id);
+      if (diagrams && diagrams.length > 0) {
+        const diagramData = await diagramsApi.get(diagrams[0].id);
+        // diagramData.data contient le VSMDiagram complet
+        if (diagramData.data) {
+          loadDiagram(diagramData.data);
+        }
+      }
+      
+      // Fermer le dialogue de création
+      setIsNewProjectDialogOpen(false);
+      
+      // Ouvrir le dialogue de configuration après la création
+      setTimeout(() => setIsConfigDialogOpen(true), 100);
     } catch (error) {
       console.error('Erreur lors de la création du projet:', error);
       throw error;
@@ -171,6 +189,12 @@ const App: React.FC = () => {
 
       // TODO: Charger les données du fichier VSMX dans le diagramme
       console.log('Projet créé depuis VSMX:', newProject);
+      
+      // Fermer le dialogue d'import
+      setIsNewProjectDialogOpen(false);
+      
+      // Ouvrir le dialogue de configuration après l'import
+      setTimeout(() => setIsConfigDialogOpen(true), 100);
     } catch (error) {
       console.error('Erreur lors de l\'import VSMX:', error);
       throw error;
@@ -215,6 +239,7 @@ const App: React.FC = () => {
           rightPanelVisible={rightPanelVisible}
           onNewProject={handleNewProject}
           onOpenProject={handleOpenProject}
+          currentProject={currentProject}
         >
           <VsmCanvas />
         </MainLayout>

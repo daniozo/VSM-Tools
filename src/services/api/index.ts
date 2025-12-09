@@ -11,3 +11,4 @@ export {
   type DiagramEdge,
   type NodeIndicators,
 } from './client';
+export { configurationApi, type ConfigurationSection } from './configuration';

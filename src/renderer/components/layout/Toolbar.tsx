@@ -33,6 +33,8 @@ import {
   RotateCcw
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useProjectsStore } from '@/store/projectsStore'
+import { useVsmStore } from '@/store/vsmStore'
 
 interface ToolbarAction {
   id: string
@@ -55,26 +57,90 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   rightPanelVisible = true,
   className
 }) => {
+  // Récupérer l'état des stores
+  const currentProject = useProjectsStore(state => state.currentProject)
+  const currentDiagram = useProjectsStore(state => state.currentDiagram)
+  const isDirty = useVsmStore(state => state.isDirty)
+
+  // Logique d'activation des boutons
+  const hasProject = !!currentProject
+  const hasDiagram = !!currentDiagram
+  const canSave = hasProject && hasDiagram && isDirty
+
   // Groupes d'actions
   const fileActions: ToolbarAction[] = [
-    { id: 'newProject', icon: <FolderPlus className="h-4 w-4" />, label: 'Nouveau Projet', shortcut: 'Ctrl+N' },
-    { id: 'openProject', icon: <FolderOpen className="h-4 w-4" />, label: 'Ouvrir Projet', shortcut: 'Ctrl+O' },
-    { id: 'save', icon: <Save className="h-4 w-4" />, label: 'Enregistrer', shortcut: 'Ctrl+S' },
+    { 
+      id: 'newProject', 
+      icon: <FolderPlus className="h-4 w-4" />, 
+      label: 'Nouveau Projet', 
+      shortcut: 'Ctrl+N',
+      disabled: false // Toujours activé
+    },
+    { 
+      id: 'openProject', 
+      icon: <FolderOpen className="h-4 w-4" />, 
+      label: 'Ouvrir Projet', 
+      shortcut: 'Ctrl+O',
+      disabled: false // Toujours activé
+    },
+    { 
+      id: 'save', 
+      icon: <Save className="h-4 w-4" />, 
+      label: 'Enregistrer', 
+      shortcut: 'Ctrl+S',
+      disabled: !canSave // Activé seulement si modifications non sauvegardées
+    },
   ]
 
   const editActions: ToolbarAction[] = [
-    { id: 'undo', icon: <Undo2 className="h-4 w-4" />, label: 'Annuler', shortcut: 'Ctrl+Z' },
-    { id: 'redo', icon: <Redo2 className="h-4 w-4" />, label: 'Rétablir', shortcut: 'Ctrl+Y' },
+    { 
+      id: 'undo', 
+      icon: <Undo2 className="h-4 w-4" />, 
+      label: 'Annuler', 
+      shortcut: 'Ctrl+Z',
+      disabled: !hasDiagram // Nécessite un diagramme ouvert
+    },
+    { 
+      id: 'redo', 
+      icon: <Redo2 className="h-4 w-4" />, 
+      label: 'Rétablir', 
+      shortcut: 'Ctrl+Y',
+      disabled: !hasDiagram // Nécessite un diagramme ouvert
+    },
   ]
 
   const configActions: ToolbarAction[] = [
-    { id: 'configure', icon: <Settings2 className="h-4 w-4" />, label: 'Configurer le Diagramme', shortcut: 'Ctrl+K' },
+    { 
+      id: 'configure', 
+      icon: <Settings2 className="h-4 w-4" />, 
+      label: 'Configurer le Diagramme', 
+      shortcut: 'Ctrl+K',
+      disabled: !hasProject // Nécessite un projet ouvert
+    },
   ]
 
   const zoomActions: ToolbarAction[] = [
-    { id: 'zoomIn', icon: <ZoomIn className="h-4 w-4" />, label: 'Zoom Avant', shortcut: 'Ctrl++' },
-    { id: 'zoomOut', icon: <ZoomOut className="h-4 w-4" />, label: 'Zoom Arrière', shortcut: 'Ctrl+-' },
-    { id: 'zoomReset', icon: <RotateCcw className="h-4 w-4" />, label: 'Réinitialiser Zoom', shortcut: 'Ctrl+0' },
+    { 
+      id: 'zoomIn', 
+      icon: <ZoomIn className="h-4 w-4" />, 
+      label: 'Zoom Avant', 
+      shortcut: 'Ctrl++',
+      disabled: !hasDiagram // Nécessite un diagramme ouvert
+    },
+    { 
+      id: 'zoomOut', 
+      icon: <ZoomOut className="h-4 w-4" />, 
+      label: 'Zoom Arrière', 
+      shortcut: 'Ctrl+-',
+      disabled: !hasDiagram // Nécessite un diagramme ouvert
+    },
+    { 
+      id: 'zoomReset', 
+      icon: <RotateCcw className="h-4 w-4" />, 
+      label: 'Réinitialiser Zoom', 
+      shortcut: 'Ctrl+0',
+      disabled: !hasDiagram // Nécessite un diagramme ouvert
+    },
   ]
 
   const renderActionButton = (action: ToolbarAction) => (

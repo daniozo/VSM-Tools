@@ -37,6 +37,8 @@ class SocketService {
         return;
       }
 
+      console.log('[SocketService] Connexion au WebSocket:', API_CONFIG.wsUrl);
+      
       this.socket = io(API_CONFIG.wsUrl, {
         transports: ['websocket', 'polling'],
         reconnection: true,
@@ -45,12 +47,13 @@ class SocketService {
       });
 
       this.socket.on('connect', () => {
-        console.log('🔌 WebSocket connected');
+        console.log('✅ [SocketService] WebSocket connecté - ID:', this.socket?.id);
         resolve();
       });
 
       this.socket.on('connect_error', (error) => {
-        console.error('❌ WebSocket connection error:', error);
+        console.error('❌ [SocketService] Erreur de connexion WebSocket:', error.message);
+        console.error('   URL:', API_CONFIG.wsUrl);
         reject(error);
       });
 

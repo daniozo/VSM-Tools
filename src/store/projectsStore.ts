@@ -59,11 +59,15 @@ export const useProjectsStore = create<ProjectsStore>((set, get) => ({
   connect: async () => {
     set({ connectionStatus: 'connecting', connectionError: null });
     try {
+      console.log('[ProjectsStore] Tentative de connexion au backend...');
+      
       // Check API health first
-      await checkHealth();
+      const health = await checkHealth();
+      console.log('[ProjectsStore] Health check réussi:', health);
       
       // Connect WebSocket
       await socketService.connect();
+      console.log('[ProjectsStore] WebSocket connecté');
       
       set({ connectionStatus: 'connected' });
       
@@ -71,6 +75,7 @@ export const useProjectsStore = create<ProjectsStore>((set, get) => ({
       setupRealtimeHandlers(set, get);
       
     } catch (error) {
+      console.error('[ProjectsStore] Erreur de connexion:', error);
       const message = error instanceof Error ? error.message : 'Connection failed';
       set({ connectionStatus: 'error', connectionError: message });
       throw error;
@@ -108,9 +113,25 @@ export const useProjectsStore = create<ProjectsStore>((set, get) => ({
   },
 
   createProject: async (name: string, description?: string) => {
-    const project = await projectsApi.create({ name, description });
-    set((state) => ({ projects: [project, ...state.projects] }));
-    return project;
+    try {
+      const project = await projectsApi.create({ name, description });
+      set((state) => ({ projects: [project, ...state.projects] }));
+      
+      // Créer automatiquement un diagramme par défaut pour le projet
+      const diagram = await get().createDiagram(project.id, 'Diagramme Principal', 'current');
+      
+      // Initialiser avec les valeurs par défaut
+      const { getDefaultProjectConfiguration } = await import('@/shared/data/defaultValues');
+      const defaultConfig = getDefaultProjectConfiguration();
+      
+      const { configurationApi } = await import('@/services/api');
+      await configurationApi.initialize(diagram.id, defaultConfig);
+      
+      return project;
+    } catch (error) {
+      console.error('Error creating project:', error);
+      throw error;
+    }
   },
 
   updateProject: async (id: string, data: Partial<Project>) => {
@@ -130,10 +151,21 @@ export const useProjectsStore = create<ProjectsStore>((set, get) => ({
     }));
   },
 
-  selectProject: (project: Project | null) => {
+  selectProject: async (project: Project | null) => {
     set({ currentProject: project, diagrams: [], currentDiagram: null });
     if (project) {
-      get().fetchDiagrams(project.id);
+      const diagrams = await get().fetchDiagrams(project.id);
+      // Sélectionner automatiquement le premier diagramme
+      if (diagrams && diagrams.length > 0) {
+        const diagram = await get().loadDiagram(diagrams[0].id);
+        
+        // Charger aussi dans vsmStore pour l'affichage
+        const { useVsmStore } = await import('./vsmStore');
+        const { loadDiagram } = useVsmStore.getState();
+        if (diagram.data) {
+          loadDiagram(diagram.data);
+        }
+      }
     }
   },
 
@@ -142,6 +174,7 @@ export const useProjectsStore = create<ProjectsStore>((set, get) => ({
     try {
       const diagrams = await diagramsApi.list(projectId);
       set({ diagrams });
+      return diagrams;
     } catch (error) {
       console.error('Failed to fetch diagrams:', error);
       throw error;

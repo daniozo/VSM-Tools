@@ -169,7 +169,7 @@ export const NewProjectDialog: React.FC<NewProjectDialogProps> = ({
                 disabled={!projectName.trim() || isLoading}
               >
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Créer le Projet
+                Créer
               </Button>
             </DialogFooter>
           </TabsContent>

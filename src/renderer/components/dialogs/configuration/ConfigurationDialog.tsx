@@ -171,15 +171,33 @@ export const ConfigurationDialog: React.FC<ConfigurationDialogProps> = ({
 
   /**
    * Met à jour le diagramme local et marque comme modifié
+   * Auto-sauvegarde dans la BD si un projet est actif
    */
-  const updateLocalDiagram = (updates: Partial<VSMDiagram>) => {
+  const updateLocalDiagram = async (updates: Partial<VSMDiagram>) => {
     if (!localDiagram) return
 
-    setLocalDiagram({
+    const updatedDiagram = {
       ...localDiagram,
       ...updates
-    })
-    setHasChanges(true)
+    };
+    
+    setLocalDiagram(updatedDiagram);
+    setHasChanges(true);
+    
+    // Auto-sauvegarde dans la BD (debounced via useEffect séparé)
+    // Pour l'instant, on sauvegarde directement
+    try {
+      const { useProjectsStore } = await import('@/store/projectsStore');
+      const { currentDiagram } = useProjectsStore.getState();
+      
+      if (currentDiagram) {
+        const { configurationApi } = await import('@/services/api');
+        await configurationApi.updateConfiguration(currentDiagram.id, updatedDiagram);
+        console.log('Configuration auto-sauvegardée');
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'auto-sauvegarde:', error);
+    }
   }
 
   /**

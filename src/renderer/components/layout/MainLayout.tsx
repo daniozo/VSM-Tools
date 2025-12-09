@@ -22,6 +22,7 @@ interface MainLayoutProps {
   rightPanelVisible?: boolean
   onNewProject?: () => void
   onOpenProject?: () => void
+  currentProject?: any
   className?: string
 }
 
@@ -31,14 +32,12 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
   rightPanelVisible = true,
   onNewProject,
   onOpenProject,
+  currentProject,
   className
 }) => {
   // État des panneaux (largeur)
   const [leftPanelWidth, setLeftPanelWidth] = useState(280)
   const [rightPanelWidth, setRightPanelWidth] = useState(320)
-
-  // État du projet actif
-  const [activeProject] = useState<string | null>(null)
   const [selectedElementId, setSelectedElementId] = useState<string | null>(null)
 
   // État du panneau de droite (sidebar + contenu)
@@ -82,7 +81,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
         <>
           <ProjectExplorer
             width={leftPanelWidth}
-            activeProject={activeProject}
+            activeProject={currentProject?.id || null}
             selectedElementId={selectedElementId}
             onSelect={handleExplorerSelect}
             onNewProject={onNewProject}

@@ -11,8 +11,8 @@ const getEnvVar = (key: string, defaultValue: string): string => {
 };
 
 export const API_CONFIG = {
-  baseUrl: getEnvVar('VITE_API_URL', 'http://localhost:3001'),
-  wsUrl: getEnvVar('VITE_WS_URL', 'http://localhost:3001'),
+  baseUrl: getEnvVar('VITE_API_BASE_URL', 'http://localhost:3001'),
+  wsUrl: getEnvVar('VITE_WS_BASE_URL', 'http://localhost:3001'),
   endpoints: {
     health: '/api/health',
     projects: '/api/projects',

@@ -12,10 +12,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Send, Loader2, Bot, User, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { geminiService } from '@/services/gemini';
 
 interface Message {
   id: string;
@@ -48,17 +48,9 @@ export const ChatAssistant: React.FC<ChatAssistantProps> = ({
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [apiKey, setApiKey] = useState<string>('');
+  const [isConfigured] = useState(geminiService.isConfigured());
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  // Charger la clé API depuis localStorage
-  useEffect(() => {
-    const savedKey = localStorage.getItem('gemini_api_key');
-    if (savedKey) {
-      setApiKey(savedKey);
-    }
-  }, []);
 
   // Auto-scroll vers le bas quand un nouveau message arrive
   useEffect(() => {
@@ -73,9 +65,8 @@ export const ChatAssistant: React.FC<ChatAssistantProps> = ({
   const sendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
 
-    // Vérifier la clé API
-    if (!apiKey) {
-      setError('Clé API Gemini non configurée. Veuillez configurer votre clé API dans les paramètres.');
+    if (!isConfigured) {
+      setError('Service non configuré. Veuillez contacter l\'administrateur.');
       return;
     }
 
@@ -101,44 +92,13 @@ export const ChatAssistant: React.FC<ChatAssistantProps> = ({
         contextInfo.push(`Données du diagramme: ${JSON.stringify(diagramData)}`);
       }
 
-      const systemContext = contextInfo.length > 0
-        ? `Contexte VSM:\n${contextInfo.join('\n')}\n\n`
-        : '';
+      const context = contextInfo.join('\n');
 
-      // Appel à l'API Gemini
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            contents: [
-              {
-                parts: [
-                  {
-                    text: `${systemContext}Tu es un assistant expert en Value Stream Mapping (VSM) et amélioration continue. Aide l'utilisateur avec ses questions sur le VSM.\n\nQuestion: ${userMessage.content}`,
-                  },
-                ],
-              },
-            ],
-            generationConfig: {
-              temperature: 0.7,
-              maxOutputTokens: 1024,
-            },
-          }),
-        }
+      // Appel au service Gemini
+      const assistantText = await geminiService.generateResponse(
+        userMessage.content,
+        context || undefined
       );
-
-      if (!response.ok) {
-        throw new Error(`Erreur API: ${response.status} ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      const assistantText =
-        data.candidates?.[0]?.content?.parts?.[0]?.text ||
-        'Désolé, je n\'ai pas pu générer une réponse.';
 
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -155,7 +115,7 @@ export const ChatAssistant: React.FC<ChatAssistantProps> = ({
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: 'Désolé, une erreur s\'est produite lors de la génération de la réponse. Veuillez vérifier votre clé API et réessayer.',
+        content: 'Désolé, une erreur s\'est produite lors de la génération de la réponse. Veuillez réessayer.',
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMessage]);
@@ -172,15 +132,6 @@ export const ChatAssistant: React.FC<ChatAssistantProps> = ({
     }
   };
 
-  const handleConfigureApiKey = () => {
-    const key = prompt('Entrez votre clé API Google Gemini:', apiKey);
-    if (key !== null) {
-      setApiKey(key);
-      localStorage.setItem('gemini_api_key', key);
-      setError(null);
-    }
-  };
-
   return (
     <div
       style={{ width }}
@@ -190,11 +141,8 @@ export const ChatAssistant: React.FC<ChatAssistantProps> = ({
       <div className="flex items-center justify-between p-4 border-b">
         <div className="flex items-center gap-2">
           <Bot className="h-5 w-5 text-primary" />
-          <h3 className="font-semibold text-sm">Assistant VSM</h3>
+          <h3 className="font-semibold text-sm">Assistant</h3>
         </div>
-        <Badge variant={apiKey ? 'default' : 'destructive'} className="text-xs">
-          {apiKey ? 'Connecté' : 'Non configuré'}
-        </Badge>
       </div>
 
       {/* Messages */}
@@ -263,32 +211,21 @@ export const ChatAssistant: React.FC<ChatAssistantProps> = ({
       )}
 
       {/* Input */}
-      <div className="p-4 border-t space-y-2">
-        {!apiKey && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleConfigureApiKey}
-            className="w-full"
-          >
-            Configurer la clé API
-          </Button>
-        )}
-
+      <div className="p-4 border-t">
         <div className="flex gap-2">
           <Input
             ref={inputRef}
-            placeholder="Posez votre question..."
+            placeholder={isConfigured ? "Posez votre question..." : "Service non disponible"}
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyPress={handleKeyPress}
-            disabled={isLoading || !apiKey}
+            disabled={isLoading || !isConfigured}
             className="flex-1"
           />
           <Button
             size="icon"
             onClick={sendMessage}
-            disabled={isLoading || !inputValue.trim() || !apiKey}
+            disabled={isLoading || !inputValue.trim() || !isConfigured}
           >
             {isLoading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -297,6 +234,11 @@ export const ChatAssistant: React.FC<ChatAssistantProps> = ({
             )}
           </Button>
         </div>
+        {!isConfigured && (
+          <p className="text-xs text-muted-foreground mt-2">
+            L'assistant nécessite une configuration. Contactez votre administrateur.
+          </p>
+        )}
       </div>
     </div>
   );

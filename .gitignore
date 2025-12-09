@@ -137,3 +137,7 @@ dist
 
 # ide
 .idea/
+
+# Environment variables
+.env
+.env.local
