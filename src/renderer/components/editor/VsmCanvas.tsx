@@ -152,9 +152,12 @@ const VsmCanvas: React.FC = () => {
   }, [selectedElementId])
 
 
+  // Vérifier si le diagramme a du contenu
+  const hasContent = diagram && diagram.nodes && diagram.nodes.length > 0;
+
   return (
     <div className="relative flex-1 h-full w-full min-h-0 bg-background overflow-auto">
-      {/* État vide */}
+      {/* État vide - aucun projet */}
       {!diagram && (
         <div className="absolute inset-0 flex items-center justify-center text-muted-foreground z-10">
           <div className="text-center">
@@ -164,22 +167,24 @@ const VsmCanvas: React.FC = () => {
         </div>
       )}
 
-      {/* Conteneur maxGraph avec grille qui s'étend */}
-      <div
-        className="min-w-full min-h-full cursor-default"
-        ref={containerRef}
-        style={{
-          // Dimensions minimales pour que la grille couvre tout le diagramme
-          minWidth: '3000px',
-          minHeight: '1200px',
-          backgroundImage: `
-            linear-gradient(to right, rgba(0,0,0,0.08) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(0,0,0,0.08) 1px, transparent 1px)
-          `,
-          backgroundSize: `${GRID_SIZE}px ${GRID_SIZE}px`,
-          backgroundPosition: '0 0'
-        }}
-      />
+      {/* Conteneur maxGraph avec grille - affiché seulement si hasContent */}
+      {hasContent && (
+        <div
+          className="min-w-full min-h-full cursor-default"
+          ref={containerRef}
+          style={{
+            // Dimensions minimales pour que la grille couvre tout le diagramme
+            minWidth: '3000px',
+            minHeight: '1200px',
+            backgroundImage: `
+              linear-gradient(to right, rgba(0,0,0,0.08) 1px, transparent 1px),
+              linear-gradient(to bottom, rgba(0,0,0,0.08) 1px, transparent 1px)
+            `,
+            backgroundSize: `${GRID_SIZE}px ${GRID_SIZE}px`,
+            backgroundPosition: '0 0'
+          }}
+        />
+      )}
 
       {/* Légende des swimlanes (indicateurs visuels) */}
       {diagram && diagram.nodes && diagram.nodes.length > 0 && (
@@ -202,7 +207,7 @@ const VsmCanvas: React.FC = () => {
             </div>
             <h3 className="text-lg font-medium mb-2">Diagramme Vide</h3>
             <p className="text-sm mb-4">Commencez par configurer votre diagramme VSM</p>
-            <p className="text-xs">Ajoutez des étapes de processus dans l'onglet Configuration</p>
+            <p className="text-xs">Ajoutez des étapes de processus dans l'interface de configuration</p>
           </div>
         </div>
       )}
