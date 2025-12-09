@@ -82,10 +82,8 @@ export const InventoriesTab: React.FC<InventoriesTabProps> = ({
   const [initialStockJsonPath, setInitialStockJsonPath] = useState('')
   const [initialStockParameters, setInitialStockParameters] = useState('')
 
-  // Effet pour sauvegarder le stock initial
-  useEffect(() => {
-    saveInitialStock()
-  }, [initialStockEnabled, initialStockName, initialStockType, initialStockMode, initialStockQty, initialStockDuration])
+  // NOTE: Auto-save retiré pour éviter les modifications non sollicitées
+  // La sauvegarde se fait maintenant manuellement ou lors de la fermeture du dialogue
 
   // Stock Final
   const [finalStockEnabled, setFinalStockEnabled] = useState(true)
@@ -100,10 +98,8 @@ export const InventoriesTab: React.FC<InventoriesTabProps> = ({
   const [finalStockJsonPath, setFinalStockJsonPath] = useState('')
   const [finalStockParameters, setFinalStockParameters] = useState('')
 
-  // Effet pour sauvegarder le stock final
-  useEffect(() => {
-    saveFinalStock()
-  }, [finalStockEnabled, finalStockName, finalStockType, finalStockMode, finalStockQty, finalStockDuration])
+  // NOTE: Auto-save retiré pour éviter les modifications non sollicitées
+  // La sauvegarde se fait maintenant manuellement ou lors de la fermeture du dialogue
 
   // Dialogue de configuration dynamique
   const [isDynamicConfigDialogOpen, setIsDynamicConfigDialogOpen] = useState(false)

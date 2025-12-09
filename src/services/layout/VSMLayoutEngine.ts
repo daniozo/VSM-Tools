@@ -25,7 +25,7 @@ export const LayoutConstants = {
   INVENTORY_WIDTH: 60,
   INVENTORY_HEIGHT: 50,
   CONTROL_CENTER_WIDTH: 180,
-  CONTROL_CENTER_HEIGHT: 60,
+  CONTROL_CENTER_HEIGHT: 80,
   DATA_BOX_WIDTH: 120, // MÊME LARGEUR QUE PROCESS_STEP
   DATA_BOX_MIN_HEIGHT: 60,
   DATA_BOX_LINE_HEIGHT: 16,
@@ -394,7 +394,7 @@ export class VSMLayoutEngine {
         result.positions.set(inventory.id, {
           id: inventory.id,
           x: this.currentX,
-          y: LayoutConstants.Y_PRODUCTION_FLOW + 20, // Légèrement décalé pour centrer visuellement
+          y: LayoutConstants.Y_PRODUCTION_FLOW - 20, // Légèrement au-dessus pour être superposé sur les flèches
           width: LayoutConstants.INVENTORY_WIDTH,
           height: LayoutConstants.INVENTORY_HEIGHT,
           type: 'inventory',
@@ -402,7 +402,8 @@ export class VSMLayoutEngine {
             name: inventory.name,
             type: inventory.type,
             quantity: inventory.quantity,
-            duration: inventory.duration
+            duration: inventory.duration,
+            unit: inventory.unit
           }
         })
         this.currentX += LayoutConstants.INVENTORY_WIDTH + LayoutConstants.HORIZONTAL_SPACING
@@ -613,8 +614,15 @@ export class VSMLayoutEngine {
     }
 
     // Entre les nodes (via les flowSequences)
+    // IMPORTANT: Ne pas créer de connexions vers/depuis supplier ou customer
     for (const seq of diagram.flowSequences) {
       if (seq.fromNodeId && seq.toNodeId) {
+        // Ignorer les connexions directes vers supplier ou customer
+        if (seq.fromNodeId === 'supplier' || seq.toNodeId === 'supplier' ||
+            seq.fromNodeId === 'customer' || seq.toNodeId === 'customer') {
+          continue
+        }
+        
         result.connections.push({
           id: `flow-${seq.fromNodeId}-${seq.toNodeId}`,
           sourceId: seq.fromNodeId,
@@ -647,22 +655,32 @@ export class VSMLayoutEngine {
 
     // Flux d'information par défaut (Customer -> ControlCenter -> Supplier)
     if (diagram.actors.customer && diagram.actors.controlCenter) {
+      // Label avec demande journalière du client
+      const customerLabel = diagram.actors.customer.dailyDemand 
+        ? `Commandes (${diagram.actors.customer.dailyDemand}/jour)`
+        : 'Commandes'
+      
       result.connections.push({
         id: 'info-flow-customer-controlcenter',
         sourceId: 'customer',
         targetId: 'control-center',
         type: 'information-flow',
-        label: 'Commandes'
+        label: customerLabel
       })
     }
     
     if (diagram.actors.controlCenter && diagram.actors.supplier) {
+      // Label avec fréquence de livraison du fournisseur
+      const supplierLabel = diagram.actors.supplier.deliveryFrequency
+        ? `Prévisions (${diagram.actors.supplier.deliveryFrequency})`
+        : 'Prévisions'
+      
       result.connections.push({
         id: 'info-flow-controlcenter-supplier',
         sourceId: 'control-center',
         targetId: 'supplier',
         type: 'information-flow',
-        label: 'Prévisions'
+        label: supplierLabel
       })
     }
 

@@ -79,29 +79,71 @@ export const MaterialFlowsTab: React.FC<MaterialFlowsTabProps> = ({
   }, [diagram.nodes])
 
   const handleTypeChange = (flowId: string, newType: FlowType | '') => {
-    setFlows(prev =>
-      prev.map(f => {
-        if (f.id === flowId) {
-          let description = ''
-          if (newType === FlowType.PUSH) {
-            description = 'Flux poussé standard'
-          } else if (newType === FlowType.PULL) {
-            description = 'Flux tiré par demande client'
-          } else if (newType === FlowType.FIFO_LANE) {
-            description = 'First In First Out (file d\'attente)'
-          } else if (newType === FlowType.KANBAN) {
-            description = 'Stock Kanban avec système de réapprovisionnement'
-          }
-
-          return {
-            ...f,
-            type: newType,
-            description
-          }
+    const updatedFlows = flows.map(f => {
+      if (f.id === flowId) {
+        let description = ''
+        if (newType === FlowType.PUSH) {
+          description = 'Flux poussé standard'
+        } else if (newType === FlowType.PULL) {
+          description = 'Flux tiré par demande client'
+        } else if (newType === FlowType.FIFO_LANE) {
+          description = 'First In First Out (file d\'attente)'
+        } else if (newType === FlowType.KANBAN) {
+          description = 'Stock Kanban avec système de réapprovisionnement'
         }
-        return f
-      })
-    )
+
+        return {
+          ...f,
+          type: newType,
+          description
+        }
+      }
+      return f
+    })
+    
+    setFlows(updatedFlows)
+    
+    // Synchroniser vers flowSequences
+    syncFlowsToFlowSequences(updatedFlows)
+  }
+  
+  /**
+   * Synchronise les flows vers diagram.flowSequences
+   */
+  const syncFlowsToFlowSequences = (updatedFlows: MaterialFlowData[]) => {
+    const updatedFlowSequences = [...diagram.flowSequences]
+    
+    updatedFlows.forEach(flow => {
+      const fromNode = diagram.nodes.find(n => n.name === flow.fromStep)
+      const toNode = diagram.nodes.find(n => n.name === flow.toStep)
+      
+      if (!fromNode || !toNode) return
+      
+      const flowSeq = updatedFlowSequences.find(fs => fs.fromNodeId === fromNode.id && fs.toNodeId === toNode.id)
+      
+      if (flowSeq) {
+        // Mettre à jour le materialFlow dans intermediateElements
+        const mfIndex = flowSeq.intermediateElements.findIndex(el => el.type === 'MATERIAL_FLOW')
+        
+        if (mfIndex >= 0 && flow.type) {
+          flowSeq.intermediateElements[mfIndex].materialFlow = {
+            flowType: flow.type,
+            description: flow.description
+          }
+        } else if (flow.type) {
+          flowSeq.intermediateElements.push({
+            order: flowSeq.intermediateElements.length + 1,
+            type: 'MATERIAL_FLOW',
+            materialFlow: {
+              flowType: flow.type,
+              description: flow.description
+            }
+          })
+        }
+      }
+    })
+    
+    onUpdate({ flowSequences: updatedFlowSequences })
   }
 
   const columns: Column<MaterialFlowData>[] = [

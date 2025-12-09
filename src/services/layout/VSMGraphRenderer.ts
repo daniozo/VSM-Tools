@@ -256,7 +256,14 @@ export class VSMGraphRenderer {
         const isPlaceholder = id.startsWith('placeholder-') || 
                              (metadata?.quantity === '0' && !metadata?.name)
         styleName = isPlaceholder ? 'inventoryPlaceholder' : 'inventory'
-        label = isPlaceholder ? '' : ((metadata?.name as string) || '')
+        // Afficher la quantité dans le triangle
+        if (isPlaceholder) {
+          label = ''
+        } else {
+          const qty = metadata?.quantity as string || ''
+          const unit = metadata?.unit as string || ''
+          label = qty ? `${qty} ${unit}`.trim() : ''
+        }
         break
 
       case 'actor':

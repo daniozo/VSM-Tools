@@ -121,6 +121,55 @@ export const InformationFlowsTab: React.FC<InformationFlowsTabProps> = ({
     }
   }
 
+  /**
+   * Valide un flux d'information selon les règles VSM
+   */
+  const validateInformationFlow = (sourceId: string, targetId: string): { valid: boolean; error?: string } => {
+    // Règles de communication VSM :
+    // 1. Customer -> Control Center (commandes)
+    // 2. Control Center -> Supplier (prévisions)
+    // 3. Control Center -> Process Steps (ordonnancement)
+    // 4. Process Steps -> Control Center (feedback)
+    // 5. Supplier -> Control Center (confirmations)
+    
+    const isControlCenter = (id: string) => id === 'control-center'
+    const isCustomer = (id: string) => id === 'customer'
+    const isSupplier = (id: string) => id === 'supplier'
+    const isProcessStep = (id: string) => {
+      const node = diagram.nodes.find(n => n.id === id)
+      return node?.type === NodeType.PROCESS_STEP
+    }
+    
+    // Customer ne peut communiquer qu'avec Control Center
+    if (isCustomer(sourceId)) {
+      if (!isControlCenter(targetId)) {
+        return { valid: false, error: 'Le Client ne peut communiquer qu\'avec le Centre de Contrôle' }
+      }
+    }
+    
+    // Supplier ne peut communiquer qu'avec Control Center
+    if (isSupplier(sourceId)) {
+      if (!isControlCenter(targetId)) {
+        return { valid: false, error: 'Le Fournisseur ne peut communiquer qu\'avec le Centre de Contrôle' }
+      }
+    }
+    
+    // Control Center peut communiquer avec tout le monde
+    // Process Steps peuvent communiquer avec Control Center
+    if (isProcessStep(sourceId)) {
+      if (!isControlCenter(targetId)) {
+        return { valid: false, error: 'Les étapes de production ne peuvent communiquer qu\'avec le Centre de Contrôle' }
+      }
+    }
+    
+    // Control Center vers Customer : peu courant mais autorisé
+    if (isControlCenter(sourceId) && isCustomer(targetId)) {
+      return { valid: true }
+    }
+    
+    return { valid: true }
+  }
+
   const handleSave = () => {
     if (!formData.description?.trim()) {
       alert('Veuillez saisir une description pour le flux d\'information')
@@ -134,6 +183,13 @@ export const InformationFlowsTab: React.FC<InformationFlowsTabProps> = ({
 
     if (formData.sourceNodeId === formData.targetNodeId) {
       alert('La source et la cible doivent être différentes')
+      return
+    }
+    
+    // Validation des règles de communication VSM
+    const validation = validateInformationFlow(formData.sourceNodeId, formData.targetNodeId)
+    if (!validation.valid) {
+      alert(`Flux d'information non valide : ${validation.error}`)
       return
     }
 
