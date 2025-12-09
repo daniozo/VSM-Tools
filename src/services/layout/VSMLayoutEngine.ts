@@ -508,9 +508,23 @@ export class VSMLayoutEngine {
   }
 
   /**
+   * Helper : Extrait une durée en jours d'une fréquence textuelle
+   */
+  private extractDurationFromFrequency(frequency: string): number {
+    const lower = frequency.toLowerCase()
+    if (lower.includes('quotidien') || lower.includes('daily') || lower.includes('jour')) return 1
+    if (lower.includes('hebdomadaire') || lower.includes('weekly') || lower.includes('semaine')) return 7
+    if (lower.includes('bihebdomadaire') || lower.includes('bi-weekly')) return 14
+    if (lower.includes('mensuel') || lower.includes('monthly') || lower.includes('mois')) return 30
+    // Essayer d'extraire un nombre
+    const match = frequency.match(/\d+/)
+    return match ? parseInt(match[0], 10) : 1
+  }
+
+  /**
    * Étape 4 : Positionne la timeline en bas
    */
-  private layoutTimeline(_diagram: VSMDiagram, result: LayoutResult): void {
+  private layoutTimeline(diagram: VSMDiagram, result: LayoutResult): void {
     // Trouver les positions des éléments de production pour aligner la timeline
     const productionPositions = Array.from(result.positions.values())
       .filter(p => p.type === 'process-step' || p.type === 'inventory')
@@ -520,6 +534,46 @@ export class VSMLayoutEngine {
 
     let vaTotal = 0
     let nvaTotal = 0
+
+    // NVA pour Réception (délai de livraison fournisseur)
+    const receptionPos = result.positions.get('reception')
+    if (receptionPos && diagram.actors.supplier?.deliveryFrequency) {
+      const deliveryDuration = this.extractDurationFromFrequency(diagram.actors.supplier.deliveryFrequency)
+      result.positions.set('timeline-nva-reception', {
+        id: 'timeline-nva-reception',
+        x: receptionPos.x,
+        y: LayoutConstants.Y_TIMELINE + LayoutConstants.TIMELINE_VA_HEIGHT + LayoutConstants.TIMELINE_LINE_THICKNESS + 5,
+        width: LayoutConstants.PROCESS_STEP_WIDTH,
+        height: LayoutConstants.TIMELINE_NVA_HEIGHT,
+        type: 'timeline-nva',
+        metadata: { 
+          value: String(deliveryDuration), 
+          unit: 'j',
+          label: 'Délai livraison'
+        }
+      })
+      nvaTotal += deliveryDuration
+    }
+
+    // NVA pour Livraison (délai de livraison client)
+    const livraisonPos = result.positions.get('livraison')
+    if (livraisonPos && diagram.actors.customer?.deliveryFrequency) {
+      const deliveryDuration = this.extractDurationFromFrequency(diagram.actors.customer.deliveryFrequency)
+      result.positions.set('timeline-nva-livraison', {
+        id: 'timeline-nva-livraison',
+        x: livraisonPos.x,
+        y: LayoutConstants.Y_TIMELINE + LayoutConstants.TIMELINE_VA_HEIGHT + LayoutConstants.TIMELINE_LINE_THICKNESS + 5,
+        width: LayoutConstants.PROCESS_STEP_WIDTH,
+        height: LayoutConstants.TIMELINE_NVA_HEIGHT,
+        type: 'timeline-nva',
+        metadata: { 
+          value: String(deliveryDuration), 
+          unit: 'j',
+          label: 'Délai livraison'
+        }
+      })
+      nvaTotal += deliveryDuration
+    }
 
     for (let i = 0; i < productionPositions.length; i++) {
       const pos = productionPositions[i]
@@ -595,11 +649,15 @@ export class VSMLayoutEngine {
     
     // Supplier -> reception
     if (diagram.actors.supplier) {
+      const supplierLabel = diagram.actors.supplier.deliveryFrequency
+        ? `Livraison ${diagram.actors.supplier.deliveryFrequency}`
+        : 'Livraison'
       result.connections.push({
         id: 'flow-supplier-reception',
         sourceId: 'supplier',
         targetId: 'reception',
-        type: 'material-flow'
+        type: 'material-flow',
+        label: supplierLabel
       })
     }
 
@@ -645,11 +703,15 @@ export class VSMLayoutEngine {
 
     // Livraison -> customer
     if (diagram.actors.customer) {
+      const customerLabel = diagram.actors.customer.deliveryFrequency
+        ? `Livraison ${diagram.actors.customer.deliveryFrequency}`
+        : 'Livraison'
       result.connections.push({
         id: 'flow-livraison-customer',
         sourceId: 'livraison',
         targetId: 'customer',
-        type: 'material-flow'
+        type: 'material-flow',
+        label: customerLabel
       })
     }
 
@@ -686,12 +748,17 @@ export class VSMLayoutEngine {
 
     // Flux d'information du modèle (ControlCenter -> ProcessSteps)
     for (const flow of diagram.informationFlows) {
+      // Label avec fréquence si disponible
+      const label = flow.frequency 
+        ? `${flow.description} (${flow.frequency})`
+        : flow.description
+      
       result.connections.push({
         id: flow.id,
         sourceId: flow.sourceNodeId,
         targetId: flow.targetNodeId,
         type: 'information-flow',
-        label: flow.description
+        label
       })
     }
   }

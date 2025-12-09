@@ -290,6 +290,8 @@ export interface Customer {
   workingHoursPerDay?: number
   /** Takt Time calculé (secondes par unité) = (workingHoursPerDay * 3600) / dailyDemand */
   taktTime: number
+  /** Fréquence de livraison au client (ex: "Quotidien", "Hebdomadaire") */
+  deliveryFrequency?: string
 }
 
 /**

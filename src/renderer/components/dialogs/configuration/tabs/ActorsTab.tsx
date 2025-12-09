@@ -141,6 +141,14 @@ export const ActorsTab: React.FC<ActorsTabProps> = ({
           placeholder="Email, Téléphone..."
         />
 
+        <FormField
+          label="Fréquence de Livraison"
+          value={diagram.actors.customer.deliveryFrequency || ''}
+          onChange={(v) => updateCustomer('deliveryFrequency', v)}
+          placeholder="Quotidien, Hebdomadaire, etc."
+          helperText="Fréquence de livraison des produits au client"
+        />
+
         <div className="grid grid-cols-2 gap-4">
           <FormField
             label="Demande Quotidienne (unités/jour)"

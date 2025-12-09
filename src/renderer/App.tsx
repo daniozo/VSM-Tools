@@ -1,4 +1,4 @@
-import React, { useEffect, useState, ErrorInfo } from 'react';
+import React, { useEffect, useState, useRef, ErrorInfo } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import './styles/App.css';
 
@@ -28,6 +28,7 @@ const App: React.FC = () => {
   const [isOpenProjectDialogOpen, setIsOpenProjectDialogOpen] = useState<boolean>(false);
   const [leftPanelVisible, setLeftPanelVisible] = useState<boolean>(true);
   const [rightPanelVisible, setRightPanelVisible] = useState<boolean>(true);
+  const canvasRef = useRef<any>(null);
 
   // Store VSM
   const { loadDiagram, createNewDiagram } = useVsmStore();
@@ -61,6 +62,31 @@ const App: React.FC = () => {
       if (e.ctrlKey && e.key === 'k') {
         e.preventDefault();
         setIsConfigDialogOpen(true);
+      }
+      
+      // Zoom raccourcis
+      if (e.ctrlKey && !e.shiftKey) {
+        // Ctrl++ ou Ctrl+= : Zoom avant
+        if (e.key === '+' || e.key === '=') {
+          e.preventDefault();
+          if (canvasRef.current) {
+            canvasRef.current.zoomIn();
+          }
+        }
+        // Ctrl+- : Zoom arrière
+        else if (e.key === '-') {
+          e.preventDefault();
+          if (canvasRef.current) {
+            canvasRef.current.zoomOut();
+          }
+        }
+        // Ctrl+0 : Réinitialiser zoom
+        else if (e.key === '0') {
+          e.preventDefault();
+          if (canvasRef.current) {
+            canvasRef.current.zoomReset();
+          }
+        }
       }
     };
 
@@ -121,13 +147,19 @@ const App: React.FC = () => {
         console.log('Refaire');
         break;
       case 'zoomIn':
-        console.log('Zoom +');
+        if (canvasRef.current) {
+          canvasRef.current.zoomIn();
+        }
         break;
       case 'zoomOut':
-        console.log('Zoom -');
+        if (canvasRef.current) {
+          canvasRef.current.zoomOut();
+        }
         break;
       case 'zoomReset':
-        console.log('Zoom reset');
+        if (canvasRef.current) {
+          canvasRef.current.zoomReset();
+        }
         break;
       case 'configure':
         setIsConfigDialogOpen(true);
@@ -241,7 +273,7 @@ const App: React.FC = () => {
           onOpenProject={handleOpenProject}
           currentProject={currentProject}
         >
-          <VsmCanvas />
+          <VsmCanvas ref={canvasRef} />
         </MainLayout>
         <StatusBar />
 

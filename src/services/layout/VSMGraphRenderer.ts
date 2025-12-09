@@ -214,11 +214,8 @@ export class VSMGraphRenderer {
       })
     })
 
-    // Ajuster la vue si la méthode existe
-    const graphAny = this.graph as any
-    if (typeof graphAny.fit === 'function') {
-      graphAny.fit()
-    }
+    // Ajuster automatiquement le zoom pour que tout le diagramme soit visible
+    this.fitToContainer()
   }
 
   /**
@@ -519,6 +516,70 @@ export class VSMGraphRenderer {
     if (cell) {
       this.graph.scrollCellToVisible(cell, true)
     }
+  }
+
+  /**
+   * Ajuste le zoom pour que tout le diagramme soit visible dans le conteneur
+   */
+  fitToContainer(): void {
+    const graphAny = this.graph as any
+    
+    // Utiliser la méthode zoomToFit de maxGraph si disponible
+    if (typeof graphAny.zoomToFit === 'function') {
+      graphAny.zoomToFit()
+    } else if (typeof graphAny.fit === 'function') {
+      graphAny.fit()
+    } else {
+      // Fallback : calculer manuellement le zoom
+      const bounds = this.graph.getGraphBounds()
+      const container = this.graph.container
+      
+      if (bounds && container) {
+        const padding = 50 // Marge de 50px autour du diagramme
+        const containerWidth = container.clientWidth - padding * 2
+        const containerHeight = container.clientHeight - padding * 2
+        
+        // Calculer le ratio de zoom pour ajuster au conteneur
+        const scaleX = containerWidth / bounds.width
+        const scaleY = containerHeight / bounds.height
+        const scale = Math.min(scaleX, scaleY, 1) // Ne pas zoomer au-delà de 100%
+        
+        // Appliquer le zoom
+        this.graph.zoomTo(scale)
+        
+        // Centrer le diagramme
+        const view = this.graph.getView()
+        const dx = (containerWidth - bounds.width * scale) / 2 + padding - bounds.x * scale
+        const dy = (containerHeight - bounds.height * scale) / 2 + padding - bounds.y * scale
+        
+        view.setTranslate(dx, dy)
+      }
+    }
+  }
+
+  /**
+   * Zoom avant (augmente le zoom de 20%)
+   */
+  zoomIn(): void {
+    const currentScale = this.graph.getView().getScale()
+    const newScale = currentScale * 1.2
+    this.graph.zoomTo(newScale)
+  }
+
+  /**
+   * Zoom arrière (diminue le zoom de 20%)
+   */
+  zoomOut(): void {
+    const currentScale = this.graph.getView().getScale()
+    const newScale = currentScale / 1.2
+    this.graph.zoomTo(newScale)
+  }
+
+  /**
+   * Réinitialise le zoom (ajuste au conteneur)
+   */
+  zoomReset(): void {
+    this.fitToContainer()
   }
 }
 

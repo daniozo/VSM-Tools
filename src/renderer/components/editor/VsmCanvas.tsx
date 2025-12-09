@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback } from 'react'
+import React, { useEffect, useRef, useCallback, useImperativeHandle, forwardRef } from 'react'
 import { useVsmStore } from '@/store/vsmStore'
 import { Graph } from '@maxgraph/core'
 import { VSMLayoutEngine, VSMGraphRenderer, createVSMRenderer, LayoutConstants } from '@/services/layout'
@@ -6,6 +6,12 @@ import { VSMLayoutEngine, VSMGraphRenderer, createVSMRenderer, LayoutConstants }
 // Taille de la grille (en pixels) pour l'affichage et l'accrochage
 const GRID_SIZE = 20
 
+// Interface pour les méthodes exposées du canvas
+export interface VsmCanvasHandle {
+  zoomIn: () => void
+  zoomOut: () => void
+  zoomReset: () => void
+}
 
 /**
  * Composant principal du canevas VSM utilisant maxGraph
@@ -14,7 +20,7 @@ const GRID_SIZE = 20
  * - Le layout est calculé par VSMLayoutEngine
  * - Le rendu est effectué par VSMGraphRenderer
  */
-const VsmCanvas: React.FC = () => {
+const VsmCanvas = forwardRef<VsmCanvasHandle>((props, ref) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const graphRef = useRef<Graph | null>(null)
   const rendererRef = useRef<VSMGraphRenderer | null>(null)
@@ -137,7 +143,7 @@ const VsmCanvas: React.FC = () => {
     // Calculer le layout
     const layout = layoutEngineRef.current.computeLayout(diagram)
 
-    // Rendre le layout
+    // Rendre le layout (le fitToContainer est appelé automatiquement dans render())
     rendererRef.current.render(layout)
 
     // Restaurer la sélection
@@ -152,6 +158,24 @@ const VsmCanvas: React.FC = () => {
     rendererRef.current.centerOnElement(selectedElementId)
   }, [selectedElementId])
 
+  // Exposer les méthodes de zoom pour utilisation externe (toolbar)
+  useImperativeHandle(ref, () => ({
+    zoomIn: () => {
+      if (rendererRef.current) {
+        rendererRef.current.zoomIn()
+      }
+    },
+    zoomOut: () => {
+      if (rendererRef.current) {
+        rendererRef.current.zoomOut()
+      }
+    },
+    zoomReset: () => {
+      if (rendererRef.current) {
+        rendererRef.current.zoomReset()
+      }
+    }
+  }), [])
 
   // Vérifier si le diagramme a du contenu
   const hasContent = diagram && diagram.nodes && diagram.nodes.length > 0;
@@ -204,6 +228,8 @@ const VsmCanvas: React.FC = () => {
       )}
     </div>
   )
-}
+})
+
+VsmCanvas.displayName = 'VsmCanvas'
 
 export default VsmCanvas
