@@ -58,7 +58,7 @@ interface ProjectExplorerProps {
 /**
  * Construit l'arborescence à partir du diagramme VSM
  */
-function buildTreeFromDiagram(diagram: VSMDiagram | null): TreeNode[] {
+function buildTreeFromDiagram(diagram: VSMDiagram | null, projectName: string = 'Projet VSM'): TreeNode[] {
   if (!diagram || !diagram.actors) return []
 
   const actorsChildren: TreeNode[] = []
@@ -135,12 +135,12 @@ function buildTreeFromDiagram(diagram: VSMDiagram | null): TreeNode[] {
   return [
     {
       id: 'project-root',
-      name: diagram.metaData?.name || 'Projet VSM',
+      name: projectName,
       type: 'project',
       children: [
         {
           id: 'diagram-file',
-          name: 'diagram.vsmx',
+          name: 'Diagramme',
           type: 'file',
           icon: <FileBox className="h-4 w-4 text-blue-500" />,
           children: [
@@ -183,23 +183,16 @@ function buildTreeFromDiagram(diagram: VSMDiagram | null): TreeNode[] {
         },
         {
           id: 'actionplan-file',
-          name: 'action_plan.md',
+          name: 'Plan d\'Action',
           type: 'file',
           icon: <FileText className="h-4 w-4 text-green-500" />,
         },
         {
           id: 'notes-file',
-          name: 'notes.md',
+          name: 'Notes',
           type: 'file',
           icon: <FileText className="h-4 w-4 text-yellow-500" />,
-        },
-        {
-          id: 'exports-folder',
-          name: 'exports',
-          type: 'folder',
-          icon: <Folder className="h-4 w-4" />,
-          children: []
-        },
+        }
       ]
     }
   ]
@@ -314,8 +307,25 @@ export const ProjectExplorer: React.FC<ProjectExplorerProps> = ({
   // Store VSM
   const { diagram, selectElement } = useVsmStore()
   
+  // Récupérer le nom du projet actuel
+  const [projectName, setProjectName] = React.useState<string>('Projet VSM');
+  
+  React.useEffect(() => {
+    (async () => {
+      try {
+        const { useProjectsStore } = await import('@/store/projectsStore');
+        const { currentProject } = useProjectsStore.getState();
+        if (currentProject?.name) {
+          setProjectName(currentProject.name);
+        }
+      } catch (error) {
+        console.error('Erreur chargement nom projet:', error);
+      }
+    })();
+  }, [diagram]);
+  
   // Construire l'arborescence à partir du diagramme
-  const projectTree = useMemo(() => buildTreeFromDiagram(diagram), [diagram])
+  const projectTree = useMemo(() => buildTreeFromDiagram(diagram, projectName), [diagram, projectName])
   
   const [expandedIds, setExpandedIds] = useState<Set<string>>(
     new Set(['project-root', 'diagram-file', 'actors-group', 'steps-group'])

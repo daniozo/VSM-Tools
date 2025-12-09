@@ -182,12 +182,28 @@ const VsmCanvas: React.FC = () => {
       />
 
       {/* Légende des swimlanes (indicateurs visuels) */}
-      {diagram && (
+      {diagram && diagram.nodes && diagram.nodes.length > 0 && (
         <div className="absolute left-2 top-2 z-10 text-xs text-muted-foreground space-y-1 pointer-events-none">
           <div style={{ marginTop: LayoutConstants.ACTORS_Y - 10 }}>Acteurs</div>
           <div style={{ marginTop: LayoutConstants.PRODUCTION_Y - LayoutConstants.ACTORS_Y - 20 }}>Production</div>
           <div style={{ marginTop: LayoutConstants.DATA_Y - LayoutConstants.PRODUCTION_Y - 20 }}>Données</div>
           <div style={{ marginTop: LayoutConstants.TIMELINE_Y - LayoutConstants.DATA_Y - 20 }}>Timeline</div>
+        </div>
+      )}
+      
+      {/* Message si diagramme vide ET projet ouvert */}
+      {diagram && (!diagram.nodes || diagram.nodes.length === 0) && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="text-center text-muted-foreground">
+            <div className="mb-4">
+              <svg className="w-24 h-24 mx-auto opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-medium mb-2">Diagramme Vide</h3>
+            <p className="text-sm mb-4">Commencez par configurer votre diagramme VSM</p>
+            <p className="text-xs">Ajoutez des étapes de processus dans l'onglet Configuration</p>
+          </div>
         </div>
       )}
     </div>

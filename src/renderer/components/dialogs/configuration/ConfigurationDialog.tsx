@@ -122,47 +122,67 @@ export const ConfigurationDialog: React.FC<ConfigurationDialogProps> = ({
   const [localDiagram, setLocalDiagram] = useState<VSMDiagram | null>(null)
   const [hasChanges, setHasChanges] = useState(false)
 
+  // Récupérer le projet actuel pour avoir son nom
+  const getCurrentProjectName = async (): Promise<string> => {
+    try {
+      const { useProjectsStore } = await import('@/store/projectsStore');
+      const { currentProject } = useProjectsStore.getState();
+      return currentProject?.name || 'Nouveau diagramme VSM';
+    } catch {
+      return 'Nouveau diagramme VSM';
+    }
+  };
+
   // Initialiser le diagramme local quand le dialogue s'ouvre
   useEffect(() => {
     if (open) {
       if (diagram) {
-        setLocalDiagram(JSON.parse(JSON.stringify(diagram))) // Deep clone
+        // Deep clone et remplacer le nom par celui du projet
+        const clonedDiagram = JSON.parse(JSON.stringify(diagram));
+        getCurrentProjectName().then(projectName => {
+          if (clonedDiagram.metaData) {
+            clonedDiagram.metaData.name = projectName;
+          }
+          setLocalDiagram(clonedDiagram);
+        });
       } else {
         // Créer un nouveau diagramme vide si aucun n'existe
-        const emptyDiagram: VSMDiagram = {
-          id: 'diagram-' + Date.now(),
-          metaData: {
-            name: 'Nouveau diagramme VSM',
-            description: '',
-            version: '1.0',
-            author: '',
-            createdDate: new Date().toISOString(),
-            modifiedDate: new Date().toISOString(),
-            appVersion: '1.0.0'
-          },
-          dataSources: [],
-          actors: {
-            supplier: {
-              name: '',
-              contact: '',
-              deliveryFrequency: DeliveryFrequency.DAILY,
-              leadTime: 0
+        getCurrentProjectName().then(projectName => {
+          const emptyDiagram: VSMDiagram = {
+            id: 'diagram-' + Date.now(),
+            metaData: {
+              name: projectName,
+              description: '',
+              version: '1.0',
+              author: '',
+              createdDate: new Date().toISOString(),
+              modifiedDate: new Date().toISOString(),
+              appVersion: '1.0.0'
             },
-            customer: {
-              name: '',
-              contact: '',
-              dailyDemand: 0,
-              taktTime: 0
+            dataSources: [],
+            actors: {
+              supplier: {
+                name: '',
+                contact: '',
+                deliveryFrequency: DeliveryFrequency.DAILY,
+                leadTime: 0
+              },
+              customer: {
+                name: '',
+                contact: '',
+                dailyDemand: 0,
+                taktTime: 0
+              },
+              controlCenter: undefined
             },
-            controlCenter: undefined
-          },
-          nodes: [],
-          flowSequences: [],
-          informationFlows: [],
-          improvementPoints: [],
-          textAnnotations: []
-        }
-        setLocalDiagram(emptyDiagram)
+            nodes: [],
+            flowSequences: [],
+            informationFlows: [],
+            improvementPoints: [],
+            textAnnotations: []
+          };
+          setLocalDiagram(emptyDiagram);
+        });
       }
       setHasChanges(false)
       setActiveTab('general')
