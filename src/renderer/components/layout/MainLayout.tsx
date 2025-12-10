@@ -18,6 +18,8 @@ import { RightSidebar, RightSidebarPanel } from './RightSidebar'
 import { ChatAssistant } from './ChatAssistant'
 import { TabsContainer } from './TabsContainer'
 import { AnalysisPanel } from '../panels/AnalysisPanel'
+import { ActionPlanPanel } from '../panels/ActionPlanPanel'
+import { ActionPlanTab } from '../panels/ActionPlanTab'
 import { SimulationPanel } from '../simulation/SimulationPanel'
 import { TipTapEditor } from '../editor/TipTapEditor'
 import { useVsmStore } from '@/store/vsmStore'
@@ -181,17 +183,11 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
           )}
 
           {activeLeftPanel === 'action-plan' && (
-            <div
-              className="flex-shrink-0 bg-background border-r overflow-hidden flex flex-col"
-              style={{ width: `${leftPanelWidth}px` }}
-            >
-              <div className="h-9 px-3 border-b flex items-center bg-muted/30">
-                <span className="text-sm font-medium">Plan d'action</span>
-              </div>
-              <div className="flex-1 flex items-center justify-center text-muted-foreground text-sm">
-                <p>À implémenter</p>
-              </div>
-            </div>
+            <ActionPlanPanel
+              width={leftPanelWidth}
+              projectId={currentProject?.id}
+              className="flex-shrink-0"
+            />
           )}
 
           {activeLeftPanel === 'analysis' && (
@@ -238,10 +234,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
                 );
               case 'action-plan':
                 return (
-                  <div className="p-6">
-                    <h2 className="text-xl font-semibold mb-4">Plan d'action</h2>
-                    <p className="text-muted-foreground">Plan d'action à implémenter...</p>
-                  </div>
+                  <ActionPlanTab projectId={currentProject?.id} />
                 );
               case 'notes':
                 {
