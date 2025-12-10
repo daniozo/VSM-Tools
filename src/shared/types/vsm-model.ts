@@ -305,6 +305,32 @@ export interface ControlCenter {
 }
 
 /**
+ * Configuration de la zone tampon de réception (après fournisseur)
+ * Correspond à l'Onglet 6 : Stocks - Réception
+ */
+export interface ReceptionBuffer {
+  /** Activé ou non */
+  enabled: boolean
+  /** Description (ex: "1 bac = 50p, 1500p") */
+  description: string
+  /** Durée d'attente en jours */
+  durationDays: number
+}
+
+/**
+ * Configuration de la zone tampon d'expédition (avant client)
+ * Correspond à l'Onglet 6 : Stocks - Expédition
+ */
+export interface ShipmentBuffer {
+  /** Activé ou non */
+  enabled: boolean
+  /** Description (ex: "1 palette = 100p, 500p") */
+  description: string
+  /** Durée d'attente en jours */
+  durationDays: number
+}
+
+/**
  * Ensemble des acteurs externes
  * Correspond à l'Onglet 3 : Acteurs Externes
  */
@@ -315,6 +341,10 @@ export interface Actors {
   customer: Customer
   /** Centre de contrôle */
   controlCenter?: ControlCenter
+  /** Zone tampon de réception (après réception fournisseur) */
+  receptionBuffer?: ReceptionBuffer
+  /** Zone tampon d'expédition (avant expédition client) */
+  shipmentBuffer?: ShipmentBuffer
 }
 
 // ============================================================================
@@ -598,6 +628,16 @@ export function createEmptyVSMDiagram(name: string, author: string): VSMDiagram 
         dailyDemand: 100,
         workingHoursPerDay: 8,
         taktTime: 288 // (8 * 3600) / 100 = 288 seconds per unit
+      },
+      receptionBuffer: {
+        enabled: false,
+        description: '',
+        durationDays: 1
+      },
+      shipmentBuffer: {
+        enabled: false,
+        description: '',
+        durationDays: 1
       }
     },
     nodes: [],

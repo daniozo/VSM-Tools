@@ -261,6 +261,7 @@ export class VSMLayoutEngine {
     }
 
     // ControlCenter: centré entre Supplier et Customer
+    // IMPORTANT: Aligner le CENTRE vertical du ControlCenter avec le centre des Actors
     if (actors.controlCenter) {
       const supplierPos = result.positions.get('supplier')
       const customerPos = result.positions.get('customer')
@@ -274,10 +275,17 @@ export class VSMLayoutEngine {
         controlCenterX = (supplierCenter + customerCenter) / 2 - LayoutConstants.CONTROL_CENTER_WIDTH / 2
       }
       
+      // Calculer Y pour aligner les centres verticaux :
+      // Centre Actors = Y_ACTORS_CONTROL + ACTOR_HEIGHT/2
+      // Centre ControlCenter = controlCenterY + CONTROL_CENTER_HEIGHT/2
+      // Pour que les centres soient égaux : controlCenterY = Y_ACTORS_CONTROL + (ACTOR_HEIGHT - CONTROL_CENTER_HEIGHT) / 2
+      const controlCenterY = LayoutConstants.Y_ACTORS_CONTROL + 
+        (LayoutConstants.ACTOR_HEIGHT - LayoutConstants.CONTROL_CENTER_HEIGHT) / 2
+      
       result.positions.set('control-center', {
         id: 'control-center',
         x: controlCenterX,
-        y: LayoutConstants.Y_ACTORS_CONTROL,
+        y: controlCenterY,
         width: LayoutConstants.CONTROL_CENTER_WIDTH,
         height: LayoutConstants.CONTROL_CENTER_HEIGHT,
         type: 'control-center',
@@ -535,50 +543,90 @@ export class VSMLayoutEngine {
     let vaTotal = 0
     let nvaTotal = 0
 
-    // NVA pour Réception (délai de livraison fournisseur)
+    // NVA pour Réception (utiliser receptionBuffer si défini, sinon deliveryFrequency du fournisseur)
     const receptionPos = result.positions.get('reception')
-    if (receptionPos && diagram.actors.supplier?.deliveryFrequency) {
-      const deliveryDuration = this.extractDurationFromFrequency(diagram.actors.supplier.deliveryFrequency)
-      result.positions.set('timeline-nva-reception', {
-        id: 'timeline-nva-reception',
-        x: receptionPos.x,
-        y: LayoutConstants.Y_TIMELINE + LayoutConstants.TIMELINE_VA_HEIGHT + LayoutConstants.TIMELINE_LINE_THICKNESS + 5,
-        width: LayoutConstants.PROCESS_STEP_WIDTH,
-        height: LayoutConstants.TIMELINE_NVA_HEIGHT,
-        type: 'timeline-nva',
-        metadata: { 
-          value: String(deliveryDuration), 
-          unit: 'j',
-          label: 'Délai livraison'
-        }
-      })
-      nvaTotal += deliveryDuration
+    if (receptionPos) {
+      let deliveryDuration = 0
+      
+      // Priorité 1: receptionBuffer du modèle
+      if (diagram.actors.receptionBuffer?.enabled) {
+        deliveryDuration = diagram.actors.receptionBuffer.durationDays
+      }
+      // Priorité 2: leadTime du fournisseur
+      else if (diagram.actors.supplier?.leadTime) {
+        deliveryDuration = diagram.actors.supplier.leadTime
+      }
+      // Priorité 3: deliveryFrequency du fournisseur
+      else if (diagram.actors.supplier?.deliveryFrequency) {
+        deliveryDuration = this.extractDurationFromFrequency(String(diagram.actors.supplier.deliveryFrequency))
+      }
+      
+      if (deliveryDuration > 0) {
+        result.positions.set('timeline-nva-reception', {
+          id: 'timeline-nva-reception',
+          x: receptionPos.x,
+          y: LayoutConstants.Y_TIMELINE + LayoutConstants.TIMELINE_VA_HEIGHT + LayoutConstants.TIMELINE_LINE_THICKNESS + 5,
+          width: LayoutConstants.PROCESS_STEP_WIDTH,
+          height: LayoutConstants.TIMELINE_NVA_HEIGHT,
+          type: 'timeline-nva',
+          metadata: { 
+            value: String(deliveryDuration), 
+            unit: 'j',
+            label: 'Délai réception'
+          }
+        })
+        nvaTotal += deliveryDuration
+      }
     }
 
-    // NVA pour Livraison (délai de livraison client)
+    // NVA pour Livraison (utiliser shipmentBuffer si défini, sinon deliveryFrequency du client)
     const livraisonPos = result.positions.get('livraison')
-    if (livraisonPos && diagram.actors.customer?.deliveryFrequency) {
-      const deliveryDuration = this.extractDurationFromFrequency(diagram.actors.customer.deliveryFrequency)
-      result.positions.set('timeline-nva-livraison', {
-        id: 'timeline-nva-livraison',
-        x: livraisonPos.x,
-        y: LayoutConstants.Y_TIMELINE + LayoutConstants.TIMELINE_VA_HEIGHT + LayoutConstants.TIMELINE_LINE_THICKNESS + 5,
-        width: LayoutConstants.PROCESS_STEP_WIDTH,
-        height: LayoutConstants.TIMELINE_NVA_HEIGHT,
-        type: 'timeline-nva',
-        metadata: { 
-          value: String(deliveryDuration), 
-          unit: 'j',
-          label: 'Délai livraison'
-        }
-      })
-      nvaTotal += deliveryDuration
+    if (livraisonPos) {
+      let deliveryDuration = 0
+      
+      // Priorité 1: shipmentBuffer du modèle
+      if (diagram.actors.shipmentBuffer?.enabled) {
+        deliveryDuration = diagram.actors.shipmentBuffer.durationDays
+      }
+      // Priorité 2: deliveryFrequency du client
+      else if (diagram.actors.customer?.deliveryFrequency) {
+        deliveryDuration = this.extractDurationFromFrequency(String(diagram.actors.customer.deliveryFrequency))
+      }
+      
+      if (deliveryDuration > 0) {
+        result.positions.set('timeline-nva-livraison', {
+          id: 'timeline-nva-livraison',
+          x: livraisonPos.x,
+          y: LayoutConstants.Y_TIMELINE + LayoutConstants.TIMELINE_VA_HEIGHT + LayoutConstants.TIMELINE_LINE_THICKNESS + 5,
+          width: LayoutConstants.PROCESS_STEP_WIDTH,
+          height: LayoutConstants.TIMELINE_NVA_HEIGHT,
+          type: 'timeline-nva',
+          metadata: { 
+            value: String(deliveryDuration), 
+            unit: 'j',
+            label: 'Délai expédition'
+          }
+        })
+        nvaTotal += deliveryDuration
+      }
     }
 
     for (let i = 0; i < productionPositions.length; i++) {
       const pos = productionPositions[i]
       
       if (pos.type === 'process-step') {
+        // EXCLURE les pseudo-étapes Réception et Livraison du temps VA
+        // Elles ont seulement un temps NVA (géré séparément ci-dessus)
+        const isPseudo = pos.metadata?.isPseudo === true || 
+                         pos.id === 'reception' || 
+                         pos.id === 'livraison'
+        
+        if (isPseudo) {
+          // Les pseudo-étapes n'ont pas de temps VA (pas de cycle de production)
+          // Leur NVA est déjà géré ci-dessus avec timeline-nva-reception et timeline-nva-livraison
+          continue
+        }
+        
         // VA - temps de cycle - ALIGNÉ avec ProcessStep (même X, même largeur)
         const cycleTime = (pos.metadata?.indicators as any[])?.find(
           (ind: any) => ind.code?.toLowerCase().includes('cycle') || ind.code?.toLowerCase().includes('ct')

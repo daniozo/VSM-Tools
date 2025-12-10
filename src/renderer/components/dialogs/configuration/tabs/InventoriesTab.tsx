@@ -2,9 +2,11 @@
  * Onglet 6 : Stocks (Inventaires)
  * 
  * Structure Eclipse :
+ * - Section Réception (zone tampon après fournisseur)
  * - Section Stock Initial (checkbox + panel)
  * - Table Stocks Entre Étapes (auto-générée depuis process steps)
  * - Section Stock Final (checkbox + panel)
+ * - Section Expédition (zone tampon avant client)
  */
 
 import React, { useState, useEffect } from 'react'
@@ -15,7 +17,9 @@ import {
   DataSourceType,
   DataConnection,
   generateId,
-  NodeType
+  NodeType,
+  ReceptionBuffer,
+  ShipmentBuffer
 } from '@/shared/types/vsm-model'
 import { FormTable, Column } from '../shared/FormTable'
 import { FormField } from '../shared/FormField'
@@ -69,6 +73,17 @@ export const InventoriesTab: React.FC<InventoriesTabProps> = ({
   diagram,
   onUpdate
 }) => {
+  // Réception (zone tampon après fournisseur) - Mode toujours statique
+  const [receptionEnabled, setReceptionEnabled] = useState(
+    diagram.actors.receptionBuffer?.enabled ?? false
+  )
+  const [receptionDescription, setReceptionDescription] = useState(
+    diagram.actors.receptionBuffer?.description ?? ''
+  )
+  const [receptionDuration, setReceptionDuration] = useState(
+    String(diagram.actors.receptionBuffer?.durationDays ?? 1)
+  )
+
   // Stock Initial
   const [initialStockEnabled, setInitialStockEnabled] = useState(true)
   const [initialStockType, setInitialStockType] = useState<InventoryType>(InventoryType.RAW_MATERIAL)
@@ -98,6 +113,17 @@ export const InventoriesTab: React.FC<InventoriesTabProps> = ({
   const [finalStockJsonPath, setFinalStockJsonPath] = useState('')
   const [finalStockParameters, setFinalStockParameters] = useState('')
 
+  // Expédition (zone tampon avant client) - Mode toujours statique
+  const [shipmentEnabled, setShipmentEnabled] = useState(
+    diagram.actors.shipmentBuffer?.enabled ?? false
+  )
+  const [shipmentDescription, setShipmentDescription] = useState(
+    diagram.actors.shipmentBuffer?.description ?? ''
+  )
+  const [shipmentDuration, setShipmentDuration] = useState(
+    String(diagram.actors.shipmentBuffer?.durationDays ?? 1)
+  )
+
   // NOTE: Auto-save retiré pour éviter les modifications non sollicitées
   // La sauvegarde se fait maintenant manuellement ou lors de la fermeture du dialogue
 
@@ -117,6 +143,7 @@ export const InventoriesTab: React.FC<InventoriesTabProps> = ({
   const [stockParameters, setStockParameters] = useState('')
 
   // Générer automatiquement les paires d'étapes au chargement
+  // et restaurer l'état "enabled" depuis les flowSequences existants
   useEffect(() => {
     const processSteps = diagram.nodes.filter(n => n.type === NodeType.PROCESS_STEP)
 
@@ -131,14 +158,46 @@ export const InventoriesTab: React.FC<InventoriesTabProps> = ({
       const fromStep = processSteps[i]
       const toStep = processSteps[i + 1]
 
-      // Vérifier si ce stock existe déjà dans betweenStocks
-      const existingStock = betweenStocks.find(
+      // Vérifier si ce stock existe déjà dans betweenStocks (état local)
+      const existingLocalStock = betweenStocks.find(
         s => s.fromStep === fromStep.name && s.toStep === toStep.name
       )
 
-      if (existingStock) {
-        newBetweenStocks.push(existingStock)
+      // Vérifier si un inventory existe dans les flowSequences (données persistées)
+      const flowSeq = diagram.flowSequences.find(
+        fs => fs.fromNodeId === fromStep.id && fs.toNodeId === toStep.id
+      )
+      const existingInventory = flowSeq?.intermediateElements.find(
+        el => el.type === 'INVENTORY' && el.inventory
+      )?.inventory
+
+      if (existingLocalStock) {
+        // Garder l'état local existant, mais s'assurer que enabled reflète les données persistées
+        newBetweenStocks.push({
+          ...existingLocalStock,
+          enabled: existingLocalStock.enabled || !!existingInventory
+        })
+      } else if (existingInventory) {
+        // Restaurer depuis les flowSequences (données déjà sauvegardées)
+        newBetweenStocks.push({
+          id: existingInventory.id || generateId('stock'),
+          fromStep: fromStep.name,
+          toStep: toStep.name,
+          enabled: true, // Il y a un inventory, donc c'est activé
+          name: existingInventory.name || 'Stock En-Cours',
+          type: existingInventory.type as InventoryType || InventoryType.WIP,
+          quantity: typeof existingInventory.quantity === 'number' 
+            ? existingInventory.quantity 
+            : parseInt(String(existingInventory.quantity)) || 100,
+          durationDays: typeof existingInventory.duration === 'number'
+            ? existingInventory.duration
+            : parseInt(String(existingInventory.duration)) || 1,
+          mode: existingInventory.mode === 'dynamic' ? 'Dynamique' 
+            : existingInventory.mode === 'manual' ? 'Manuel' : 'Statique',
+          dataConnection: existingInventory.dataConnection
+        })
       } else {
+        // Nouvelle paire sans stock
         newBetweenStocks.push({
           id: generateId('stock'),
           fromStep: fromStep.name,
@@ -154,7 +213,7 @@ export const InventoriesTab: React.FC<InventoriesTabProps> = ({
     }
 
     setBetweenStocks(newBetweenStocks)
-  }, [diagram.nodes])
+  }, [diagram.nodes, diagram.flowSequences])
 
   const handleEdit = (stock: BetweenStockData) => {
     if (!stock.enabled) {
@@ -372,6 +431,78 @@ export const InventoriesTab: React.FC<InventoriesTabProps> = ({
     onUpdate({ flowSequences: updatedFlowSequences })
   }
 
+  /**
+   * Sauvegarde les buffers de réception et d'expédition
+   */
+  const saveReceptionBuffer = (enabled: boolean, description: string, duration: string) => {
+    const updatedActors = {
+      ...diagram.actors,
+      receptionBuffer: {
+        enabled,
+        description,
+        durationDays: parseInt(duration) || 1
+      }
+    }
+    onUpdate({ actors: updatedActors })
+  }
+
+  const saveShipmentBuffer = (enabled: boolean, description: string, duration: string) => {
+    const updatedActors = {
+      ...diagram.actors,
+      shipmentBuffer: {
+        enabled,
+        description,
+        durationDays: parseInt(duration) || 1
+      }
+    }
+    onUpdate({ actors: updatedActors })
+  }
+
+  // Handlers pour les changements de stock initial/final avec détection de modification
+  const handleInitialStockEnabledChange = (checked: boolean) => {
+    setInitialStockEnabled(checked)
+    // Sauvegarder immédiatement pour détecter la modification
+    setTimeout(() => saveInitialStock(), 0)
+  }
+
+  const handleFinalStockEnabledChange = (checked: boolean) => {
+    setFinalStockEnabled(checked)
+    // Sauvegarder immédiatement pour détecter la modification
+    setTimeout(() => saveFinalStock(), 0)
+  }
+
+  // Handlers pour réception
+  const handleReceptionEnabledChange = (checked: boolean) => {
+    setReceptionEnabled(checked)
+    saveReceptionBuffer(checked, receptionDescription, receptionDuration)
+  }
+
+  const handleReceptionDescriptionChange = (value: string) => {
+    setReceptionDescription(value)
+    saveReceptionBuffer(receptionEnabled, value, receptionDuration)
+  }
+
+  const handleReceptionDurationChange = (value: string) => {
+    setReceptionDuration(value)
+    saveReceptionBuffer(receptionEnabled, receptionDescription, value)
+  }
+
+  // Handlers pour expédition
+  const handleShipmentEnabledChange = (checked: boolean) => {
+    setShipmentEnabled(checked)
+    saveShipmentBuffer(checked, shipmentDescription, shipmentDuration)
+  }
+
+  const handleShipmentDescriptionChange = (value: string) => {
+    setShipmentDescription(value)
+    saveShipmentBuffer(shipmentEnabled, value, shipmentDuration)
+  }
+
+  const handleShipmentDurationChange = (value: string) => {
+    setShipmentDuration(value)
+    saveShipmentBuffer(shipmentEnabled, shipmentDescription, value)
+  }
+
   const columns: Column<BetweenStockData>[] = [
     {
       key: 'enabled',
@@ -440,13 +571,47 @@ export const InventoriesTab: React.FC<InventoriesTabProps> = ({
         </p>
       </div>
 
+      {/* Réception (Zone tampon après fournisseur) */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <Checkbox
+            id="chk-reception"
+            checked={receptionEnabled}
+            onCheckedChange={(checked) => handleReceptionEnabledChange(!!checked)}
+          />
+          <label htmlFor="chk-reception" className="font-medium cursor-pointer">
+            Réception (zone tampon après livraison fournisseur)
+          </label>
+        </div>
+
+        {receptionEnabled && (
+          <Card className="p-4 ml-6 space-y-2">
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                label="Description"
+                value={receptionDescription}
+                onChange={handleReceptionDescriptionChange}
+                placeholder="ex: 1 bac = 50p, 1500p"
+              />
+              <FormField
+                label="Durée (jours)"
+                type="number"
+                value={receptionDuration}
+                onChange={handleReceptionDurationChange}
+                required
+              />
+            </div>
+          </Card>
+        )}
+      </div>
+
       {/* Stock Initial */}
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <Checkbox
             id="chk-initial"
             checked={initialStockEnabled}
-            onCheckedChange={(checked) => setInitialStockEnabled(!!checked)}
+            onCheckedChange={(checked) => handleInitialStockEnabledChange(!!checked)}
           />
           <label htmlFor="chk-initial" className="font-medium cursor-pointer">
             Stock Initial (avant la 1ère étape)
@@ -553,7 +718,7 @@ export const InventoriesTab: React.FC<InventoriesTabProps> = ({
           <Checkbox
             id="chk-final"
             checked={finalStockEnabled}
-            onCheckedChange={(checked) => setFinalStockEnabled(!!checked)}
+            onCheckedChange={(checked) => handleFinalStockEnabledChange(!!checked)}
           />
           <label htmlFor="chk-final" className="font-medium cursor-pointer">
             Stock Final (après la dernière étape)
@@ -635,6 +800,40 @@ export const InventoriesTab: React.FC<InventoriesTabProps> = ({
                 />
               </div>
             )}
+          </Card>
+        )}
+      </div>
+
+      {/* Expédition (Zone tampon avant client) */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <Checkbox
+            id="chk-shipment"
+            checked={shipmentEnabled}
+            onCheckedChange={(checked) => handleShipmentEnabledChange(!!checked)}
+          />
+          <label htmlFor="chk-shipment" className="font-medium cursor-pointer">
+            Expédition (zone tampon avant livraison client)
+          </label>
+        </div>
+
+        {shipmentEnabled && (
+          <Card className="p-4 ml-6 space-y-2">
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                label="Description"
+                value={shipmentDescription}
+                onChange={handleShipmentDescriptionChange}
+                placeholder="ex: 1 palette = 100p, 500p"
+              />
+              <FormField
+                label="Durée (jours)"
+                type="number"
+                value={shipmentDuration}
+                onChange={handleShipmentDurationChange}
+                required
+              />
+            </div>
           </Card>
         )}
       </div>
