@@ -24,13 +24,9 @@ import {
   FolderPlus,
   FolderOpen,
   Save,
-  Undo2,
-  Redo2,
   Settings2,
   ZoomIn,
   ZoomOut,
-  PanelLeft,
-  PanelRight,
   RotateCcw
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -47,15 +43,11 @@ interface ToolbarAction {
 
 interface ToolbarProps {
   onAction: (actionId: string) => void
-  leftPanelVisible?: boolean
-  rightPanelVisible?: boolean
   className?: string
 }
 
 export const Toolbar: React.FC<ToolbarProps> = ({
   onAction,
-  leftPanelVisible = true,
-  rightPanelVisible = true,
   className
 }) => {
   // Récupérer l'état des stores
@@ -90,23 +82,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({
       label: 'Enregistrer', 
       shortcut: 'Ctrl+S',
       disabled: !canSave // Activé seulement si modifications non sauvegardées
-    },
-  ]
-
-  const editActions: ToolbarAction[] = [
-    { 
-      id: 'undo', 
-      icon: <Undo2 className="h-4 w-4" />, 
-      label: 'Annuler', 
-      shortcut: 'Ctrl+Z',
-      disabled: !hasDiagram // Nécessite un diagramme ouvert
-    },
-    { 
-      id: 'redo', 
-      icon: <Redo2 className="h-4 w-4" />, 
-      label: 'Rétablir', 
-      shortcut: 'Ctrl+Y',
-      disabled: !hasDiagram // Nécessite un diagramme ouvert
     },
   ]
 
@@ -170,42 +145,14 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
   return (
     <div className={cn(
-      'flex items-center justify-between h-10 px-2 bg-background border-b',
+      'flex items-center justify-center h-10 px-2 bg-background border-b',
       className
     )}>
-      {/* Bouton panneau gauche */}
-      <div className="flex items-center">
-        <TooltipProvider delayDuration={300}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant={leftPanelVisible ? 'secondary' : 'ghost'}
-                size="sm"
-                className="h-8 w-8 p-0"
-                onClick={() => onAction('toggleLeftPanel')}
-              >
-                <PanelLeft className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <p>Explorateur de Projets</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </div>
-
       {/* Actions centrales */}
       <div className="flex items-center gap-1">
         {/* Fichier */}
         <div className="flex items-center">
           {fileActions.map(renderActionButton)}
-        </div>
-
-        <Separator orientation="vertical" className="h-6 mx-1" />
-
-        {/* Édition */}
-        <div className="flex items-center">
-          {editActions.map(renderActionButton)}
         </div>
 
         <Separator orientation="vertical" className="h-6 mx-1" />
@@ -221,27 +168,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         <div className="flex items-center">
           {zoomActions.map(renderActionButton)}
         </div>
-      </div>
-
-      {/* Bouton panneau droit */}
-      <div className="flex items-center">
-        <TooltipProvider delayDuration={300}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant={rightPanelVisible ? 'secondary' : 'ghost'}
-                size="sm"
-                className="h-8 w-8 p-0"
-                onClick={() => onAction('toggleRightPanel')}
-              >
-                <PanelRight className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <p>Panneau des Propriétés</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
       </div>
     </div>
   )

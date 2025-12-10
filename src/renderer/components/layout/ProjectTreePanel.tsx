@@ -13,12 +13,12 @@ import {
   Users, 
   Building2,
   Package,
-  Database,
   Link as LinkIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useVsmStore } from '@/store/vsmStore';
 import type { VSMDiagram } from '@/shared/types/vsm-model';
+import { NodeType } from '@/shared/types/vsm-model';
 
 interface TreeNode {
   id: string;
@@ -88,10 +88,10 @@ function buildTreeFromDiagram(diagram: VSMDiagram | null): TreeNode[] {
 
   // Étapes de processus
   const stepsChildren: TreeNode[] = (diagram.nodes || [])
-    .filter(node => node.type === 'process')
+    .filter(node => node.type === NodeType.PROCESS_STEP)
     .map(node => ({
       id: node.id,
-      name: node.label || 'Étape',
+      name: node.name || 'Étape',
       type: 'entity' as const,
       entityType: 'process-step',
       icon: <Package className="h-4 w-4 text-orange-500" />
@@ -124,21 +124,28 @@ function buildTreeFromDiagram(diagram: VSMDiagram | null): TreeNode[] {
     });
   }
 
-  // Sources de données
-  const dataSourcesChildren: TreeNode[] = (diagram.dataSources || []).map(ds => ({
-    id: ds.id,
-    name: ds.name || 'Source de données',
-    type: 'entity' as const,
-    entityType: 'data-source',
-    icon: <Database className="h-4 w-4 text-indigo-500" />
-  }));
+  // Stocks (inventaires) - extraits depuis flowSequences
+  const inventoriesChildren: TreeNode[] = [];
+  (diagram.flowSequences || []).forEach((sequence, seqIndex) => {
+    (sequence.elements || []).forEach((element, elemIndex) => {
+      if (element.type === 'Inventory' && element.inventory) {
+        inventoriesChildren.push({
+          id: `inventory-${seqIndex}-${elemIndex}`,
+          name: element.inventory.label || 'Stock',
+          type: 'entity' as const,
+          entityType: 'inventory',
+          icon: <Package className="h-4 w-4 text-amber-500" />
+        });
+      }
+    });
+  });
 
-  if (dataSourcesChildren.length > 0) {
+  if (inventoriesChildren.length > 0) {
     nodes.push({
-      id: 'data-sources-group',
-      name: 'Sources de données',
+      id: 'inventories-group',
+      name: 'Stocks',
       type: 'folder',
-      children: dataSourcesChildren
+      children: inventoriesChildren
     });
   }
 
@@ -229,8 +236,8 @@ export const ProjectTreePanel: React.FC<ProjectTreePanelProps> = ({
       className={cn('flex flex-col bg-background border-r overflow-hidden', className)}
       style={{ width: `${width}px` }}
     >
-      <div className="p-3 border-b">
-        <h2 className="font-semibold text-sm">EXPLORATEUR</h2>
+      <div className="h-9 px-3 border-b flex items-center bg-muted/30">
+        <span className="text-sm font-medium">Explorateur</span>
       </div>
 
       <ScrollArea className="flex-1">

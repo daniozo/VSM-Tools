@@ -31,10 +31,9 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
   className,
 }) => {
   const handlePanelClick = (panel: RightSidebarPanel) => {
-    // Toggle: si le panneau est déjà actif, on le ferme
-    if (activePanel === panel) {
-      onPanelChange(null);
-    } else {
+    // Toujours activer le panneau cliqué (pas de toggle pour éviter de tout masquer)
+    // Si on clique sur le panneau déjà actif, on garde l'état actuel
+    if (activePanel !== panel) {
       onPanelChange(panel);
     }
   };

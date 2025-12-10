@@ -175,6 +175,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
               selectedNoteId={selectedNoteId}
               onSelectNote={handleSelectNote}
               onCreateNote={handleCreateNote}
+              canCreate={!!currentProject}
               className="flex-shrink-0"
             />
           )}
@@ -184,8 +185,8 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
               className="flex-shrink-0 bg-background border-r overflow-hidden flex flex-col"
               style={{ width: `${leftPanelWidth}px` }}
             >
-              <div className="p-3 border-b">
-                <h2 className="font-semibold text-sm">PLAN D'ACTION</h2>
+              <div className="h-9 px-3 border-b flex items-center bg-muted/30">
+                <span className="text-sm font-medium">Plan d'action</span>
               </div>
               <div className="flex-1 flex items-center justify-center text-muted-foreground text-sm">
                 <p>À implémenter</p>
@@ -198,8 +199,8 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
               className="flex-shrink-0 bg-background border-r overflow-hidden flex flex-col"
               style={{ width: `${leftPanelWidth}px` }}
             >
-              <div className="p-3 border-b">
-                <h2 className="font-semibold text-sm">ANALYSE</h2>
+              <div className="h-9 px-3 border-b flex items-center bg-muted/30">
+                <span className="text-sm font-medium">Analyse</span>
               </div>
               <div className="flex-1 overflow-auto p-2">
                 <AnalysisPanel
@@ -302,15 +303,14 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
       </div>
 
       {/* Section droite - Barre verticale + Panneau */}
-      {activeRightPanel && (
-        <>
-          {/* Poignée de redimensionnement droite */}
-          {activeRightPanel && (
-            <div
-              className="w-1 cursor-col-resize hover:bg-primary/50 active:bg-primary transition-colors"
-              onMouseDown={() => setIsResizingRight(true)}
-            />
-          )}
+      <>
+        {/* Po gnée de redimensionnement droite */}
+        {activeRightPanel && (
+          <div
+            className="w-1 cursor-col-resize hover:bg-primary/50 active:bg-primary transition-colors"
+            onMouseDown={() => setIsResizingRight(true)}
+          />
+        )}
 
           {/* Contenu du panneau selon la sélection */}
           {activeRightPanel === 'properties' && (
@@ -334,8 +334,8 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
               className="flex-shrink-0 bg-background border-l overflow-hidden flex flex-col"
               style={{ width: `${rightPanelWidth}px` }}
             >
-              <div className="p-4 border-b">
-                <h2 className="font-semibold text-lg">Analyse VSM</h2>
+              <div className="h-9 px-3 border-b flex items-center bg-muted/30">
+                <span className="text-sm font-medium">Analyse</span>
               </div>
               <div className="flex-1 overflow-hidden p-4">
                 <AnalysisPanel
@@ -354,8 +354,8 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
               className="flex-shrink-0 bg-background border-l overflow-hidden flex flex-col"
               style={{ width: `${rightPanelWidth}px` }}
             >
-              <div className="p-4 border-b">
-                <h2 className="font-semibold text-lg">Simulation</h2>
+              <div className="h-9 px-3 border-b flex items-center bg-muted/30">
+                <span className="text-sm font-medium">Simulation</span>
               </div>
               <div className="flex-1 overflow-auto">
                 <SimulationPanel canvasRef={canvasRef as React.RefObject<VsmCanvasHandle>} />
@@ -363,17 +363,16 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
             </div>
           )}
 
-          {/* Barre verticale avec icônes */}
-          <RightSidebar
-            activePanel={activeRightPanel}
-            onPanelChange={setActiveRightPanel}
-          />
-        </>
-      )}
+        {/* Barre verticale avec icônes */}
+        <RightSidebar
+          activePanel={activeRightPanel}
+          onPanelChange={setActiveRightPanel}
+        />
+      </>
 
       {/* Dialog pour créer une nouvelle note */}
       <Dialog open={isNewNoteDialogOpen} onOpenChange={setIsNewNoteDialogOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Nouvelle note</DialogTitle>
             <DialogDescription>

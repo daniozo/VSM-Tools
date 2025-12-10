@@ -27,8 +27,6 @@ const App: React.FC = () => {
   const [isConfigDialogOpen, setIsConfigDialogOpen] = useState<boolean>(false);
   const [isNewProjectDialogOpen, setIsNewProjectDialogOpen] = useState<boolean>(false);
   const [isOpenProjectDialogOpen, setIsOpenProjectDialogOpen] = useState<boolean>(false);
-  const [leftPanelVisible, setLeftPanelVisible] = useState<boolean>(true);
-  const [rightPanelVisible, setRightPanelVisible] = useState<boolean>(true);
   const canvasRef = useRef<any>(null);
 
   // Store VSM
@@ -105,8 +103,6 @@ const App: React.FC = () => {
       'menu:new-map': handleNewProject,
       'menu:open-map': handleOpenProject,
       'menu:open-configuration': () => setIsConfigDialogOpen(true),
-      'menu:toggle-palette': () => setLeftPanelVisible(prev => !prev),
-      'menu:toggle-properties': () => setRightPanelVisible(prev => !prev),
     };
 
     // Enregistrer tous les listeners
@@ -164,12 +160,6 @@ const App: React.FC = () => {
         break;
       case 'configure':
         setIsConfigDialogOpen(true);
-        break;
-      case 'toggleLeftPanel':
-        setLeftPanelVisible(!leftPanelVisible);
-        break;
-      case 'toggleRightPanel':
-        setRightPanelVisible(!rightPanelVisible);
         break;
       default:
         break;
@@ -284,8 +274,6 @@ const App: React.FC = () => {
       <div className="flex flex-col h-screen bg-background select-none">
         <Toolbar
           onAction={handleToolbarAction}
-          leftPanelVisible={leftPanelVisible}
-          rightPanelVisible={rightPanelVisible}
         />
         <MainLayout
           currentProject={currentProject}

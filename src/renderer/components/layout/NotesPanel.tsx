@@ -22,6 +22,7 @@ interface NotesPanelProps {
   selectedNoteId: string | null;
   onSelectNote: (noteId: string) => void;
   onCreateNote: () => void;
+  canCreate?: boolean;
   className?: string;
 }
 
@@ -31,6 +32,7 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
   selectedNoteId,
   onSelectNote,
   onCreateNote,
+  canCreate = true,
   className
 }) => {
   return (
@@ -38,15 +40,16 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
       className={cn('flex flex-col bg-background border-r overflow-hidden', className)}
       style={{ width: `${width}px` }}
     >
-      <div className="p-3 border-b flex items-center justify-between">
-        <h2 className="font-semibold text-sm">NOTES</h2>
+      <div className="h-9 px-3 border-b flex items-center justify-between bg-muted/30">
+        <span className="text-sm font-medium">Notes</span>
         <Button
           size="sm"
           variant="ghost"
-          className="h-7 w-7 p-0"
+          className="h-6 w-6 p-0"
           onClick={onCreateNote}
+          disabled={!canCreate}
         >
-          <Plus className="h-4 w-4" />
+          <Plus className="h-3.5 w-3.5" />
         </Button>
       </div>
 

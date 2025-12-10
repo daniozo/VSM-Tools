@@ -138,11 +138,8 @@ export const ChatAssistant: React.FC<ChatAssistantProps> = ({
       className={cn('flex flex-col bg-background border-l', className)}
     >
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b">
-        <div className="flex items-center gap-2">
-          <Bot className="h-5 w-5 text-primary" />
-          <h3 className="font-semibold text-sm">Assistant</h3>
-        </div>
+      <div className="h-9 px-3 border-b flex items-center bg-muted/30">
+        <span className="text-sm font-medium">Assistant</span>
       </div>
 
       {/* Messages */}

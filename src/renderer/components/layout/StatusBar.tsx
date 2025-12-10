@@ -13,7 +13,6 @@ import {
   Cloud,
   CloudOff,
   Loader2,
-  ZoomIn,
   Folder,
   Save,
   CheckCircle2,
@@ -25,20 +24,18 @@ import { useProjectsStore } from '@/store/projectsStore'
 type SyncStatus = 'synced' | 'syncing' | 'error' | 'disconnected'
 
 interface StatusBarProps {
-  projectName?: string | null
-  zoom?: number
   hasUnsavedChanges?: boolean
   className?: string
 }
 
 export const StatusBar: React.FC<StatusBarProps> = ({
-  projectName = null,
-  zoom = 100,
   hasUnsavedChanges = false,
   className
 }) => {
-  // Utiliser le store de connexion pour le statut sync
-  const { connectionStatus } = useProjectsStore();
+  // Utiliser les sélecteurs individuels pour un re-render optimal
+  const connectionStatus = useProjectsStore(state => state.connectionStatus);
+  const currentProject = useProjectsStore(state => state.currentProject);
+  const projectName = currentProject?.name || null;
   
   // Mapper connectionStatus vers SyncStatus
   const syncStatus: SyncStatus = 
@@ -119,12 +116,6 @@ export const StatusBar: React.FC<StatusBarProps> = ({
 
       {/* Partie droite - Zoom et sync */}
       <div className="flex items-center gap-4">
-        {/* Zoom */}
-        <div className="flex items-center gap-1.5">
-          <ZoomIn className="h-3.5 w-3.5 text-muted-foreground" />
-          <span className="text-muted-foreground w-10 text-right">{zoom}%</span>
-        </div>
-
         {/* Statut sync Engine */}
         <div className={cn('flex items-center gap-1.5', getSyncColor())}>
           {getSyncIcon()}
