@@ -15,8 +15,9 @@ import { NotesPanel, Note } from './NotesPanel'
 import { PropertiesPanel } from './PropertiesPanel'
 import { LeftSidebar, LeftSidebarPanel } from './LeftSidebar'
 import { RightSidebar, RightSidebarPanel } from './RightSidebar'
-import { ChatAssistant } from './ChatAssistant'
+import { AgentChatAssistant } from './AgentChatAssistant'
 import { TabsContainer } from './TabsContainer'
+import { AgentUIEvent } from '@/services/agent'
 import { AnalysisPanel } from '../panels/AnalysisPanel'
 import { ActionPlanPanel } from '../panels/ActionPlanPanel'
 import { ActionPlanTab } from '../panels/ActionPlanTab'
@@ -315,10 +316,23 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
           )}
 
           {activeRightPanel === 'assistant' && (
-            <ChatAssistant
+            <AgentChatAssistant
               width={rightPanelWidth}
-              projectContext={currentProject || undefined}
               className="flex-shrink-0"
+              onUIEvent={(event: AgentUIEvent) => {
+                // Gérer les événements UI de l'agent
+                console.log('Agent UI Event:', event)
+                if (event.type === 'select_node' && event.payload?.nodeId) {
+                  setSelectedElementId(event.payload.nodeId)
+                }
+                if (event.type === 'open_config') {
+                  useVsmStore.getState().openConfigDialog()
+                }
+                if (event.type === 'zoom_to' && canvasRef?.current) {
+                  // Zoomer sur l'élément si le canvas supporte cette méthode
+                  // canvasRef.current.zoomToElement?.(event.payload?.elementId)
+                }
+              }}
             />
           )}
 

@@ -15,3 +15,6 @@ export * from './storage/file-service'
 
 // Calculation Services
 export * from './calculation'
+
+// Agent Services (Agentic AI)
+export * from './agent'
