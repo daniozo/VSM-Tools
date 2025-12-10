@@ -14,7 +14,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/renderer/components/ui/tooltip';
-import { Settings, MessageSquare, Zap } from 'lucide-react';
+import { Settings, Zap, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export type RightSidebarPanel = 'properties' | 'assistant' | 'simulation' | null;
@@ -73,7 +73,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
               className="h-10 w-10"
               onClick={() => handlePanelClick('assistant')}
             >
-              <MessageSquare className="h-5 w-5" />
+              <Sparkles className="h-5 w-5" />
             </Button>
           </TooltipTrigger>
           <TooltipContent side="left">

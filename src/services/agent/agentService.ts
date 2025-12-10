@@ -1,10 +1,9 @@
 /**
  * Service Agent VSM - Orchestrateur principal
  * 
- * Gère la conversation avec le LLM et l'exécution des outils
+ * Gère la conversation avec le LLM (Gemini ou Mistral) et l'exécution des outils
  */
 
-import { GEMINI_CONFIG } from '../gemini/config'
 import { useVsmStore } from '@/store/vsmStore'
 import {
   ToolCall,
@@ -15,8 +14,9 @@ import {
   AgentUIEvent,
   DiagramSummary
 } from './types'
-import { VSM_TOOLS, getToolByName } from './tools'
+import { getToolByName, generateToolsSchema } from './tools'
 import { toolExecutor } from './toolExecutor'
+import { llmProvider, LLMToolDefinition, LLMFunctionResponse } from './llmProvider'
 
 // Durée de validité d'une action en attente (5 minutes)
 const ACTION_EXPIRY_MS = 5 * 60 * 1000
@@ -60,8 +60,14 @@ export class AgentService {
    * Vérifie si le service est configuré
    */
   isConfigured(): boolean {
-    return GEMINI_CONFIG.apiKey !== 'AIzaSyDEFAULT_KEY_CHANGE_ME' &&
-      GEMINI_CONFIG.apiKey.length > 0
+    return llmProvider.isConfigured()
+  }
+
+  /**
+   * Retourne le provider actif
+   */
+  getProvider(): string {
+    return llmProvider.getProvider()
   }
 
   /**
@@ -117,7 +123,7 @@ export class AgentService {
     }
 
     return {
-      projectId: diagram?.metaData.name, // Utiliser le nom comme ID
+      projectId: diagram?.metaData.name,
       projectName: diagram?.metaData.name,
       diagramSummary,
       selectedElement: store.selectedElement
@@ -131,13 +137,9 @@ export class AgentService {
   }
 
   /**
-   * Construit le prompt système avec les outils disponibles
+   * Construit le prompt système avec le contexte du diagramme
    */
   private buildSystemPrompt(context: AgentContext): string {
-    const toolsDescription = VSM_TOOLS.map(tool =>
-      `- ${tool.name}: ${tool.description}`
-    ).join('\n')
-
     let contextInfo = ''
     if (context.diagramSummary) {
       const summary = context.diagramSummary
@@ -158,61 +160,28 @@ Tu peux analyser les diagrammes VSM et proposer des actions d'amélioration.
 
 ${contextInfo}
 
-## Outils disponibles
-Tu peux utiliser les outils suivants pour interagir avec le diagramme:
-${toolsDescription}
-
 ## Instructions
 1. Analyse les demandes de l'utilisateur et propose des actions concrètes
-2. Utilise les outils appropriés pour exécuter les actions
-3. Les actions qui modifient le diagramme nécessitent une confirmation de l'utilisateur
-4. Sois précis et concis dans tes réponses
+2. Utilise les outils (functions) disponibles pour interagir avec le diagramme
+3. Pour les analyses simples, réponds directement avec les informations du contexte
+4. Sois précis, concis et professionnel dans tes réponses
 5. Explique tes recommandations en termes de Lean/amélioration continue
+6. Évite les emojis, utilise un langage professionnel
 
-## Format de réponse avec outils
-Quand tu veux exécuter une action, utilise le format JSON suivant dans ta réponse:
-\`\`\`tool_call
-{
-  "tool": "nom_de_l_outil",
-  "arguments": { ... }
-}
-\`\`\`
-
-Tu peux inclure plusieurs appels d'outils si nécessaire.
+Note: Les actions qui modifient le diagramme nécessiteront une confirmation de l'utilisateur.
 `
   }
 
   /**
-   * Parse les appels d'outils depuis la réponse du LLM
+   * Génère le schéma des outils au format unifié
    */
-  private parseToolCalls(response: string): { text: string, toolCalls: ToolCall[] } {
-    const toolCalls: ToolCall[] = []
-    let cleanText = response
-
-    // Regex pour trouver les blocs tool_call
-    const toolCallRegex = /```tool_call\s*\n?([\s\S]*?)\n?```/g
-    let match
-
-    while ((match = toolCallRegex.exec(response)) !== null) {
-      try {
-        const parsed = JSON.parse(match[1])
-        if (parsed.tool && typeof parsed.tool === 'string') {
-          toolCalls.push({
-            id: `tc-${Date.now()}-${toolCalls.length}`,
-            toolName: parsed.tool,
-            arguments: parsed.arguments || {},
-            timestamp: new Date()
-          })
-        }
-      } catch (e) {
-        console.warn('Erreur parsing tool_call:', e)
-      }
-
-      // Retirer le bloc de la réponse texte
-      cleanText = cleanText.replace(match[0], '').trim()
-    }
-
-    return { text: cleanText, toolCalls }
+  private generateTools(): LLMToolDefinition[] {
+    const tools = generateToolsSchema()
+    return tools.map(t => ({
+      name: t.function.name,
+      description: t.function.description,
+      parameters: t.function.parameters
+    }))
   }
 
   /**
@@ -220,10 +189,11 @@ Tu peux inclure plusieurs appels d'outils si nécessaire.
    */
   async processMessage(userMessage: string): Promise<AgentMessage> {
     if (!this.isConfigured()) {
+      const provider = this.getProvider()
       return {
         id: `msg-${Date.now()}`,
         type: 'error',
-        content: 'Service non configuré. Veuillez configurer la clé API Gemini.',
+        content: `Service non configuré. Veuillez configurer la clé API ${provider === 'mistral' ? 'Mistral' : 'Gemini'} dans le fichier .env`,
         timestamp: new Date()
       }
     }
@@ -233,134 +203,163 @@ Tu peux inclure plusieurs appels d'outils si nécessaire.
 
     const context = this.generateContext()
     const systemPrompt = this.buildSystemPrompt(context)
+    const tools = this.generateTools()
 
     try {
-      // Appel à l'API Gemini
-      const response = await fetch(
-        `${GEMINI_CONFIG.endpoint}/${GEMINI_CONFIG.model}:generateContent?key=${GEMINI_CONFIG.apiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [
-              {
-                parts: [{ text: `${systemPrompt}\n\nUtilisateur: ${userMessage}` }]
-              }
-            ],
-            generationConfig: {
-              ...GEMINI_CONFIG.generationConfig,
-              temperature: 0.7
-            }
+      // Étape 1: Premier appel au LLM avec les outils
+      console.log(`[Agent] Appel ${this.getProvider()} avec ${tools.length} outils`)
+      const response = await llmProvider.chat(systemPrompt, userMessage, tools)
+      console.log('[Agent] Réponse reçue:', {
+        textLength: response.text?.length || 0,
+        textPreview: response.text?.substring(0, 100),
+        functionCallsCount: response.functionCalls?.length || 0
+      })
+
+      // Si pas de function calls, retourner la réponse directement
+      if (response.functionCalls.length === 0) {
+        const textContent = String(response.text || 'Pas de réponse générée.')
+        console.log('[Agent] Réponse:', textContent)
+        this.conversationHistory.push({ role: 'assistant', content: textContent })
+        return {
+          id: `msg-${Date.now()}`,
+          type: 'text',
+          content: textContent,
+          timestamp: new Date()
+        }
+      }
+
+      // Étape 2 & 3: Exécuter les function calls et collecter les résultats
+      console.log('[Agent] Function calls détectés:', response.functionCalls)
+
+      const toolCalls: ToolCall[] = []
+      const pendingActions: PendingAction[] = []
+      const executedResults: ToolResult[] = []
+      const functionResponses: LLMFunctionResponse[] = []
+
+      for (const fc of response.functionCalls) {
+        const toolCall: ToolCall = {
+          id: `tc-${Date.now()}-${toolCalls.length}`,
+          toolName: fc.name,
+          arguments: fc.args,
+          timestamp: new Date()
+        }
+        toolCalls.push(toolCall)
+
+        const tool = getToolByName(fc.name)
+
+        if (!tool) {
+          const errorResult = { error: `Outil inconnu: ${fc.name}` }
+          functionResponses.push({ name: fc.name, response: errorResult })
+          executedResults.push({
+            toolCallId: toolCall.id,
+            success: false,
+            error: errorResult.error,
+            message: `L'outil "${fc.name}" n'existe pas.`
+          })
+          continue
+        }
+
+        // Si l'outil nécessite une confirmation, créer une action en attente
+        if (tool.requiresConfirmation) {
+          const actionId = `action-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+          const confirmMessage = tool.confirmationMessage
+            ? tool.confirmationMessage(fc.args)
+            : `Confirmer l'exécution de ${tool.name} ?`
+
+          const pendingAction: PendingAction = {
+            id: actionId,
+            toolCall,
+            status: 'pending',
+            confirmationMessage: confirmMessage,
+            createdAt: new Date(),
+            expiresAt: new Date(Date.now() + ACTION_EXPIRY_MS)
+          }
+
+          this.pendingActions.set(actionId, pendingAction)
+          pendingActions.push(pendingAction)
+
+          functionResponses.push({
+            name: fc.name,
+            response: { status: 'pending_confirmation', message: confirmMessage }
+          })
+        } else {
+          // Exécuter directement l'outil
+          console.log(`[Agent] Exécution de l'outil: ${fc.name}`, fc.args)
+          const result = await toolExecutor.execute(toolCall)
+          console.log(`[Agent] Résultat:`, result)
+          executedResults.push(result)
+
+          functionResponses.push({
+            name: fc.name,
+            response: result.success
+              ? (result.result || { success: true, message: result.message })
+              : { error: result.error, message: result.message }
           })
         }
+      }
+
+      // Si toutes les actions nécessitent confirmation, retourner sans appel supplémentaire
+      if (pendingActions.length > 0 && executedResults.length === 0) {
+        return {
+          id: `msg-${Date.now()}`,
+          type: 'action_request',
+          content: String(response.text || 'Je souhaite exécuter les actions suivantes. Veuillez confirmer.'),
+          toolCalls,
+          pendingActions,
+          timestamp: new Date()
+        }
+      }
+
+      // Étape 4 & 5: Renvoyer les résultats au LLM pour obtenir la réponse finale
+      console.log('[Agent] Envoi des résultats au LLM pour réponse finale')
+      const finalResponse = await llmProvider.chatWithFunctionResults(
+        systemPrompt,
+        userMessage,
+        response.functionCalls,
+        functionResponses
       )
+      console.log('[Agent] Réponse finale reçue:', {
+        textLength: finalResponse.text?.length || 0,
+        textPreview: finalResponse.text?.substring(0, 100)
+      })
 
-      if (!response.ok) {
-        throw new Error(`Erreur API: ${response.status}`)
+      // Ajouter à l'historique
+      // Si le modèle ne retourne pas de texte après l'exécution des outils, générer un message par défaut
+      let finalTextContent = finalResponse.text || response.text || ''
+
+      if (!finalTextContent && executedResults.length > 0) {
+        // Générer un message basé sur les résultats
+        const successCount = executedResults.filter(r => r.success).length
+        if (successCount === executedResults.length) {
+          finalTextContent = executedResults.length === 1
+            ? executedResults[0].message
+            : `${successCount} action(s) exécutée(s) avec succès.`
+        } else {
+          finalTextContent = `${successCount}/${executedResults.length} action(s) réussie(s).`
+        }
       }
 
-      const data = await response.json()
-      const rawResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || ''
-
-      // Parser les appels d'outils
-      const { text, toolCalls } = this.parseToolCalls(rawResponse)
-
-      // Ajouter la réponse à l'historique
-      this.conversationHistory.push({ role: 'assistant', content: text })
-
-      // Si des outils sont appelés, les traiter
-      if (toolCalls.length > 0) {
-        return this.handleToolCalls(text, toolCalls)
-      }
+      finalTextContent = String(finalTextContent || 'Action exécutée.')
+      this.conversationHistory.push({ role: 'assistant', content: finalTextContent })
 
       return {
         id: `msg-${Date.now()}`,
-        type: 'text',
-        content: text,
+        type: pendingActions.length > 0 ? 'action_request' : 'action_result',
+        content: finalTextContent,
+        toolCalls,
+        pendingActions: pendingActions.length > 0 ? pendingActions : undefined,
+        results: executedResults.length > 0 ? executedResults : undefined,
         timestamp: new Date()
       }
 
     } catch (error) {
-      console.error('Erreur agent:', error)
+      console.error('[Agent] Erreur:', error)
       return {
         id: `msg-${Date.now()}`,
         type: 'error',
         content: `Erreur: ${error instanceof Error ? error.message : 'Erreur inconnue'}`,
         timestamp: new Date()
       }
-    }
-  }
-
-  /**
-   * Traite les appels d'outils
-   */
-  private async handleToolCalls(text: string, toolCalls: ToolCall[]): Promise<AgentMessage> {
-    const pendingActions: PendingAction[] = []
-    const results: ToolResult[] = []
-
-    for (const toolCall of toolCalls) {
-      const tool = getToolByName(toolCall.toolName)
-
-      if (!tool) {
-        results.push({
-          toolCallId: toolCall.id,
-          success: false,
-          error: `Outil inconnu: ${toolCall.toolName}`,
-          message: `L'outil "${toolCall.toolName}" n'existe pas.`
-        })
-        continue
-      }
-
-      if (tool.requiresConfirmation) {
-        // Créer une action en attente de confirmation
-        const actionId = `action-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-        const confirmMessage = tool.confirmationMessage
-          ? tool.confirmationMessage(toolCall.arguments)
-          : `Confirmer l'exécution de ${tool.name} ?`
-
-        const pendingAction: PendingAction = {
-          id: actionId,
-          toolCall,
-          status: 'pending',
-          confirmationMessage: confirmMessage,
-          createdAt: new Date(),
-          expiresAt: new Date(Date.now() + ACTION_EXPIRY_MS)
-        }
-
-        this.pendingActions.set(actionId, pendingAction)
-        pendingActions.push(pendingAction)
-
-      } else {
-        // Exécuter directement
-        const result = await toolExecutor.execute(toolCall)
-        results.push(result)
-      }
-    }
-
-    // Construire le message de réponse
-    if (pendingActions.length > 0) {
-      return {
-        id: `msg-${Date.now()}`,
-        type: 'action_request',
-        content: text,
-        toolCalls,
-        pendingActions,
-        timestamp: new Date()
-      }
-    }
-
-    // Ajouter les résultats au texte
-    const resultsText = results.map(r =>
-      r.success ? `✅ ${r.message}` : `❌ ${r.message}`
-    ).join('\n')
-
-    return {
-      id: `msg-${Date.now()}`,
-      type: 'action_result',
-      content: text + (resultsText ? `\n\n${resultsText}` : ''),
-      toolCalls,
-      results,
-      timestamp: new Date()
     }
   }
 
@@ -429,7 +428,6 @@ Tu peux inclure plusieurs appels d'outils si nécessaire.
    * Récupère les actions en attente
    */
   getPendingActions(): PendingAction[] {
-    // Nettoyer les actions expirées
     const now = new Date()
     for (const [id, action] of this.pendingActions) {
       if (now > action.expiresAt) {

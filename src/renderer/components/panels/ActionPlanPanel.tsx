@@ -74,12 +74,6 @@ const priorityColors: Record<Priority, string> = {
   low: 'bg-blue-500 text-white'
 }
 
-const statusIcons: Record<ActionStatus, React.ReactNode> = {
-  pending: <Clock size={14} />,
-  in_progress: <AlertCircle size={14} />,
-  completed: <CheckCircle2 size={14} />
-}
-
 export const ActionPlanPanel: React.FC<ActionPlanPanelProps> = ({
   projectId,
   width = 280,
@@ -170,18 +164,18 @@ export const ActionPlanPanel: React.FC<ActionPlanPanelProps> = ({
 
     if (editingAction) {
       // Mise à jour
-      const updated = actions.map(a => 
-        a.id === editingAction.id 
+      const updated = actions.map(a =>
+        a.id === editingAction.id
           ? {
-              ...a,
-              action: formAction.trim(),
-              responsible: formResponsible.trim(),
-              priority: formPriority,
-              notes: formNotes.trim(),
-              status: formStatus,
-              dueDate: formDueDate || undefined,
-              updatedAt: now
-            }
+            ...a,
+            action: formAction.trim(),
+            responsible: formResponsible.trim(),
+            priority: formPriority,
+            notes: formNotes.trim(),
+            status: formStatus,
+            dueDate: formDueDate || undefined,
+            updatedAt: now
+          }
           : a
       )
       saveActions(updated)
@@ -214,9 +208,9 @@ export const ActionPlanPanel: React.FC<ActionPlanPanelProps> = ({
     const updated = actions.map(a => {
       if (a.id === actionId) {
         // Cycle: pending -> in_progress -> completed -> pending
-        const nextStatus: ActionStatus = 
+        const nextStatus: ActionStatus =
           a.status === 'pending' ? 'in_progress' :
-          a.status === 'in_progress' ? 'completed' : 'pending'
+            a.status === 'in_progress' ? 'completed' : 'pending'
         return { ...a, status: nextStatus, updatedAt: new Date() }
       }
       return a
@@ -318,20 +312,19 @@ export const ActionPlanPanel: React.FC<ActionPlanPanelProps> = ({
         <div className="p-2 space-y-2">
           {filteredActions.length === 0 ? (
             <div className="text-center text-muted-foreground text-sm py-8">
-              {actions.length === 0 
-                ? "Aucune action définie" 
+              {actions.length === 0
+                ? "Aucune action définie"
                 : "Aucune action ne correspond aux filtres"}
             </div>
           ) : (
             filteredActions.map(action => (
-              <Card 
-                key={action.id} 
-                className={`cursor-pointer hover:bg-muted/50 transition-colors ${
-                  action.status === 'completed' ? 'opacity-60' : ''
-                }`}
+              <Card
+                key={action.id}
+                className={`cursor-pointer hover:bg-muted/50 transition-colors ${action.status === 'completed' ? 'opacity-60' : ''
+                  }`}
                 onClick={() => onActionClick?.(action.id)}
               >
-                <CardContent className="p-3">
+                <CardContent className="px-3 py-2">
                   <div className="flex items-start gap-2">
                     <button
                       onClick={(e) => {
@@ -349,9 +342,8 @@ export const ActionPlanPanel: React.FC<ActionPlanPanelProps> = ({
                       )}
                     </button>
                     <div className="flex-1 min-w-0">
-                      <p className={`text-sm font-medium truncate ${
-                        action.status === 'completed' ? 'line-through' : ''
-                      }`}>
+                      <p className={`text-sm font-medium truncate ${action.status === 'completed' ? 'line-through' : ''
+                        }`}>
                         {action.action}
                       </p>
                       {action.responsible && (
@@ -412,8 +404,8 @@ export const ActionPlanPanel: React.FC<ActionPlanPanelProps> = ({
               {editingAction ? 'Modifier l\'action' : 'Nouvelle action'}
             </DialogTitle>
             <DialogDescription>
-              {editingAction 
-                ? 'Modifiez les détails de cette action' 
+              {editingAction
+                ? 'Modifiez les détails de cette action'
                 : 'Ajoutez une nouvelle action au plan'}
             </DialogDescription>
           </DialogHeader>

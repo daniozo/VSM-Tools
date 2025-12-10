@@ -1,0 +1,343 @@
+\documentclass[11pt, a4paper]{article}
+
+% --- PAQUETAGES ESSENTIELS ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[french, provide=*]{babel} % Pour la typographie française (Table des matières, Figure...)
+
+% --- GÉOMÉTRIE ET MISE EN PAGE ---
+\usepackage{geometry}
+\geometry{a4paper, left=2.5cm, right=2.5cm, top=2.5cm, bottom=2.5cm} % Définir les marges
+
+% --- GRAPHIQUES ET FLOTTANTS ---
+\usepackage{graphicx} % Requis pour inclure des images
+\usepackage{float} % Pour un meilleur contrôle du placement des flottants (figures, tables)
+
+% --- RÉFÉRENCES ET LIENS ---
+\usepackage{hyperref} % Pour les liens cliquables et les références
+\usepackage{natbib} % Pour la bibliographie
+\usepackage{xurl} % Pour une meilleure coupure de ligne des URLs
+
+% --- TYPOGRAPHIE ET LISTES ---
+\usepackage{csquotes} % Pour les guillemets intelligents avec \enquote{}
+\usepackage{textcomp} % Pour les symboles comme \textregistered
+\usepackage{enumitem} % Pour personnaliser les listes
+
+% --- MATHÉMATIQUES (si nécessaire) ---
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% --- CONFIGURATION DE HYPERREF ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=blue,
+    pdftitle={Rapport Final de Projet},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+% --- PAGE DE GARDE ---
+\begin{titlepage}
+    \centering % Centre tout le contenu de la page de garde
+
+    % Logo (assurez-vous que le chemin est correct)
+    \includegraphics[width=0.3\textwidth]{../../../images/logo_eigsi.png}\vspace{3cm}
+
+    % Titre du rapport
+    {\LARGE \bfseries Développement d'une application de visualisation des flux de production pour identifier les goulots d'étranglement et optimiser les performances industrielles}\vspace{1.5cm}
+
+    {\huge \bfseries Rapport Final}\vspace{3cm}
+
+    % Membres de l'équipe
+    {\large \textbf{Membres de l'équipe :}}\vspace{0.5cm} \\
+    MPOKE Jonathan \\
+    PAMBO PAGA Chris Jeredh \\
+    ZIDA Eben-Ezer \\
+    ZOUGOU TOVIGNON Comlan Daniel \vspace{1.5cm}
+
+    % Encadrants
+    {\large \textbf{Encadrants :}}\vspace{0.5cm} \\
+    ERROUSSO Hanae \\
+    BAROUD Sohaib \vspace{3cm}
+
+    % Année académique
+    {\large Année académique : 2024 - 2025}
+
+    \vfill % Pousse le contenu vers le haut et le bas si nécessaire
+
+\end{titlepage}
+
+% --- TABLE DES MATIÈRES ---
+\tableofcontents
+\newpage
+
+% --- SECTION 1 : INTRODUCTION ---
+\section{Introduction}
+
+Ce document constitue le rapport final du projet VSM-Tools. Il a pour objectif de présenter de manière exhaustive la démarche qui a guidé la conception et le développement d'une solution logicielle dédiée à l'optimisation des performances industrielles. De l'analyse des enjeux stratégiques du secteur à la justification des choix architecturaux et technologiques finaux, ce rapport retrace l'ensemble du travail accompli.
+
+L'industrie moderne, confrontée à une compétition mondiale et à des exigences clients croissantes, est engagée dans une quête perpétuelle d'efficacité. Dans ce contexte, la capacité à visualiser, comprendre et améliorer les processus internes n'est plus une option, mais une nécessité stratégique. C'est pour répondre à ce besoin fondamental que ce projet a été initié, en se concentrant sur une méthodologie reconnue pour sa puissance d'analyse : le Value Stream Mapping (VSM).
+
+Ce rapport s'articulera autour de plusieurs axes majeurs. Il commencera par définir les enjeux globaux de l'optimisation industrielle pour poser le cadre de notre action. Il détaillera ensuite la méthodologie VSM, qui constitue le cœur fonctionnel de notre solution. Enfin, il présentera l'application VSM-Tools elle-même : sa mission, son architecture technique finale basée sur les technologies Electron et Node.js, sa proposition de valeur, et le parcours utilisateur que nous avons conçu.
+
+
+% --- SECTION 2 : LES ENJEUX DE L'OPTIMISATION INDUSTRIELLE ---
+\section{Les enjeux de l'optimisation industrielle}
+Le développement de VSM-Tools s'inscrit dans une réponse directe aux défis pressants auxquels l'industrie moderne est confrontée. Avant de détailler la méthodologie VSM, qui est le cœur de notre solution, il est essentiel de poser le cadre général de son objectif final : l'optimisation industrielle. Loin d'être un simple objectif de confort, l'optimisation est aujourd'hui une condition de survie et de compétitivité.
+
+\subsection{Un contexte de pression continue}
+Les entreprises industrielles, quelle que soit leur taille, évoluent dans un environnement marqué par des pressions multiples et croissantes :
+\begin{itemize}[leftmargin=*]
+    \item \textbf{La concurrence mondiale :} La mondialisation impose une compétition accrue, où la capacité à produire mieux, plus vite et moins cher est un différenciant majeur.
+    \item \textbf{L'exigence des clients :} Les clients attendent des produits de haute qualité, personnalisés, et livrés dans des délais toujours plus courts. La moindre défaillance peut entraîner une perte de confiance et de parts de marché.
+    \item \textbf{La volatilité des marchés :} Les chaînes d'approvisionnement sont devenues complexes et fragiles. La capacité à s'adapter rapidement aux ruptures (géopolitiques, sanitaires, technologiques) est devenue une question de résilience.
+    \item \textbf{La pression sur les ressources :} L'augmentation du coût des matières premières, de l'énergie, et les nouvelles réglementations environnementales obligent les entreprises à produire plus avec moins, en minimisant leur empreinte écologique.
+\end{itemize}
+
+\subsection{Les piliers de la performance opérationnelle}
+Face à ce contexte, l'optimisation industrielle vise à améliorer la performance sur trois axes fondamentaux, souvent résumés par le triptyque \textbf{Qualité - Coûts - Délais (QCD)} :
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Maîtriser les Coûts :} Il s'agit de traquer et d'éliminer toutes les formes de gaspillage (Muda) : surproduction, stocks excessifs, temps d'attente, transports inutiles, défauts de fabrication, mouvements superflus. Chaque ressource (humaine, matérielle, financière) doit être utilisée à son plein potentiel.
+    \item \textbf{Améliorer la qualité :} L'objectif est de tendre vers le \enquote{zéro défaut}. Une qualité médiocre entraîne des coûts directs (rebuts, retouches) et indirects (insatisfaction client, perte d'image). L'optimisation vise à construire la qualité au cœur même du processus, plutôt qu'à la contrôler à la fin.
+    \item \textbf{Réduire les délais :} Le \textit{Lead Time}, soit le temps total entre la commande d'un client et la livraison, est un indicateur clé de la réactivité d'une entreprise. Le réduire permet d'améliorer la satisfaction client, de diminuer les besoins en fonds de roulement (moins de stocks) et d'augmenter la flexibilité.
+\end{itemize}
+
+\subsection{Le défi de la visibilité : de la donnée à la décision}
+Le principal obstacle à l'optimisation n'est souvent pas le manque de volonté, mais le manque de \textbf{visibilité}. Les processus industriels sont des systèmes complexes, avec de multiples interactions, des dépendances cachées et des flux qui traversent différents services. Les problèmes réels (les gaspillages, les goulots d'étranglement) sont souvent noyés dans cette complexité et ne sont pas immédiatement apparents.
+
+Sans une compréhension claire et partagée de la manière dont la valeur circule (ou stagne) du début à la fin de la chaîne, les efforts d'amélioration restent locaux, parcellaires, et parfois même contre-productifs. On optimise une machine sans voir que le vrai problème est le stock qui attend en amont.
+
+Pour optimiser, il faut d'abord \textbf{voir}. C'est précisément la raison d'être de la méthodologie VSM, qui fournit la cartographie nécessaire pour transformer la complexité en clarté.
+
+% --- SECTION 3 : LE VALUE STREAM MAPPING COMME OUTIL DE CLARIFICATION ---
+\section{Le Value Stream Mapping comme outil de clarification}
+
+Face au défi de la visibilité évoqué précédemment, l'industrie a développé des outils pour cartographier et analyser ses processus. Parmi eux, le Value Stream Mapping (VSM), ou Cartographie des Flux de Valeur, s'est imposé comme une méthode de référence pour sa capacité à fournir une vision claire et actionnable de la chaîne de valeur.
+
+\subsection{Définition et objectif}
+Le VSM est une méthode visuelle issue du Lean Management. Son objectif principal est simple mais essentiel : \textbf{visualiser, analyser et améliorer l'ensemble des flux} (matière et information) nécessaires pour amener un produit ou un service du fournisseur jusqu'au client. Il s'agit de cartographier toutes les étapes, qu'elles ajoutent de la valeur ou non, afin d'obtenir une image complète du processus actuel. L'analyse ne se limite pas à ce qui se passe sur une machine, mais englobe également ce qui se passe \textit{entre} les machines : les temps d'attente, les stocks, les mouvements.
+
+\subsection{L'importance du VSM dans l'industrie}
+Dans un environnement économique où l'efficacité et la réactivité sont primordiales, le VSM s'avère être un \textbf{outil pertinent pour l'analyse et l'amélioration des performances}. Il permet de :
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Identifier et quantifier les gaspillages} (Muda) : Temps d'attente, stocks excessifs, mouvements inutiles, surproduction, défauts, etc.
+    \item \textbf{Localiser précisément les goulots d'étranglement} qui limitent la capacité globale du flux.
+    \item \textbf{Réduire les délais de production (Lead Time)} : En optimisant le flux et en traitant les goulots, on livre plus rapidement le client.
+    \item \textbf{Améliorer la productivité et réduire les coûts} : En éliminant les activités sans valeur ajoutée et en fluidifiant le processus.
+    \item \textbf{Favoriser une culture d'amélioration continue (Kaizen)} : Le VSM fournit une base factuelle pour identifier les chantiers d'optimisation prioritaires.
+\end{itemize}
+Le VSM n'est donc pas une fin en soi, mais un \textbf{outil clé au cœur des démarches Lean}. Il sert de diagnostic initial pour comprendre où se situent les problèmes. Les informations issues de la cartographie \enquote{état actuel} permettent ensuite de concevoir un \enquote{état futur} optimisé et de définir les plans d'actions concrets pour y parvenir.
+
+\subsection{Les acteurs concernés par la démarche}
+La démarche VSM concerne de nombreux acteurs au sein d'une organisation :
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Les ingénieurs process et méthodes} : Pour analyser et optimiser les processus de fabrication ou de service.
+    \item \textbf{Les responsables production et logistique} : Pour améliorer les flux physiques et réduire les stocks.
+    \item \textbf{Les responsables qualité} : Pour identifier les sources de défauts et améliorer la satisfaction client.
+    \item \textbf{Les équipes d'amélioration continue / Lean managers} : Comme outil fondamental de leur méthodologie.
+    \item \textbf{La direction générale} : Pour avoir une vision claire de la performance opérationnelle et orienter la stratégie.
+\end{itemize}
+
+\subsection{Les limites des méthodes traditionnelles}
+Historiquement, la réalisation de VSM s'appuyait souvent sur des moyens rudimentaires qui, bien qu'utiles, présentent des freins à une analyse approfondie et dynamique :
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Papier et Post-it} : Une excellente approche pour une première collaboration, mais difficile à maintenir, à partager à grande échelle, et impossible à analyser quantitativement de manière automatisée.
+    \item \textbf{Tableurs (Excel, etc.)} : Permettent d'effectuer certains calculs, mais manquent de la visualisation intuitive qui fait la force du VSM. La représentation du flux est souvent maladroite et peu standardisée.
+    \item \textbf{Logiciels de dessin génériques (Visio, Draw.io...)} : Ils offrent la flexibilité du dessin mais sont dépourvus d'intelligence métier. Ils ne comprennent pas la logique d'un VSM : il n'y a pas de calculs automatiques des indicateurs clés (temps de cycle, délai total, taux de valeur ajoutée...), et pas de liens logiques entre les éléments. La carte reste un dessin statique.
+\end{itemize}
+Ces méthodes traditionnelles sont souvent chronophages, sujettes aux erreurs, et ne permettent pas de simuler facilement l'impact d'améliorations potentielles. C'est précisément pour combler ce vide que la solution VSM-Tools a été conçue, en proposant un outil qui allie la clarté visuelle du VSM à la puissance de l'analyse de données.
+
+% --- SECTION 4 : VSM-TOOLS : UNE SOLUTION DÉDIÉE À L'ANALYSE DE FLUX ---
+\section{VSM-Tools : une solution dédiée à l'analyse de flux}
+
+Face aux limites des approches traditionnelles et à l'importance reconnue du VSM, le projet VSM-Tools a été développé comme une solution logicielle intégrée, conçue pour rendre la cartographie et l'analyse des flux de valeur à la fois plus simples, plus rapides et plus intelligentes.
+
+\subsection{Mission et vision}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Mission :} Rendre l'analyse VSM accessible, rapide et actionnable pour les entreprises souhaitant améliorer leur performance opérationnelle, en levant les barrières liées à la complexité des outils ou à la collecte de données.
+    \item \textbf{Vision :} Devenir un outil de référence pour une cartographie VSM intuitive et efficace, qui non seulement facilite la création des cartes, mais guide également l'utilisateur dans l'analyse et l'identification des pistes d'amélioration pertinentes.
+\end{itemize}
+
+\subsection{Les apports clés de VSM-Tools}
+Notre solution se distingue en apportant de la valeur sur quatre axes fondamentaux, qui répondent directement aux faiblesses des méthodes traditionnelles.
+
+\subsubsection{Une simplification et fiabilisation du processus VSM}
+L'objectif premier de VSM-Tools est de structurer et d'accélérer la phase de modélisation.
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Modélisation guidée (Approche \enquote{Model-First}) :} Plutôt que de laisser l'utilisateur dessiner librement, l'application le guide à travers un dialogue de configuration centralisé. Cette approche garantit la cohérence logique du diagramme et standardise la saisie des informations.
+    \item \textbf{Automatisation des calculs :} L'outil prend en charge les calculs clés du VSM, tels que le délai total de production (Lead Time), le temps à valeur ajoutée et le taux de valeur ajoutée. L'utilisateur obtient une analyse quantitative instantanée, sans risque d'erreur manuelle.
+    \item \textbf{Génération automatique de la cartographie :} Le diagramme VSM est généré automatiquement par un algorithme de layout qui dispose les éléments de manière propre, alignée et professionnelle. L'utilisateur se concentre sur les données, non sur la mise en page.
+    \item \textbf{Gestion de projet intégrée :} Les informations du diagramme, le plan d'action et les notes associées sont stockés de manière centralisée dans une base de données locale. L'outil gère l'import et l'export au format standard \texttt{.vsmx}, assurant l'interopérabilité tout en offrant une gestion de projet robuste.
+\end{itemize}
+
+\subsubsection{Une dynamisation des données pour une VSM vivante}
+Un des apports majeurs de VSM-Tools est sa capacité à se connecter à la réalité du terrain, transformant la VSM d'une photo statique en un véritable miroir de l'atelier. Pour cela, l'outil propose trois modes de collecte de données :
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Mode Statique :} Les valeurs des indicateurs sont saisies directement dans le VSM Studio par l'analyste. Idéal pour une première cartographie.
+    \item \textbf{Mode Manuel (Saisie Opérateur) :} L'application propose une interface web dédiée (développée en React) et simplifiée pour les opérateurs. Depuis leur poste, ils peuvent saisir périodiquement les données de production réelles (quantités, temps d'arrêt...).
+    \item \textbf{Mode Dynamique (Connexion Directe) :} Grâce à son moteur de données (Engine) développé en Node.js, VSM-Tools peut se connecter automatiquement aux sources de données de l'entreprise via des connecteurs pour les bases de données (SQL) et les API REST.
+\end{itemize}
+Cette flexibilité permet à l'outil de s'adapter au niveau de maturité digitale de chaque entreprise.
+
+\subsubsection{Une analyse augmentée par l'intelligence}
+VSM-Tools ne se contente pas de représenter le flux, il aide à le comprendre.
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Suggestions d'optimisation intelligentes :} En se basant sur les données de la carte et les principes Lean, l'outil peut mettre en évidence des goulots d'étranglement potentiels ou suggérer des pistes d'amélioration, agissant comme un assistant pour l'analyste.
+    \item \textbf{Assistance par agent conversationnel :} Un chatbot, alimenté par un modèle de langage, est intégré directement dans l'application. Il peut répondre aux questions de l'utilisateur sur la méthodologie VSM, le guider dans l'utilisation du logiciel et même l'aider à interpréter certaines données.
+\end{itemize}
+
+\subsubsection{Une architecture moderne et évolutive}
+La conception technique de la solution a été pensée pour être à la fois robuste et prête pour l'avenir.
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Architecture découplée (Studio \& Engine) :} L'application est divisée en une interface utilisateur de bureau pour la modélisation (\textbf{Studio}, en Electron) et un moteur de données en arrière-plan (\textbf{Engine}, en Node.js). Cette séparation des préoccupations rend le système plus maintenable et performant.
+    \item \textbf{Écosystème d'interfaces :} En plus du Studio, l'architecture supporte des interfaces web dédiées (développées en React) pour les cas d'usage spécifiques que sont la \textbf{saisie opérateur} et la \textbf{visualisation de dashboards} en lecture seule.
+\end{itemize}
+
+En résumé, VSM-Tools est conçu pour être un outil complet, qui accompagne l'utilisateur depuis la collecte de données jusqu'à l'identification d'actions d'amélioration, en s'appuyant sur une interface guidée, des calculs automatisés et des fonctionnalités intelligentes.
+
+% --- SECTION 5 : ARCHITECTURE TECHNIQUE ---
+\section{Architecture technique}
+
+Pour répondre aux exigences fonctionnelles du projet, une architecture logicielle moderne, modulaire et découplée a été conçue et implémentée. Le choix s'est porté sur un écosystème basé sur JavaScript/TypeScript, en tirant parti des frameworks Electron pour l'application de bureau, Node.js pour le moteur de services, et React pour les interfaces web.
+
+\subsection{Vue d'ensemble de l'architecture}
+L'architecture de VSM-Tools est organisée en trois composants principaux qui communiquent entre eux via des API internes. Cette séparation garantit la modularité, la performance et la maintenabilité de la solution.
+
+\begin{figure}[H]
+    \centering
+    % Placeholder pour un schéma d'architecture.
+    \fbox{
+        \begin{minipage}{0.8\textwidth}
+            \textbf{Schéma d'Architecture VSM-Tools}
+            \vspace{1cm}
+            \begin{itemize}
+                \item \textbf{VSM Studio (Electron App)} : Interface de modélisation principale.
+                      \begin{itemize}
+                          \item Processus Principal (Node.js)
+                          \item Processus de Rendu (Chromium - HTML/CSS/JS)
+                      \end{itemize}
+                \item \textbf{VSM Engine (Node.js Service)} : Moteur de données et de connectivité.
+                      \begin{itemize}
+                          \item API REST interne
+                          \item Logique métier, calculs, connecteurs
+                      \end{itemize}
+                \item \textbf{Base de Données PostgreSQL} : Stockage des projets.
+                \item \textbf{Interfaces Web (React Apps)} :
+                      \begin{itemize}
+                          \item Dashboard de visualisation
+                          \item Interface de saisie opérateur
+                      \end{itemize}
+            \end{itemize}
+        \end{minipage}
+    }
+    \caption{Diagramme de l'architecture générale de VSM-Tools.}
+    \label{fig:architecture}
+\end{figure}
+
+\subsection{Le VSM Studio : l'application de bureau}
+Le VSM Studio est l'application principale de configuration et de modélisation. La technologie \textbf{Electron} a été choisie car elle permet de créer des applications de bureau multi-plateformes (Windows, macOS, Linux) en utilisant des technologies web standard (HTML, CSS, JavaScript).
+
+Electron fonctionne avec deux types de processus :
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Le Processus principal :} Il s'exécute en arrière-plan et a un accès complet à l'environnement Node.js. Il est responsable de la gestion des fenêtres de l'application, des menus natifs du système d'exploitation, et de la communication avec le VSM Engine et la base de données. C'est le chef d'orchestre de l'application.
+    \item \textbf{Le Processus de rendu :} Chaque fenêtre de l'application est un processus de rendu indépendant. Il s'agit essentiellement d'une fenêtre de navigateur web dans laquelle notre interface utilisateur, développée avec des frameworks JavaScript modernes, est affichée. Il n'a pas d'accès direct aux ressources du système et doit communiquer avec le Processus Principal pour effectuer des opérations sensibles.
+\end{itemize}
+
+\subsection{Le VSM Engine : le moteur de services}
+Le VSM Engine est le cœur logique de l'application. Il fonctionne comme un service en arrière-plan, lancé et géré par le Processus Principal d'Electron. Le choix de \textbf{Node.js} permet de capitaliser sur un écosystème JavaScript unifié et performant pour les opérations asynchrones.
+
+Les responsabilités de l'Engine sont les suivantes :
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Logique métier :} Il contient toute la logique de validation du modèle de données VSM, les calculs automatiques (Lead Time, \%VA), et l'implémentation des suggestions d'optimisation.
+    \item \textbf{Gestion de la base de données :} Il assure la communication avec le serveur de base de données central \textbf{PostgreSQL} pour sauvegarder et récupérer les données des projets (diagrammes, notes, plans d'action).
+    \item \textbf{Connectivité externe :} Il gère les connecteurs pour le mode \enquote{Dynamique}. C'est lui qui exécute les requêtes vers les bases de données externes ou les API REST pour récupérer les valeurs des indicateurs.
+    \item \textbf{Exposition des données via API :} L'Engine expose une API REST interne (via un framework comme Express.js) que les différents fronts (le VSM Studio et les interfaces web) peuvent consommer pour obtenir les données des VSM.
+\end{itemize}
+
+\subsection{La base de données centralisée }
+La persistance des données du projet VSM-Tools ne s'appuie pas sur de simples fichiers locaux, mais sur un système de gestion de base de données relationnelle (SGBDR) robuste et éprouvé : \textbf{PostgreSQL}.
+
+Ce choix architectural est structurant et apporte plusieurs avantages significatifs par rapport à une solution de stockage locale :
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Centralisation et partage des données :} Toutes les données des projets (diagrammes, notes, plans d'action) sont stockées de manière centralisée sur un serveur de base de données. Cela signifie que plusieurs utilisateurs du VSM Studio (s'ils sont connectés au même serveur) peuvent potentiellement accéder et travailler sur le même ensemble de projets.
+    \item \textbf{Robustesse et intégrité :} PostgreSQL est reconnu pour sa fiabilité, sa gestion avancée des transactions (ACID) et ses mécanismes de contraintes d'intégrité. Cela garantit que les données du modèle VSM sont stockées de manière sûre et cohérente.
+    \item \textbf{Performance et scalabilité :} L'utilisation d'un SGBDR performant permet de gérer efficacement un grand volume de données et de projets. Le serveur de base de données peut être dimensionné indépendamment de l'application cliente.
+    \item \textbf{Accès unifié :} Le \textbf{VSM Engine} est le seul composant de notre architecture qui communique directement avec la base de données PostgreSQL. Il agit comme une couche d'abstraction (ou "data access layer"). Le VSM Studio et les interfaces web n'accèdent jamais directement à la base de données ; ils passent obligatoirement par l'API de l'Engine. Cette centralisation de l'accès sécurise les données et simplifie la maintenance.
+\end{itemize}
+
+L'utilisation de PostgreSQL positionne VSM-Tools non pas comme un simple outil de bureau isolé, mais comme une plateforme prête pour des cas d'usage collaboratifs et d'entreprise, où les données VSM peuvent être gérées de manière centralisée et sécurisée.
+
+\subsection{Les interfaces web}
+Pour les besoins de visualisation et de saisie de données en dehors du VSM Studio, des applications web légères ont été développées avec la bibliothèque \textbf{React}.
+\begin{itemize}[leftmargin=*]
+    \item \textbf{L'Interface de saisie opérateur :} Une interface ultra-simplifiée, accessible via un navigateur web, conçue pour être utilisée sur des postes d'atelier. Elle ne permet que de sélectionner une étape de processus et de saisir les valeurs pour les indicateurs qui lui sont assignés.
+    \item \textbf{Le Dashboard de visualisation :} Une interface en lecture seule, également accessible via un navigateur, qui permet de consulter les diagrammes VSM et leurs indicateurs à jour. C'est l'outil idéal pour le management et le partage de l'information.
+\end{itemize}
+Ces applications web sont servies par le VSM Engine (Node.js) et consomment la même API REST que le VSM Studio, garantissant la cohérence des données affichées.
+
+\subsection{L'intégration de l'intelligence artificielle}
+L'agent conversationnel est intégré directement dans l'interface du VSM Studio. Pour assurer la sécurité et la performance, la communication avec l'API du modèle de langage (Large Language Model - LLM) est gérée par le Processus Principal d'Electron. Celui-ci est responsable de :
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Sécuriser les clés d'API :} Les clés d'authentification ne sont jamais exposées côté client (dans le processus de rendu).
+    \item \textbf{Orchestrer les interactions :} Il gère le cycle complet de la conversation, y compris les mécanismes avancés comme le "tool calling" (la capacité pour le modèle de demander l'exécution d'une fonction locale, comme "ajouter une étape de processus de production"), ce qui ouvre la voie à des interactions plus riches à l'avenir.
+\end{itemize}
+
+% --- SECTION 6 : LE PARCOURS UTILISATEUR ---
+\section{Le parcours utilisateur}
+
+La solution VSM-Tools a été conçue pour s'adresser à différents acteurs de l'entreprise, chacun ayant des besoins et des modes d'interaction spécifiques. L'architecture de la solution se reflète dans trois parcours utilisateurs distincts mais interconnectés, qui s'articulent tous autour de la même base de données centrale.
+
+\subsection{Le parcours de l'analyste : conception et analyse}
+L'analyste ou l'ingénieur processus est l'utilisateur principal du \textbf{VSM Studio}, l'application de bureau. Son parcours est le plus complet, car il est responsable de la création, de la configuration et de l'analyse approfondie de la VSM.
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Initialisation du projet :} L'analyste commence par créer un nouveau projet, qui est une entrée dédiée dans la base de données PostgreSQL. Il peut également importer un fichier \texttt{.vsmx} existant pour initialiser un projet.
+    
+    \item \textbf{Configuration du modèle de données :} L'étape centrale du travail se déroule dans le \textbf{Dialogue de Configuration Central}. L'analyste ne dessine pas, il modélise en remplissant des formulaires structurés pour :
+    \begin{itemize}
+        \item Définir les sources de données externes (connexions aux bases de données, API REST...).
+        \item Créer les entités du flux : étapes de processus, fournisseurs, clients, etc.
+        \item Définir la séquence logique du flux principal, en ordonnançant les étapes et les éléments intermédiaires (stocks, flux poussés).
+        \item Attacher des \textbf{indicateurs} à chaque élément pertinent et choisir leur mode de collecte de données : \textit{statique} (valeur fixe), \textit{manuel} (saisie par un opérateur), ou \textit{dynamique} (collecte automatique).
+    \end{itemize}
+
+    \item \textbf{Visualisation et analyse :} Une fois la configuration appliquée, l'algorithme de layout génère automatiquement le diagramme VSM sur le canevas. L'analyste peut alors :
+    \begin{itemize}
+        \item Naviguer dans le diagramme et analyser les indicateurs globaux calculés automatiquement (Lead Time, taux de valeur ajoutée...).
+        \item Définir des \textbf{règles de détection intelligentes} pour que l'outil identifie et surligne automatiquement les goulots d'étranglement, les gaspillages (ex: stocks trop élevés) et les opportunités d'amélioration sur la base de seuils ou de logiques prédéfinies.
+        \item Interagir avec l'\textbf{agent conversationnel} (IA) pour obtenir de l'aide, poser des questions sur la méthodologie ou demander des suggestions d'optimisation.
+    \end{itemize}
+
+    \item \textbf{Enrichissement et plan d'action :} L'analyse débouche sur des actions concrètes. L'analyste peut :
+    \begin{itemize}
+        \item Ajouter des \textbf{points d'amélioration (Kaizen)} directement sur le diagramme pour marquer les zones à traiter.
+        \item Rédiger des \textbf{notes} et définir un \textbf{plan d'action} structuré, ces informations étant directement stockées dans la base de données du projet.
+        \item Exporter le diagramme finalisé au format \texttt{.vsmx} pour l'archivage ou le partage.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Le parcours de l'opérateur : la collecte de données terrain}
+Le parcours de l'opérateur est conçu pour être aussi simple et rapide que possible, afin de minimiser l'impact sur ses tâches de production.
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Accès :} Depuis un poste de travail dans l'atelier, l'opérateur se connecte via un navigateur web à une \textbf{interface de saisie dédiée}.
+    \item \textbf{Saisie :} L'interface lui présente une liste claire des indicateurs qu'il doit renseigner (ceux configurés en mode \textit{manuel}). Il sélectionne son poste ou son processus, entre les valeurs demandées (ex: quantités produites, temps d'arrêt) et valide.
+    \item \textbf{Synchronisation :} Les données sont instantanément envoyées au VSM Engine et mises à jour dans la base de données PostgreSQL, rendant l'information disponible pour l'analyste et le manager.
+\end{enumerate}
+
+\subsection{Le parcours du manager : la supervision et la prise de décision}
+Le manager ou le chef d'équipe a besoin d'une vision synthétique et à jour de la performance du flux.
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Accès :} Depuis son ordinateur ou en salle de réunion, il accède via un navigateur web au \textbf{dashboard de visualisation}.
+    \item \textbf{Consultation :} Il visualise le diagramme VSM en mode lecture seule. Les indicateurs affichés sur la carte se rafraîchissent en temps réel (ou à intervalles réguliers), consolidant les données issues des connexions dynamiques et des saisies des opérateurs.
+    \item \textbf{Prise de décision :} Grâce à cette vue d'ensemble toujours à jour, et aux alertes visuelles générées par les règles de détection (ex: un goulot d'étranglement surligné en rouge), il peut suivre la performance, identifier les dérives et prendre des décisions éclairées pour piloter l'activité.
+\end{enumerate}
+
+Ce fonctionnement en trois parcours distincts mais intégrés permet à VSM-Tools de s'insérer de manière cohérente dans l'organisation de l'entreprise, en fournissant le bon outil, avec le bon niveau d'information, à la bonne personne.
+
+\end{document}

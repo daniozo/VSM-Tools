@@ -5,7 +5,7 @@
 
 import { create } from 'zustand';
 
-export type TabType = 
+export type TabType =
   | 'diagram'       // Vue du diagramme VSM (non fermable)
   | 'configuration' // Configuration du diagramme
   | 'action-plan'   // Plan d'action
@@ -73,14 +73,14 @@ export const useTabsStore = create<TabsStore>((set, get) => ({
   removeTab: (tabId) => {
     const { tabs, activeTabId } = get();
     const tabToRemove = tabs.find(t => t.id === tabId);
-    
+
     // Ne pas fermer les onglets non fermables
     if (tabToRemove && !tabToRemove.closable) {
       return;
     }
 
     const newTabs = tabs.filter(t => t.id !== tabId);
-    
+
     // Si on ferme l'onglet actif, activer l'onglet précédent ou le premier
     let newActiveId = activeTabId;
     if (activeTabId === tabId && newTabs.length > 0) {
@@ -112,12 +112,33 @@ export const useTabsStore = create<TabsStore>((set, get) => ({
 
   // Ouvre un onglet existant du même type ou en crée un nouveau
   openOrFocusTab: (type, title, data) => {
-    const { tabs, setActiveTab, addTab } = get();
-    
-    // Chercher un onglet existant du même type (sauf pour 'custom')
+    const { tabs, setActiveTab, addTab, updateTab } = get();
+
+    // Pour les notes, chercher par noteId spécifique
+    if (type === 'notes' && data?.noteId) {
+      const existingNoteTab = tabs.find(t => t.type === 'notes' && t.data?.noteId === data.noteId);
+      if (existingNoteTab) {
+        setActiveTab(existingNoteTab.id);
+        return;
+      }
+      // Créer un nouvel onglet note
+      addTab({
+        type,
+        title,
+        closable: true,
+        data,
+      });
+      return;
+    }
+
+    // Pour les autres types (sauf 'custom'), chercher un onglet existant du même type
     if (type !== 'custom') {
       const existingTab = tabs.find(t => t.type === type);
       if (existingTab) {
+        // Mettre à jour les données si nécessaire
+        if (data) {
+          updateTab(existingTab.id, { data });
+        }
         setActiveTab(existingTab.id);
         return;
       }

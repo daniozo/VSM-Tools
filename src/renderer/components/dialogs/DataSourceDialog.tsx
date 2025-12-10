@@ -15,13 +15,12 @@ import {
 import { Button } from '@/renderer/components/ui/button';
 import { Input } from '@/renderer/components/ui/input';
 import { Label } from '@/renderer/components/ui/label';
-import { Textarea } from '@/renderer/components/ui/textarea';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
 } from '@/renderer/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/renderer/components/ui/tabs';
 import { dataSourcesApi } from '@/services/api';
@@ -58,17 +57,17 @@ export const DataSourceDialog: React.FC<DataSourceDialogProps> = ({
   const [name, setName] = useState('');
   const [type, setType] = useState<DataSourceType>('REST_API');
   const [mode, setMode] = useState<DataSourceMode>('dynamic');
-  
+
   // REST API config
   const [url, setUrl] = useState('');
   const [method, setMethod] = useState<'GET' | 'POST'>('GET');
   const [authType, setAuthType] = useState<AuthType>('none');
   const [credentials, setCredentials] = useState('');
   const [headers, setHeaders] = useState<Record<string, string>>({});
-  
+
   // Field mappings
   const [mappings, setMappings] = useState<FieldMapping[]>([]);
-  
+
   // UI state
   const [testing, setTesting] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -79,7 +78,7 @@ export const DataSourceDialog: React.FC<DataSourceDialogProps> = ({
       setName(dataSource.name);
       setType(dataSource.type);
       setMode(dataSource.mode);
-      
+
       if (dataSource.type === 'REST_API') {
         const config = dataSource.config as RestApiConfig;
         setUrl(config.url);
@@ -88,7 +87,7 @@ export const DataSourceDialog: React.FC<DataSourceDialogProps> = ({
         setCredentials(config.auth?.credentials || '');
         setHeaders(config.headers || {});
       }
-      
+
       setMappings(dataSource.field_mappings);
     } else if (open) {
       // Reset form
@@ -131,10 +130,10 @@ export const DataSourceDialog: React.FC<DataSourceDialogProps> = ({
 
       // Create temp source
       const created = await dataSourcesApi.createDataSource(tempSource);
-      
+
       // Test connection
       const result = await dataSourcesApi.testDataSourceConnection(created.id);
-      
+
       // Delete temp source
       await dataSourcesApi.deleteDataSource(created.id);
 

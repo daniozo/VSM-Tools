@@ -24,13 +24,13 @@ import { useBackendConnection } from './hooks/useBackendConnection';
 
 const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isConfigDialogOpen, setIsConfigDialogOpen] = useState<boolean>(false);
   const [isNewProjectDialogOpen, setIsNewProjectDialogOpen] = useState<boolean>(false);
   const [isOpenProjectDialogOpen, setIsOpenProjectDialogOpen] = useState<boolean>(false);
   const canvasRef = useRef<any>(null);
 
-  // Store VSM
-  const { loadDiagram, createNewDiagram } = useVsmStore();
+  // Store VSM - utiliser le store pour isConfigDialogOpen (permet au toolExecutor de l'ouvrir)
+  const { loadDiagram, createNewDiagram, isConfigDialogOpen, openConfigDialog, closeConfigDialog } = useVsmStore();
+  const setIsConfigDialogOpen = (open: boolean) => open ? openConfigDialog() : closeConfigDialog();
 
   // Connexion backend (auto-connect)
   useBackendConnection();
@@ -62,7 +62,7 @@ const App: React.FC = () => {
         e.preventDefault();
         setIsConfigDialogOpen(true);
       }
-      
+
       // Zoom raccourcis
       if (e.ctrlKey && !e.shiftKey) {
         // Ctrl++ ou Ctrl+= : Zoom avant
@@ -102,7 +102,7 @@ const App: React.FC = () => {
     const handlers: Record<string, () => void> = {
       'menu:new-map': handleNewProject,
       'menu:open-map': handleOpenProject,
-      'menu:open-configuration': () => setIsConfigDialogOpen(true),
+      'menu:open-configuration': () => openConfigDialog(),
     };
 
     // Enregistrer tous les listeners
@@ -180,20 +180,21 @@ const App: React.FC = () => {
       const newProject = await createProject(name, description);
       await selectProject(newProject);
       console.log('Projet créé:', newProject);
-      
+
       // Charger le diagramme du projet dans vsmStore
-      const diagrams = await fetchDiagrams(newProject.id);
-      if (diagrams && diagrams.length > 0) {
-        const diagramData = await diagramsApi.get(diagrams[0].id);
+      await fetchDiagrams(newProject.id);
+      const projectDiagrams = useProjectsStore.getState().diagrams;
+      if (projectDiagrams && projectDiagrams.length > 0) {
+        const diagramData = await diagramsApi.get(projectDiagrams[0].id);
         // diagramData.data contient le VSMDiagram complet
         if (diagramData.data) {
           loadDiagram(diagramData.data);
         }
       }
-      
+
       // Fermer le dialogue de création
       setIsNewProjectDialogOpen(false);
-      
+
       // Ouvrir le dialogue de configuration après la création
       setTimeout(() => setIsConfigDialogOpen(true), 100);
     } catch (error) {
@@ -212,10 +213,10 @@ const App: React.FC = () => {
 
       // TODO: Charger les données du fichier VSMX dans le diagramme
       console.log('Projet créé depuis VSMX:', newProject);
-      
+
       // Fermer le dialogue d'import
       setIsNewProjectDialogOpen(false);
-      
+
       // Ouvrir le dialogue de configuration après l'import
       setTimeout(() => setIsConfigDialogOpen(true), 100);
     } catch (error) {

@@ -140,11 +140,6 @@ export const OpenProjectDialog: React.FC<OpenProjectDialogProps> = ({
                         <h3 className="font-semibold text-sm truncate">
                           {project.name}
                         </h3>
-                        {selectedProject?.id === project.id && (
-                          <Badge variant="default" className="text-xs">
-                            Sélectionné
-                          </Badge>
-                        )}
                       </div>
 
                       {project.description && (

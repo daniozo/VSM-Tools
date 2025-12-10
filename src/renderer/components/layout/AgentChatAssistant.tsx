@@ -10,13 +10,14 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { Button } from '@/renderer/components/ui/button'
-import { Input } from '@/renderer/components/ui/input'
 import { ScrollArea } from '@/renderer/components/ui/scroll-area'
 import { Badge } from '@/renderer/components/ui/badge'
 import { Card, CardContent } from '@/renderer/components/ui/card'
 import {
-  Send,
+  SendHorizontal,
   Loader2,
   Bot,
   User,
@@ -25,24 +26,15 @@ import {
   XCircle,
   Play,
   X,
-  Sparkles,
   RotateCcw,
-  Wrench
+  Wrench,
+  ListTree
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { agentService, PendingAction, ToolResult, AgentUIEvent } from '@/services/agent'
+import { agentService, AgentUIEvent } from '@/services/agent'
 import { useVsmStore } from '@/store/vsmStore'
-
-interface DisplayMessage {
-  id: string
-  role: 'user' | 'assistant' | 'system'
-  content: string
-  timestamp: Date
-  type?: 'text' | 'action_request' | 'action_result' | 'error' | 'thinking'
-  pendingActions?: PendingAction[]
-  results?: ToolResult[]
-  isProcessed?: boolean
-}
+import { useChatStore, ChatMessage } from '@/store/chatStore'
+import { VSM_TOOLS } from '@/services/agent/tools'
 
 interface AgentChatAssistantProps {
   width?: number
@@ -55,26 +47,17 @@ export const AgentChatAssistant: React.FC<AgentChatAssistantProps> = ({
   className,
   onUIEvent
 }) => {
-  const [messages, setMessages] = useState<DisplayMessage[]>([
-    {
-      id: '1',
-      role: 'assistant',
-      content: 'Bonjour ! Je suis votre assistant VSM intelligent. Je peux analyser votre diagramme, identifier des problèmes et proposer des améliorations.\n\nEssayez par exemple :\n• "Analyse mon diagramme"\n• "Quels sont les goulots d\'étranglement ?"\n• "Ajoute une étape de contrôle qualité"',
-      timestamp: new Date(),
-      type: 'text'
-    }
-  ])
-  const [inputValue, setInputValue] = useState('')
+  // Utiliser le store pour persister l'état
+  const { messages, inputValue, error, addMessage, updateMessage, setInputValue, setError, resetConversation } = useChatStore()
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
   const [isConfigured] = useState(agentService.isConfigured())
+  const [showCommands, setShowCommands] = useState(false)
 
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const commandsRef = useRef<HTMLDivElement>(null)
 
-  const diagram = useVsmStore(state => state.diagram)
-
-  // Configurer le callback UI
+  const diagram = useVsmStore(state => state.diagram)  // Configurer le callback UI
   useEffect(() => {
     if (onUIEvent) {
       agentService.setUIEventCallback(onUIEvent)
@@ -99,7 +82,7 @@ export const AgentChatAssistant: React.FC<AgentChatAssistantProps> = ({
       return
     }
 
-    const userMessage: DisplayMessage = {
+    const userMessage: ChatMessage = {
       id: Date.now().toString(),
       role: 'user',
       content: inputValue.trim(),
@@ -107,7 +90,7 @@ export const AgentChatAssistant: React.FC<AgentChatAssistantProps> = ({
       type: 'text'
     }
 
-    setMessages(prev => [...prev, userMessage])
+    addMessage(userMessage)
     setInputValue('')
     setIsLoading(true)
     setError(null)
@@ -115,7 +98,7 @@ export const AgentChatAssistant: React.FC<AgentChatAssistantProps> = ({
     try {
       const response = await agentService.processMessage(userMessage.content)
 
-      const assistantMessage: DisplayMessage = {
+      const assistantMessage: ChatMessage = {
         id: response.id,
         role: 'assistant',
         content: response.content,
@@ -125,20 +108,20 @@ export const AgentChatAssistant: React.FC<AgentChatAssistantProps> = ({
         results: response.results
       }
 
-      setMessages(prev => [...prev, assistantMessage])
+      addMessage(assistantMessage)
 
     } catch (err) {
       console.error('Erreur agent:', err)
       setError(err instanceof Error ? err.message : 'Erreur inconnue')
 
-      const errorMessage: DisplayMessage = {
+      const errorMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
         content: 'Désolé, une erreur s\'est produite. Veuillez réessayer.',
         timestamp: new Date(),
         type: 'error'
       }
-      setMessages(prev => [...prev, errorMessage])
+      addMessage(errorMessage)
     } finally {
       setIsLoading(false)
       inputRef.current?.focus()
@@ -150,32 +133,27 @@ export const AgentChatAssistant: React.FC<AgentChatAssistantProps> = ({
     try {
       const result = await agentService.confirmAction(actionId)
 
-      // Mettre à jour le message avec l'action confirmée
-      setMessages(prev => prev.map(msg => {
-        if (msg.pendingActions?.some(a => a.id === actionId)) {
-          return {
-            ...msg,
-            pendingActions: msg.pendingActions?.map(a =>
-              a.id === actionId ? { ...a, status: result.success ? 'executed' : 'failed' } : a
-            ),
-            results: [...(msg.results || []), result],
-            isProcessed: true
-          }
-        }
-        return msg
-      }))
+      // Trouver et mettre à jour le message avec l'action confirmée
+      const msgWithAction = messages.find(msg => msg.pendingActions?.some(a => a.id === actionId))
+      if (msgWithAction) {
+        updateMessage(msgWithAction.id, {
+          pendingActions: msgWithAction.pendingActions?.map(a =>
+            a.id === actionId ? { ...a, status: result.success ? 'executed' : 'failed' } : a
+          ),
+          results: [...(msgWithAction.results || []), result],
+          isProcessed: true
+        })
+      }
 
       // Ajouter un message de résultat
-      const resultMessage: DisplayMessage = {
+      const resultMessage: ChatMessage = {
         id: `result-${Date.now()}`,
         role: 'system',
-        content: result.success
-          ? `✅ ${result.message}`
-          : `❌ ${result.message}`,
+        content: result.message,
         timestamp: new Date(),
-        type: 'action_result'
+        type: result.success ? 'action_result' : 'error'
       }
-      setMessages(prev => [...prev, resultMessage])
+      addMessage(resultMessage)
 
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur lors de la confirmation')
@@ -187,30 +165,20 @@ export const AgentChatAssistant: React.FC<AgentChatAssistantProps> = ({
   const handleCancelAction = (actionId: string) => {
     agentService.cancelAction(actionId)
 
-    setMessages(prev => prev.map(msg => {
-      if (msg.pendingActions?.some(a => a.id === actionId)) {
-        return {
-          ...msg,
-          pendingActions: msg.pendingActions?.map(a =>
-            a.id === actionId ? { ...a, status: 'cancelled' as const } : a
-          ),
-          isProcessed: true
-        }
-      }
-      return msg
-    }))
+    const msgWithAction = messages.find(msg => msg.pendingActions?.some(a => a.id === actionId))
+    if (msgWithAction) {
+      updateMessage(msgWithAction.id, {
+        pendingActions: msgWithAction.pendingActions?.map(a =>
+          a.id === actionId ? { ...a, status: 'cancelled' as const } : a
+        ),
+        isProcessed: true
+      })
+    }
   }
 
   const handleResetConversation = () => {
     agentService.resetConversation()
-    setMessages([{
-      id: '1',
-      role: 'assistant',
-      content: 'Conversation réinitialisée. Comment puis-je vous aider ?',
-      timestamp: new Date(),
-      type: 'text'
-    }])
-    setError(null)
+    resetConversation()
   }
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -220,37 +188,29 @@ export const AgentChatAssistant: React.FC<AgentChatAssistantProps> = ({
     }
   }
 
-  // Suggestions rapides
-  const quickActions = [
-    { label: 'Analyser', query: 'Analyse mon diagramme VSM' },
-    { label: 'Goulots', query: 'Identifie les goulots d\'étranglement' },
-    { label: 'Métriques', query: 'Calcule les métriques VSM' },
-  ]
-
   return (
     <div
       style={{ width }}
       className={cn('flex flex-col bg-background border-l h-full', className)}
     >
-      {/* Header */}
-      <div className="h-9 px-3 border-b flex items-center justify-between bg-muted/30">
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-primary" />
-          <span className="text-sm font-medium">Assistant IA</span>
+      {/* Header - Style Gemini */}
+      <div className="h-14 px-4 border-b flex items-center justify-between bg-background">
+        <div className="flex items-center gap-3">
+          <span className="text-base font-normal">Assistant VSM</span>
         </div>
         <Button
           variant="ghost"
           size="icon"
-          className="h-6 w-6"
+          className="h-8 w-8 rounded-full hover:bg-muted"
           onClick={handleResetConversation}
           title="Nouvelle conversation"
         >
-          <RotateCcw className="h-3 w-3" />
+          <RotateCcw className="h-4 w-4" />
         </Button>
       </div>
 
-      {/* Messages */}
-      <ScrollArea ref={scrollAreaRef} className="flex-1 p-3">
+      {/* Messages - Style Gemini avec scrollbar personnalisée */}
+      <ScrollArea ref={scrollAreaRef} className="flex-1 px-4 py-6 custom-scrollbar">
         <div className="space-y-4">
           {messages.map((message) => (
             <div key={message.id}>
@@ -258,9 +218,11 @@ export const AgentChatAssistant: React.FC<AgentChatAssistantProps> = ({
               {message.role === 'user' && (
                 <div className="flex gap-2 justify-end">
                   <div className="rounded-lg px-3 py-2 max-w-[85%] bg-primary text-primary-foreground">
-                    <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                    <p className="text-sm whitespace-pre-wrap">
+                      {typeof message.content === 'string' ? message.content : JSON.stringify(message.content)}
+                    </p>
                   </div>
-                  <div className="flex-shrink-0 w-7 h-7 rounded-full bg-accent flex items-center justify-center">
+                  <div className="flex-shrink-0 w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
                     <User className="h-3.5 w-3.5" />
                   </div>
                 </div>
@@ -277,7 +239,11 @@ export const AgentChatAssistant: React.FC<AgentChatAssistantProps> = ({
                       "rounded-lg px-3 py-2",
                       message.type === 'error' ? 'bg-destructive/10' : 'bg-muted'
                     )}>
-                      <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                      <div className="text-sm prose prose-sm dark:prose-invert max-w-none">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                          {typeof message.content === 'string' ? message.content : JSON.stringify(message.content)}
+                        </ReactMarkdown>
+                      </div>
                     </div>
 
                     {/* Actions en attente de confirmation */}
@@ -355,11 +321,14 @@ export const AgentChatAssistant: React.FC<AgentChatAssistantProps> = ({
                           <div
                             key={idx}
                             className={cn(
-                              "text-xs px-2 py-1 rounded",
-                              result.success ? "bg-green-500/10 text-green-700" : "bg-red-500/10 text-red-700"
+                              "text-xs px-2 py-1 rounded flex items-center gap-1.5",
+                              result.success
+                                ? "bg-green-500/10 text-green-700 dark:text-green-400"
+                                : "bg-red-500/10 text-red-700 dark:text-red-400"
                             )}
                           >
-                            {result.success ? '✅' : '❌'} {result.message}
+                            {result.success ? <CheckCircle2 className="h-3 w-3" /> : <XCircle className="h-3 w-3" />}
+                            <span>{result.message}</span>
                           </div>
                         ))}
                       </div>
@@ -372,56 +341,25 @@ export const AgentChatAssistant: React.FC<AgentChatAssistantProps> = ({
               {message.role === 'system' && (
                 <div className="flex justify-center">
                   <div className={cn(
-                    "text-xs px-3 py-1 rounded-full",
-                    message.content.startsWith('✅')
-                      ? "bg-green-500/10 text-green-700"
-                      : message.content.startsWith('❌')
-                        ? "bg-red-500/10 text-red-700"
+                    "text-xs px-2 py-1 rounded flex items-center gap-1.5",
+                    message.type === 'action_result'
+                      ? "bg-green-500/10 text-green-700 dark:text-green-400"
+                      : message.type === 'error'
+                        ? "bg-red-500/10 text-red-700 dark:text-red-400"
                         : "bg-muted text-muted-foreground"
                   )}>
-                    {message.content}
+                    {message.type === 'action_result' && <CheckCircle2 className="h-3 w-3" />}
+                    {message.type === 'error' && <XCircle className="h-3 w-3" />}
+                    <span>
+                      {typeof message.content === 'string' ? message.content : JSON.stringify(message.content)}
+                    </span>
                   </div>
                 </div>
               )}
             </div>
           ))}
-
-          {/* Loading indicator */}
-          {isLoading && (
-            <div className="flex gap-2 justify-start">
-              <div className="flex-shrink-0 w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
-                <Bot className="h-3.5 w-3.5 text-primary" />
-              </div>
-              <div className="rounded-lg px-3 py-2 bg-muted">
-                <div className="flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span className="text-sm text-muted-foreground">Réflexion...</span>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </ScrollArea>
-
-      {/* Quick actions */}
-      {diagram && messages.length <= 2 && (
-        <div className="px-3 py-2 border-t flex gap-2 flex-wrap">
-          {quickActions.map((action, idx) => (
-            <Button
-              key={idx}
-              variant="outline"
-              size="sm"
-              className="h-7 text-xs"
-              onClick={() => {
-                setInputValue(action.query)
-                inputRef.current?.focus()
-              }}
-            >
-              {action.label}
-            </Button>
-          ))}
-        </div>
-      )}
 
       {/* Error */}
       {error && (
@@ -433,39 +371,106 @@ export const AgentChatAssistant: React.FC<AgentChatAssistantProps> = ({
         </div>
       )}
 
-      {/* Input */}
-      <div className="p-3 border-t">
-        <div className="flex gap-2">
-          <Input
-            ref={inputRef}
-            placeholder={
-              !isConfigured
-                ? "Service non disponible"
-                : !diagram
-                  ? "Ouvrez un diagramme d'abord..."
-                  : "Posez votre question..."
-            }
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyPress={handleKeyPress}
-            disabled={isLoading || !isConfigured}
-            className="flex-1 h-9"
-          />
-          <Button
-            size="icon"
-            className="h-9 w-9"
-            onClick={sendMessage}
-            disabled={isLoading || !inputValue.trim() || !isConfigured}
+      <div className="p-4 border-t bg-background relative">
+        {/* Liste des commandes (popup au-dessus) */}
+        {showCommands && (
+          <div
+            ref={commandsRef}
+            className="absolute bottom-full left-4 right-4 bg-popover border rounded-xl shadow-xl overflow-hidden z-50"
           >
-            {isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Send className="h-4 w-4" />
-            )}
-          </Button>
+            <div className="max-h-64 overflow-y-auto">
+              <div className="p-2 space-y-1">
+                <div className="text-xs font-semibold text-muted-foreground px-3 py-2 sticky top-0 bg-popover">
+                  Commandes disponibles
+                </div>
+                {VSM_TOOLS.map(tool => (
+                  <button
+                    key={tool.name}
+                    onClick={() => {
+                      setInputValue(tool.description)
+                      setShowCommands(false)
+                      inputRef.current?.focus()
+                    }}
+                    className="w-full text-left px-3 py-2 hover:bg-accent/50 rounded-lg text-sm transition-colors"
+                  >
+                    <div className="font-medium text-foreground">
+                      {tool.name.replace(/_/g, ' ')}
+                    </div>
+                    <div className="text-muted-foreground text-xs mt-0.5 line-clamp-1">
+                      {tool.description}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="relative">
+          {/* Conteneur unique avec textarea et boutons */}
+          <div className="relative bg-muted/30 border border-border rounded-3xl shadow-sm hover:border-border/80 focus-within:border-primary/50 focus-within:shadow-md transition-all">
+            {/* Textarea */}
+            <textarea
+              ref={inputRef as any}
+              placeholder={
+                !isConfigured
+                  ? "Service non disponible"
+                  : !diagram
+                    ? "Ouvrez un diagramme d'abord..."
+                    : "Entrez votre demande"
+              }
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault()
+                  sendMessage()
+                }
+              }}
+              disabled={isLoading || !isConfigured}
+              rows={1}
+              className="w-full bg-transparent border-0 outline-none resize-none px-5 pt-3.5 pb-2 text-sm max-h-32 overflow-y-auto scrollbar-thin"
+              style={{
+                minHeight: '52px',
+                lineHeight: '1.5'
+              }}
+            />
+
+            {/* Boutons en bas */}
+            <div className="flex items-center justify-between gap-2 px-3 pb-2">
+              {/* Bouton commandes */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-auto flex-shrink-0 px-3 rounded-full text-foreground hover:bg-muted border flex items-center justify-center"
+                onClick={() => setShowCommands(!showCommands)}
+                title="Commandes disponibles"
+                disabled={isLoading || !isConfigured}
+              >
+                <ListTree className="h-4 w-4" /> <div>Commandes</div>
+              </Button>
+
+              {/* Bouton envoyer */}
+              <Button
+                size="icon"
+                className="h-9 w-9 flex-shrink-0 border rounded-full "
+                onClick={sendMessage}
+                disabled={isLoading || !inputValue.trim() || !isConfigured}
+                variant={inputValue.trim() && !isLoading ? "default" : "ghost"}
+              >
+                {isLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <SendHorizontal strokeWidth={2.5} className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
+          </div>
         </div>
+
+        {/* Message d'info */}
         {!isConfigured && (
-          <p className="text-xs text-muted-foreground mt-2">
+          <p className="text-xs text-muted-foreground mt-2 text-center">
             L'assistant nécessite une configuration API.
           </p>
         )}
