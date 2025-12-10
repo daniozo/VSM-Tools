@@ -14,10 +14,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/renderer/components/ui/tooltip';
-import { Settings, MessageSquare, Search, Zap } from 'lucide-react';
+import { Settings, MessageSquare, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export type RightSidebarPanel = 'properties' | 'assistant' | 'analysis' | 'simulation' | null;
+export type RightSidebarPanel = 'properties' | 'assistant' | 'simulation' | null;
 
 interface RightSidebarProps {
   activePanel: RightSidebarPanel;
@@ -31,9 +31,10 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
   className,
 }) => {
   const handlePanelClick = (panel: RightSidebarPanel) => {
-    // Toujours activer le panneau cliqué (pas de toggle pour éviter de tout masquer)
-    // Si on clique sur le panneau déjà actif, on garde l'état actuel
-    if (activePanel !== panel) {
+    // Toggle: si le panneau est déjà actif, on le ferme
+    if (activePanel === panel) {
+      onPanelChange(null);
+    } else {
       onPanelChange(panel);
     }
   };
@@ -77,23 +78,6 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
           </TooltipTrigger>
           <TooltipContent side="left">
             <p>Assistant</p>
-          </TooltipContent>
-        </Tooltip>
-
-        {/* Analyse */}
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant={activePanel === 'analysis' ? 'default' : 'ghost'}
-              size="icon"
-              className="h-10 w-10"
-              onClick={() => handlePanelClick('analysis')}
-            >
-              <Search className="h-5 w-5" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="left">
-            <p>Analyse</p>
           </TooltipContent>
         </Tooltip>
 

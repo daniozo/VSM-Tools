@@ -83,23 +83,6 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
           </TooltipContent>
         </Tooltip>
 
-        {/* Plan d'action */}
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant={activePanel === 'action-plan' ? 'default' : 'ghost'}
-              size="icon"
-              className="h-10 w-10"
-              onClick={() => handlePanelClick('action-plan')}
-            >
-              <ClipboardList className="h-5 w-5" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="right">
-            <p>Plan d'action</p>
-          </TooltipContent>
-        </Tooltip>
-
         {/* Analyse */}
         <Tooltip>
           <TooltipTrigger asChild>
@@ -114,6 +97,23 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
           </TooltipTrigger>
           <TooltipContent side="right">
             <p>Analyse</p>
+          </TooltipContent>
+        </Tooltip>
+
+        {/* Plan d'action */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant={activePanel === 'action-plan' ? 'default' : 'ghost'}
+              size="icon"
+              className="h-10 w-10"
+              onClick={() => handlePanelClick('action-plan')}
+            >
+              <ClipboardList className="h-5 w-5" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="right">
+            <p>Plan d'action</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>

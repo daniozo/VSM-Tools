@@ -32,6 +32,7 @@ import {
 import { cn } from '@/lib/utils'
 import { useProjectsStore } from '@/store/projectsStore'
 import { useVsmStore } from '@/store/vsmStore'
+import { useTabsStore } from '@/store/tabsStore'
 
 interface ToolbarAction {
   id: string
@@ -54,11 +55,23 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   const currentProject = useProjectsStore(state => state.currentProject)
   const currentDiagram = useProjectsStore(state => state.currentDiagram)
   const isDirty = useVsmStore(state => state.isDirty)
+  
+  // Récupérer l'onglet actif pour adapter les boutons
+  const activeTabId = useTabsStore(state => state.activeTabId)
+  const tabs = useTabsStore(state => state.tabs)
+  const activeTab = tabs.find(t => t.id === activeTabId)
+  const activeTabType = activeTab?.type || 'diagram'
 
-  // Logique d'activation des boutons
+  // Logique d'activation des boutons selon le contexte
   const hasProject = !!currentProject
   const hasDiagram = !!currentDiagram
-  const canSave = hasProject && hasDiagram && isDirty
+  
+  // Le zoom est actif uniquement sur l'onglet diagramme
+  const isDiagramTab = activeTabType === 'diagram'
+  
+  // La sauvegarde est active pour diagramme (si dirty) ou notes/plan-action
+  const isNoteOrActionPlan = activeTabType === 'notes' || activeTabType === 'action-plan'
+  const canSave = hasProject && ((isDiagramTab && hasDiagram && isDirty) || isNoteOrActionPlan)
 
   // Groupes d'actions
   const fileActions: ToolbarAction[] = [
@@ -101,21 +114,21 @@ export const Toolbar: React.FC<ToolbarProps> = ({
       icon: <ZoomIn className="h-4 w-4" />, 
       label: 'Zoom Avant', 
       shortcut: 'Ctrl++',
-      disabled: !hasDiagram // Nécessite un diagramme ouvert
+      disabled: !isDiagramTab || !hasDiagram // Actif uniquement sur onglet diagramme
     },
     { 
       id: 'zoomOut', 
       icon: <ZoomOut className="h-4 w-4" />, 
       label: 'Zoom Arrière', 
       shortcut: 'Ctrl+-',
-      disabled: !hasDiagram // Nécessite un diagramme ouvert
+      disabled: !isDiagramTab || !hasDiagram // Actif uniquement sur onglet diagramme
     },
     { 
       id: 'zoomReset', 
       icon: <RotateCcw className="h-4 w-4" />, 
       label: 'Réinitialiser Zoom', 
       shortcut: 'Ctrl+0',
-      disabled: !hasDiagram // Nécessite un diagramme ouvert
+      disabled: !isDiagramTab || !hasDiagram // Actif uniquement sur onglet diagramme
     },
   ]
 

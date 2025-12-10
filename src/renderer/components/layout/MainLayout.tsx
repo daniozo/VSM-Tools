@@ -329,26 +329,6 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
             />
           )}
 
-          {activeRightPanel === 'analysis' && (
-            <div
-              className="flex-shrink-0 bg-background border-l overflow-hidden flex flex-col"
-              style={{ width: `${rightPanelWidth}px` }}
-            >
-              <div className="h-9 px-3 border-b flex items-center bg-muted/30">
-                <span className="text-sm font-medium">Analyse</span>
-              </div>
-              <div className="flex-1 overflow-hidden p-4">
-                <AnalysisPanel
-                  analysis={(useVsmStore.getState().diagram as any)?.analysis}
-                  onIssueClick={(nodeId) => {
-                    console.log('Centrer sur le nœud:', nodeId);
-                    // TODO: Implémenter la navigation vers le nœud
-                  }}
-                />
-              </div>
-            </div>
-          )}
-
           {activeRightPanel === 'simulation' && (
             <div
               className="flex-shrink-0 bg-background border-l overflow-hidden flex flex-col"

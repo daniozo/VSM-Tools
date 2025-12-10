@@ -13,7 +13,9 @@ import {
   Users, 
   Building2,
   Package,
-  Link as LinkIcon
+  Link as LinkIcon,
+  ArrowRight,
+  Boxes
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useVsmStore } from '@/store/vsmStore';
@@ -134,7 +136,7 @@ function buildTreeFromDiagram(diagram: VSMDiagram | null): TreeNode[] {
           name: element.inventory.label || 'Stock',
           type: 'entity' as const,
           entityType: 'inventory',
-          icon: <Package className="h-4 w-4 text-amber-500" />
+          icon: <Boxes className="h-4 w-4 text-amber-500" />
         });
       }
     });
@@ -146,6 +148,35 @@ function buildTreeFromDiagram(diagram: VSMDiagram | null): TreeNode[] {
       name: 'Stocks',
       type: 'folder',
       children: inventoriesChildren
+    });
+  }
+
+  // Flux matériels - extraits depuis flowSequences
+  const materialFlowsChildren: TreeNode[] = [];
+  (diagram.flowSequences || []).forEach((sequence, seqIndex) => {
+    if (sequence.fromNodeId && sequence.toNodeId) {
+      // Trouver les noms des nœuds source et destination
+      const fromNode = diagram.nodes?.find(n => n.id === sequence.fromNodeId);
+      const toNode = diagram.nodes?.find(n => n.id === sequence.toNodeId);
+      const fromName = fromNode?.name || sequence.fromNodeId;
+      const toName = toNode?.name || sequence.toNodeId;
+      
+      materialFlowsChildren.push({
+        id: `material-flow-${seqIndex}`,
+        name: `${fromName} → ${toName}`,
+        type: 'entity' as const,
+        entityType: 'material-flow',
+        icon: <ArrowRight className="h-4 w-4 text-blue-500" />
+      });
+    }
+  });
+
+  if (materialFlowsChildren.length > 0) {
+    nodes.push({
+      id: 'material-flows-group',
+      name: 'Flux matériels',
+      type: 'folder',
+      children: materialFlowsChildren
     });
   }
 
