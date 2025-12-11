@@ -398,7 +398,7 @@ export const ActionPlanPanel: React.FC<ActionPlanPanelProps> = ({
 
       {/* Dialogue de création/édition */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>
               {editingAction ? 'Modifier l\'action' : 'Nouvelle action'}

@@ -121,6 +121,16 @@ export enum DeliveryFrequency {
   CUSTOM = 'CUSTOM'
 }
 
+/**
+ * Type de diagramme VSM
+ */
+export enum DiagramType {
+  /** État actuel (Current State) */
+  CURRENT = 'CURRENT',
+  /** État futur (Future State) */
+  FUTURE = 'FUTURE'
+}
+
 // ============================================================================
 // INTERFACES - MÉTADONNÉES & DIAGRAMME
 // ============================================================================
@@ -153,6 +163,12 @@ export interface MetaData {
 export interface VSMDiagram {
   /** Identifiant unique du diagramme */
   id: string
+
+  /** Type de diagramme (état actuel ou futur) */
+  diagramType?: DiagramType
+
+  /** ID du diagramme état actuel associé (si c'est un état futur) */
+  currentStateId?: string
 
   /** Métadonnées du diagramme */
   metaData: MetaData

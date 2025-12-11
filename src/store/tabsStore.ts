@@ -46,7 +46,7 @@ export const useTabsStore = create<TabsStore>((set, get) => ({
     {
       id: 'diagram-main',
       type: 'diagram',
-      title: 'Diagramme VSM',
+      title: 'Diagramme',
       icon: 'map',
       closable: false,
     }

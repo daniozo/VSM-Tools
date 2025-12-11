@@ -2,10 +2,11 @@
  * AnalysisPanel - Panneau d'affichage des résultats d'analyse
  * 
  * Affiche les problèmes détectés (goulots, gaspillages, opportunités)
- * avec possibilité de filtrage et navigation vers les éléments concernés
+ * avec possibilité de filtrage et navigation vers les éléments concernés.
+ * Inclut un bouton pour créer l'état futur.
  */
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/renderer/components/ui/card';
 import { Badge } from '@/renderer/components/ui/badge';
 import { Button } from '@/renderer/components/ui/button';
@@ -20,11 +21,17 @@ import {
 import {
   AlertTriangle,
   AlertCircle,
+  Info,
   Lightbulb,
   TrendingUp,
   Filter,
-  X
+  X,
+  Plus
 } from 'lucide-react';
+import { useVsmStore } from '@/store/vsmStore';
+import { VSMDiagram, NodeType } from '@/shared/types/vsm-model';
+import { FutureStateDialog } from '../dialogs/FutureStateDialog';
+import { useTabsStore } from '@/store/tabsStore';
 
 interface AnalysisResult {
   timestamp: string;
@@ -77,19 +84,235 @@ interface AnalysisPanelProps {
   onIssueClick?: (nodeId: string) => void;
 }
 
+/**
+ * Helper pour extraire une valeur d'indicateur
+ */
+function getIndicatorValue(indicators: any[], name: string): number {
+  const indicator = indicators?.find((i: any) =>
+    i.name?.toLowerCase().includes(name.toLowerCase())
+  )
+  return indicator?.value ? parseFloat(indicator.value) || 0 : 0
+}
+
+/**
+ * Analyse le diagramme et détecte les problèmes
+ */
+function analyzeDiagram(diagram: VSMDiagram | null): AnalysisResult | null {
+  if (!diagram) return null;
+
+  const bottlenecks: Bottleneck[] = [];
+  const wastes: Waste[] = [];
+  const opportunities: Opportunity[] = [];
+
+  // Récupérer le Takt Time
+  const taktTime = diagram.actors?.customer?.taktTime || 0;
+
+  // Analyser les nœuds (étapes de production)
+  const processSteps = diagram.nodes.filter(n => n.type === NodeType.PROCESS_STEP);
+
+  processSteps.forEach(node => {
+    const cycleTime = getIndicatorValue(node.indicators, 'cycle');
+    const uptime = getIndicatorValue(node.indicators, 'uptime') || getIndicatorValue(node.indicators, 'disponibilité');
+    const scrapRate = getIndicatorValue(node.indicators, 'rebut') || getIndicatorValue(node.indicators, 'scrap');
+
+    // Détection goulot: temps de cycle > Takt Time
+    if (taktTime > 0 && cycleTime > taktTime) {
+      const ratio = cycleTime / taktTime;
+      bottlenecks.push({
+        nodeId: node.id,
+        nodeName: node.name,
+        type: 'cycle_time',
+        severity: ratio > 1.5 ? 'critical' : ratio > 1.2 ? 'high' : 'medium',
+        impact: `Temps de cycle (${cycleTime}s) dépasse le Takt Time (${taktTime}s) de ${Math.round((ratio - 1) * 100)}%`,
+        recommendation: 'Réduire le temps de cycle par l\'élimination des gaspillages ou ajouter de la capacité',
+        metrics: {
+          current: cycleTime,
+          optimal: taktTime,
+          difference: cycleTime - taktTime
+        }
+      });
+    }
+
+    // Détection proche du Takt Time (alerte préventive)
+    if (taktTime > 0 && cycleTime >= taktTime * 0.9 && cycleTime <= taktTime) {
+      bottlenecks.push({
+        nodeId: node.id,
+        nodeName: node.name,
+        type: 'cycle_time',
+        severity: 'medium',
+        impact: `Temps de cycle (${cycleTime}s) proche du Takt Time (${taktTime}s) - risque de goulot`,
+        recommendation: 'Surveiller cette étape - risque de devenir un goulot en cas de variabilité',
+        metrics: {
+          current: cycleTime,
+          optimal: taktTime
+        }
+      });
+    }
+
+    // Détection faible disponibilité
+    if (uptime > 0 && uptime < 85) {
+      wastes.push({
+        type: 'Pannes/Arrêts',
+        location: node.name,
+        severity: uptime < 70 ? 'high' : 'medium',
+        description: `Disponibilité à ${uptime}%, en dessous de l'objectif de 85%`,
+        suggestion: 'Mettre en place un programme de maintenance préventive (TPM)',
+        potentialSavings: {
+          timeReduction: Math.round((85 - uptime) * 60 / 100) // estimation
+        }
+      });
+    }
+
+    // Détection taux de rebut élevé
+    if (scrapRate > 2) {
+      wastes.push({
+        type: 'Défauts',
+        location: node.name,
+        severity: scrapRate > 5 ? 'high' : 'medium',
+        description: `Taux de rebut à ${scrapRate}%, au-dessus du seuil de 2%`,
+        suggestion: 'Analyser les causes racines avec un diagramme Ishikawa et mettre en place le Poka-Yoke'
+      });
+    }
+  });
+
+  // Analyser les stocks
+  diagram.flowSequences?.forEach(seq => {
+    seq.intermediateElements?.forEach(elem => {
+      if (elem.type === 'INVENTORY' && elem.inventory) {
+        const inv = elem.inventory;
+        const duration = inv.duration || 0;
+        const quantity = inv.quantity || 0;
+
+        // Stock excessif en durée
+        if (duration > 3) {
+          wastes.push({
+            type: 'Stock Excessif',
+            location: inv.name || 'Stock',
+            severity: duration > 7 ? 'high' : 'medium',
+            description: `Durée de stockage de ${duration} jours, au-dessus de l'objectif de 3 jours`,
+            suggestion: 'Réduire les stocks en implémentant le flux tiré (Kanban) et en réduisant les tailles de lots',
+            potentialSavings: {
+              timeReduction: Math.round((duration - 3) * 24 * 60) // en minutes
+            }
+          });
+        }
+
+        // Grande quantité en stock
+        if (quantity > 500) {
+          wastes.push({
+            type: 'Surstock',
+            location: inv.name || 'Stock',
+            severity: quantity > 1000 ? 'high' : 'medium',
+            description: `${quantity} unités en stock, capital immobilisé important`,
+            suggestion: 'Réduire la taille des lots et mettre en place un supermarché Kanban'
+          });
+        }
+      }
+    });
+  });
+
+  // Détecter les opportunités
+  const allPush = diagram.flowSequences?.every(seq =>
+    seq.intermediateElements?.every(elem =>
+      elem.type !== 'MATERIAL_FLOW' || elem.materialFlow?.flowType === 'PUSH'
+    )
+  );
+
+  if (allPush && processSteps.length > 2) {
+    opportunities.push({
+      type: 'Flux Tiré',
+      priority: 'high',
+      description: 'Tous les flux sont en mode PUSH. Considérer la mise en place d\'un système PULL.',
+      expectedBenefit: 'Réduction des stocks, meilleure réactivité à la demande client',
+      effort: 'medium'
+    });
+  }
+
+  if (!diagram.actors?.controlCenter) {
+    opportunities.push({
+      type: 'Centre de Contrôle',
+      priority: 'medium',
+      description: 'Aucun centre de contrôle/planification défini.',
+      expectedBenefit: 'Meilleure coordination des flux d\'information et de production',
+      effort: 'low'
+    });
+  }
+
+  // Calculer le score et la sévérité globale
+  const totalIssues = bottlenecks.length + wastes.length;
+  const criticalCount = bottlenecks.filter(b => b.severity === 'critical').length +
+    wastes.filter(w => w.severity === 'high').length;
+  const highCount = bottlenecks.filter(b => b.severity === 'high').length +
+    wastes.filter(w => w.severity === 'medium').length;
+
+  let severity: 'low' | 'medium' | 'high' | 'critical' = 'low';
+  if (criticalCount > 0) severity = 'critical';
+  else if (highCount > 2) severity = 'high';
+  else if (totalIssues > 3) severity = 'medium';
+
+  // Score basé sur les problèmes (100 = parfait)
+  const score = Math.max(0, Math.min(100,
+    100 - (criticalCount * 20) - (highCount * 10) - ((totalIssues - criticalCount - highCount) * 5)
+  ));
+
+  return {
+    timestamp: new Date().toISOString(),
+    summary: {
+      totalIssues,
+      severity,
+      score
+    },
+    bottlenecks,
+    wastes,
+    opportunities
+  };
+}
+
 export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
-  analysis,
+  analysis: externalAnalysis,
   onIssueClick
 }) => {
+  const { diagram, loadDiagram } = useVsmStore();
+  const { openOrFocusTab } = useTabsStore();
+
   const [filterType, setFilterType] = useState<'all' | 'bottleneck' | 'waste' | 'opportunity'>('all');
   const [filterSeverity, setFilterSeverity] = useState<'all' | 'low' | 'medium' | 'high' | 'critical'>('all');
+  const [isFutureStateDialogOpen, setIsFutureStateDialogOpen] = useState(false);
+
+  // Analyser le diagramme actuel
+  const liveAnalysis = useMemo(() => analyzeDiagram(diagram), [diagram]);
+
+  // Utiliser l'analyse externe si fournie, sinon l'analyse live
+  const analysis = externalAnalysis || liveAnalysis;
+
+  const handleCreateFutureState = async (futureDiagram: VSMDiagram) => {
+    // Charger le diagramme état futur
+    loadDiagram(futureDiagram);
+
+    // Ouvrir un nouvel onglet pour l'état futur
+    openOrFocusTab('diagram', futureDiagram.metaData.name, {
+      diagramId: futureDiagram.id,
+      diagramType: 'future'
+    });
+
+    console.log('État futur créé:', futureDiagram.metaData.name);
+  };
+
+  if (!diagram) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full p-4 text-center text-muted-foreground">
+        <Info className="h-8 w-8 mb-2 opacity-50" />
+        <p className="text-sm">Aucun diagramme ouvert</p>
+        <p className="text-xs mt-1">Ouvrez ou créez un projet pour voir l'analyse</p>
+      </div>
+    );
+  }
 
   if (!analysis) {
     return (
       <div className="p-4 text-center text-muted-foreground">
         <AlertCircle className="mx-auto mb-2" size={48} />
-        <p>Aucune analyse disponible</p>
-        <p className="text-sm mt-1">Configurez votre diagramme et lancez l'analyse</p>
+        <p>Analyse en cours...</p>
       </div>
     );
   }
@@ -112,8 +335,8 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
   };
 
   // Filtrage
-  const filteredBottlenecks = filterSeverity === 'all' 
-    ? analysis.bottlenecks 
+  const filteredBottlenecks = filterSeverity === 'all'
+    ? analysis.bottlenecks
     : analysis.bottlenecks.filter(b => b.severity === filterSeverity);
 
   const filteredWastes = filterSeverity === 'all'
@@ -153,11 +376,10 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
             <div
-              className={`h-2 rounded-full transition-all ${
-                analysis.summary.score >= 80 ? 'bg-green-600' :
+              className={`h-2 rounded-full transition-all ${analysis.summary.score >= 80 ? 'bg-green-600' :
                 analysis.summary.score >= 60 ? 'bg-yellow-600' :
-                analysis.summary.score >= 40 ? 'bg-orange-600' : 'bg-red-600'
-              }`}
+                  analysis.summary.score >= 40 ? 'bg-orange-600' : 'bg-red-600'
+                }`}
               style={{ width: `${analysis.summary.score}%` }}
             />
           </div>
@@ -172,6 +394,16 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
           </div>
         </CardContent>
       </Card>
+
+      {/* Bouton Créer État Futur */}
+      <Button
+        className="mb-4 w-full"
+        variant="outline"
+        onClick={() => setIsFutureStateDialogOpen(true)}
+      >
+        <Plus size={16} className="mr-2" />
+        Créer l'État Futur
+      </Button>
 
       {/* Filtres */}
       <div className="flex gap-2 mb-4">
@@ -246,9 +478,9 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
                       </div>
                       <p className="text-sm mb-2">{bottleneck.impact}</p>
                       <div className="flex items-center gap-4 text-xs text-muted-foreground mb-2">
-                        <span>Actuel: {bottleneck.metrics.current}</span>
+                        <span>Actuel: {bottleneck.metrics.current}s</span>
                         {bottleneck.metrics.optimal && (
-                          <span>Optimal: {bottleneck.metrics.optimal}</span>
+                          <span>Optimal: {bottleneck.metrics.optimal}s</span>
                         )}
                       </div>
                       <div className="text-sm bg-blue-50 dark:bg-blue-950 p-2 rounded">
@@ -320,8 +552,8 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
                         </div>
                         <Badge variant="outline" className={
                           opportunity.priority === 'high' ? 'border-red-500 text-red-700' :
-                          opportunity.priority === 'medium' ? 'border-yellow-500 text-yellow-700' :
-                          'border-blue-500 text-blue-700'
+                            opportunity.priority === 'medium' ? 'border-yellow-500 text-yellow-700' :
+                              'border-blue-500 text-blue-700'
                         }>
                           Priorité: {opportunity.priority}
                         </Badge>
@@ -347,11 +579,11 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
           {((showBottlenecks && filteredBottlenecks.length === 0) &&
             (showWastes && filteredWastes.length === 0) &&
             (showOpportunities && filteredOpportunities.length === 0)) && (
-            <div className="text-center text-muted-foreground py-8">
-              <Filter size={48} className="mx-auto mb-2 opacity-50" />
-              <p>Aucun problème trouvé avec ces filtres</p>
-            </div>
-          )}
+              <div className="text-center text-muted-foreground py-8">
+                <Filter size={48} className="mx-auto mb-2 opacity-50" />
+                <p>Aucun problème trouvé avec ces filtres</p>
+              </div>
+            )}
 
           {/* Message si tout est parfait */}
           {analysis.summary.totalIssues === 0 && (
@@ -363,6 +595,16 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
           )}
         </div>
       </ScrollArea>
+
+      {/* Dialogue État Futur */}
+      {diagram && (
+        <FutureStateDialog
+          open={isFutureStateDialogOpen}
+          onOpenChange={setIsFutureStateDialogOpen}
+          currentStateDiagram={diagram}
+          onCreateFutureState={handleCreateFutureState}
+        />
+      )}
     </div>
   );
 };

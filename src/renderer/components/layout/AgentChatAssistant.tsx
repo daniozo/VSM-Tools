@@ -196,7 +196,7 @@ export const AgentChatAssistant: React.FC<AgentChatAssistantProps> = ({
       {/* Header - Style Gemini */}
       <div className="h-14 px-4 border-b flex items-center justify-between bg-background">
         <div className="flex items-center gap-3">
-          <span className="text-base font-normal">Assistant VSM</span>
+          <span className="text-base font-medium">Assistant</span>
         </div>
         <Button
           variant="ghost"

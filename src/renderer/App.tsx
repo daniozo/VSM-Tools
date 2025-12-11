@@ -16,6 +16,7 @@ import { OpenProjectDialog } from './components/dialogs/OpenProjectDialog';
 import { useVsmStore } from '@/store/vsmStore';
 import { useProjectsStore } from '@/store/projectsStore';
 import { demoDiagram } from '@/shared/data/demo-diagram';
+import { demoDiagramWithProblems } from '@/shared/data/demo-diagram-problems';
 import { diagramsApi } from '@/services/api';
 import { saveDiagram } from '@/services/sync/diagramSync';
 
@@ -236,8 +237,8 @@ const App: React.FC = () => {
   };
 
   const handleLoadDemo = () => {
-    console.log('Chargement du diagramme de démonstration');
-    loadDiagram(demoDiagram);
+    console.log('Chargement du diagramme de démonstration avec problèmes');
+    loadDiagram(demoDiagramWithProblems);
   };
 
   const handleSave = async () => {
