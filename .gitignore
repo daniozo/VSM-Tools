@@ -141,3 +141,25 @@ dist
 # Environment variables
 .env
 .env.local
+
+
+
+# LaTeX
+*.aux
+*.lof
+*.log
+*.lot
+*.fls
+*.out
+*.toc
+*.fmt
+*.fot
+*.cb
+*.cb2
+*.bbl
+*.bcf
+*.blg
+*.run.xml
+*.synctex.gz
+*.fdb_latexmk
+*.pdf

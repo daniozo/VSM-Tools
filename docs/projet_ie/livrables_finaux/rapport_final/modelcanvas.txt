@@ -1,0 +1,137 @@
+BUSINESS MODEL CANVAS POUR VSM-TOOLS
+
+========================================
+
+1. SEGMENTS DE CLIENTELE (CUSTOMER SEGMENTS)
+
+Individuels & Milieu Académique :
+- Étudiants, enseignants, et consultants indépendants qui ont besoin d'un outil VSM puissant et accessible pour des projets ponctuels ou à des fins pédagogiques.
+
+PME et Équipes d'Amélioration Continue :
+- Entreprises de taille moyenne ou départements spécifiques au sein de grands groupes (Lean, Production, Qualité) cherchant à digitaliser et dynamiser leur démarche VSM.
+
+Grandes Entreprises :
+- Organisations avec des besoins avancés en matière d'intégration de données, de sécurité (authentification), de collaboration multi-équipes et de support technique garanti.
+
+========================================
+
+2. OFFRE (PROPOSITION DE VALEUR / VALUE PROPOSITIONS)
+
+Modélisation VSM Guidée et Accélérée :
+- Une approche "Model-First" qui garantit la cohérence des diagrammes et produit un rendu professionnel automatiquement, sans effort de mise en page.
+
+Flexibilité Unique de la Collecte de Données :
+- Trois modes de saisie (statique, manuel via interface opérateur, et dynamique via connexions BDD/API) pour s'adapter à la maturité digitale de l'entreprise.
+
+Analyse Augmentée par les Données Réelles :
+- Calculs automatiques des indicateurs Lean clés (Lead Time, %VA...).
+- Détection intelligente des goulots d'étranglement et suggestions d'optimisation basées sur des règles configurables.
+
+Support Intégré via IA Conversationnelle :
+- Un agent conversationnel intégré pour aider les utilisateurs sur la méthodologie et l'utilisation de l'outil.
+
+========================================
+
+3. CANAUX DE DISTRIBUTION (CHANNELS)
+
+Web / Vente en Ligne :
+- Le site web du projet est le canal principal pour la distribution de la version gratuite (Community) et la souscription aux offres payantes. Le marketing de contenu (blog, tutoriels) et le référencement (SEO) sont clés pour l'acquisition.
+
+Vente Directe :
+- Prospection ciblée et démonstrations personnalisées pour les clients Enterprise.
+
+Partenaires Prescripteurs :
+- Collaboration avec des cabinets de conseil en Lean Management qui peuvent utiliser et recommander l'outil auprès de leurs clients.
+
+========================================
+
+4. RELATION CLIENT (CUSTOMER RELATIONSHIPS)
+
+Self-Service (pour l'offre Community) :
+- Documentation en ligne, tutoriels, et support de premier niveau via l'agent conversationnel IA.
+
+Assistance Technique (pour l'offre Professional) :
+- Support par email et base de connaissances enrichie.
+
+Support Dédié (pour l'offre Enterprise) :
+- Support prioritaire avec garanties de temps de réponse (SLA), gestionnaire de compte dédié, et sessions de formation.
+
+Communauté :
+- Création d'un espace communautaire (forum, Discord) pour permettre aux utilisateurs d'échanger des bonnes pratiques.
+
+========================================
+
+5. SOURCES DE REVENUS (REVENUE STREAMS)
+
+Abonnements Logiciels (Revenus récurrents) :
+- Abonnements mensuels ou annuels pour les offres Professional (par utilisateur) et Enterprise (sur devis).
+
+Services Professionnels (Revenus ponctuels) :
+- Prestations de formation avancée pour les équipes.
+- Développement de connecteurs métiers spécifiques pour les clients Enterprise.
+- Conseil et accompagnement à la mise en place de la démarche VSM avec l'outil.
+
+========================================
+
+6. ACTIVITES CLES (KEY ACTIVITIES)
+
+Développement et Maintenance Logiciel :
+- Amélioration continue des trois composants (Studio, Engine, Interfaces Web).
+
+Gestion de l'Infrastructure et de la Sécurité :
+- Maintenance du serveur de base de données et des services web. Gestion de la sécurité et des sauvegardes.
+
+Support Client et Formation :
+- Assurer le support pour les différents niveaux d'offres et créer du contenu pédagogique.
+
+Marketing et Vente :
+- Promouvoir l'outil et gérer le cycle de vente.
+
+========================================
+
+7. RESSOURCES CLES (KEY RESOURCES)
+
+La Plateforme Logicielle VSM-Tools :
+- L'ensemble de la base de code (Electron, Node.js, React) et l'architecture technique.
+
+L'Équipe Projet :
+- Les compétences duales en Lean/VSM et en développement logiciel.
+
+L'Infrastructure Cloud :
+- Le serveur hébergeant la base de données et les applications web.
+
+Le Modèle de Langage (LLM) :
+- L'accès à l'API de l'IA pour l'agent conversationnel.
+
+========================================
+
+8. PARTENAIRES CLES (KEY PARTNERS)
+
+Cabinets de Conseil en Lean Management :
+- Partenaires stratégiques pour la prescription, la distribution et la validation métier de l'outil.
+
+Fournisseurs Technologiques :
+- Le fournisseur de l'infrastructure Cloud (ex: AWS, Azure, OVH).
+- Google pour l'API du modèle de langage.
+
+Experts Métier et Bêta-testeurs :
+- Un réseau d'industriels et de consultants pour tester les nouvelles fonctionnalités et fournir des retours d'expérience.
+
+========================================
+
+9. STRUCTURE DES COUTS (COST STRUCTURE)
+
+Développement et R&D :
+- Salaires ou temps de l'équipe de développement pour la maintenance et les nouvelles fonctionnalités.
+
+Hébergement et Infrastructure :
+- Coûts récurrents du serveur de base de données, des serveurs web, des noms de domaine et des certificats de sécurité.
+
+Coûts d'API :
+- Coûts liés à l'utilisation de l'API du modèle de langage, souvent basés sur le volume de requêtes.
+
+Marketing et Vente :
+- Budget pour la publicité en ligne, la création de contenu, la participation à des événements.
+
+Support et Frais Généraux :
+- Coûts liés aux outils de support et aux frais administratifs.
