@@ -249,7 +249,7 @@ const deliveryFrequencyLabels: Record<DeliveryFrequency, string> = {
   [DeliveryFrequency.DAILY]: 'Quotidienne',
   [DeliveryFrequency.WEEKLY]: 'Hebdomadaire',
   [DeliveryFrequency.MONTHLY]: 'Mensuelle',
-  [DeliveryFrequency.ON_DEMAND]: 'À la demande'
+  [DeliveryFrequency.CUSTOM]: 'Personnalisée'
 }
 
 // ============================================
@@ -837,7 +837,7 @@ export const FutureStateDialog: React.FC<FutureStateDialogProps> = ({
                         <Input
                           type="number"
                           value={inv.duration || 0}
-                          onChange={(e) => updateInventory(seqIndex, elemIndex, { duration: parseFloat(e.target.value) || 0 })}
+                          onChange={(e) => updateInventory(seqIndex, elemIndex, { duration: e.target.value ? parseFloat(e.target.value).toString() : '0' })}
                         />
                       </div>
                     </div>
@@ -1007,8 +1007,10 @@ export const FutureStateDialog: React.FC<FutureStateDialogProps> = ({
       const newPoint: ImprovementPoint = {
         id: generateId('kaizen'),
         description: 'Nouvelle amélioration',
-        status: ImprovementStatus.PLANNED,
-        priority: 'medium'
+        status: ImprovementStatus.IDENTIFIED,
+        priority: 'medium' as any,
+        x: 0,
+        y: 0
       }
       updateLocalDiagram({
         improvementPoints: [...(localDiagram.improvementPoints || []), newPoint]
@@ -1052,7 +1054,7 @@ export const FutureStateDialog: React.FC<FutureStateDialogProps> = ({
                 <div className="space-y-2">
                   <Label>Priorité</Label>
                   <Select
-                    value={point.priority || 'medium'}
+                    value={String(point.priority || 'medium')}
                     onValueChange={(v) => updateImprovement(point.id, { priority: v as any })}
                   >
                     <SelectTrigger>
@@ -1068,16 +1070,16 @@ export const FutureStateDialog: React.FC<FutureStateDialogProps> = ({
                 <div className="space-y-2">
                   <Label>Statut</Label>
                   <Select
-                    value={point.status || ImprovementStatus.PLANNED}
+                    value={point.status || ImprovementStatus.IDENTIFIED}
                     onValueChange={(v) => updateImprovement(point.id, { status: v as ImprovementStatus })}
                   >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value={ImprovementStatus.PLANNED}>Planifié</SelectItem>
+                      <SelectItem value={ImprovementStatus.IDENTIFIED}>Identifié</SelectItem>
                       <SelectItem value={ImprovementStatus.IN_PROGRESS}>En cours</SelectItem>
-                      <SelectItem value={ImprovementStatus.COMPLETED}>Terminé</SelectItem>
+                      <SelectItem value={ImprovementStatus.RESOLVED}>Résolu</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -1125,8 +1127,7 @@ export const FutureStateDialog: React.FC<FutureStateDialogProps> = ({
       <DialogContent className="w-[90vw] max-w-[1400px] h-[85vh] flex flex-col p-0">
         <DialogHeader className="px-6 pt-6 pb-4 border-b">
           <DialogTitle className="text-xl flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-green-600" />
-            Créer l'État Futur VSM
+            Créer l'État Futur
           </DialogTitle>
         </DialogHeader>
 

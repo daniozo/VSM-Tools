@@ -22,9 +22,10 @@ import { AnalysisPanel } from '../panels/AnalysisPanel'
 import { ActionPlanPanel } from '../panels/ActionPlanPanel'
 import { ActionPlanTab } from '../panels/ActionPlanTab'
 import { SimulationPanel } from '../simulation/SimulationPanel'
+import { ComparisonPanel } from '../panels/ComparisonPanel'
 import { TipTapEditor } from '../editor/TipTapEditor'
 import { useVsmStore } from '@/store/vsmStore'
-import { useTabsStore, TabType } from '@/store/tabsStore'
+import { useTabsStore } from '@/store/tabsStore'
 import { cn } from '@/lib/utils'
 import { VsmCanvasHandle } from '../editor/VsmCanvas'
 import {
@@ -111,6 +112,71 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
   const handleExplorerSelect = (elementId: string, elementType: string) => {
     setSelectedElementId(elementId)
     console.log('Élément sélectionné:', elementId, elementType)
+
+    // Mettre à jour le store avec le bon format de sélection
+    const { selectElement, diagram } = useVsmStore.getState()
+
+    // Mapper le type de l'explorateur vers le type du store
+    switch (elementType) {
+      case 'supplier':
+        selectElement({ type: 'supplier' })
+        break
+      case 'customer':
+        selectElement({ type: 'customer' })
+        break
+      case 'control-center':
+        selectElement({ type: 'controlCenter' })
+        break
+      case 'process-step':
+        // Les étapes de processus sont des nœuds
+        selectElement({ type: 'node', id: elementId })
+        break
+      case 'inventory':
+      case 'stock':
+        // Pour les stocks, on doit trouver la position dans les flowSequences
+        if (diagram) {
+          for (const seq of diagram.flowSequences) {
+            for (const elem of seq.intermediateElements) {
+              if (elem.type === 'INVENTORY' && elem.inventory?.id === elementId) {
+                selectElement({
+                  type: 'inventory',
+                  sequenceOrder: seq.order,
+                  elementOrder: elem.order
+                })
+                return
+              }
+            }
+          }
+        }
+        break
+      case 'improvement-point':
+      case 'kaizen':
+        selectElement({ type: 'improvementPoint', id: elementId })
+        break
+      case 'annotation':
+      case 'text-annotation':
+        selectElement({ type: 'textAnnotation', id: elementId })
+        break
+      case 'information-flow':
+        selectElement({ type: 'informationFlow', id: elementId })
+        break
+      case 'material-flow':
+        // Extraire l'index depuis l'ID (material-flow-0, material-flow-1, etc.)
+        const match = elementId.match(/material-flow-(\d+)/)
+        if (match) {
+          selectElement({ type: 'materialFlow', sequenceOrder: parseInt(match[1]) })
+        } else {
+          selectElement(null)
+        }
+        break
+      default:
+        // Type non reconnu, essayer de trouver dans les nœuds
+        if (diagram?.nodes.find(n => n.id === elementId)) {
+          selectElement({ type: 'node', id: elementId })
+        } else {
+          selectElement(null)
+        }
+    }
   }
 
   const handleCreateNote = () => {
@@ -133,7 +199,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
     setSelectedNoteId(newNote.id)
     setNewNoteTitle('')
     setIsNewNoteDialogOpen(false)
-    
+
     // Ouvrir l'onglet de la note
     useTabsStore.getState().openOrFocusTab('notes', newNote.title, { noteId: newNote.id })
   }
@@ -202,7 +268,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
               <div className="flex-1 overflow-auto p-2">
                 <AnalysisPanel
                   analysis={(useVsmStore.getState().diagram as any)?.analysis}
-                  onIssueClick={(nodeId) => {
+                  onIssueClick={(nodeId: string) => {
                     console.log('Centrer sur le nœud:', nodeId);
                   }}
                 />
@@ -243,7 +309,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
                   const activeTab = useTabsStore.getState().tabs.find(t => t.id === activeTabId);
                   const noteId = activeTab?.data?.noteId;
                   const note = notes.find(n => n.id === noteId);
-                  
+
                   if (!note) {
                     return (
                       <div className="flex-1 flex items-center justify-center text-muted-foreground">
@@ -283,12 +349,36 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
                   <div className="p-6 overflow-auto h-full">
                     <AnalysisPanel
                       analysis={(useVsmStore.getState().diagram as any)?.analysis}
-                      onIssueClick={(nodeId) => {
+                      onIssueClick={(nodeId: string) => {
                         console.log('Centrer sur le nœud:', nodeId);
                       }}
                     />
                   </div>
                 );
+              case 'future-diagram':
+                // Pour l'état futur, on affiche le même canvas mais avec le diagramme futur chargé
+                return children;
+              case 'comparison':
+                {
+                  const activeTab = useTabsStore.getState().tabs.find(t => t.id === activeTabId);
+                  const currentDiagramId = activeTab?.data?.currentDiagramId;
+                  const futureDiagramId = activeTab?.data?.futureDiagramId;
+
+                  if (!currentDiagramId || !futureDiagramId) {
+                    return (
+                      <div className="flex-1 flex items-center justify-center text-muted-foreground">
+                        <p>Données de comparaison manquantes</p>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <ComparisonPanel
+                      currentDiagramId={currentDiagramId}
+                      futureDiagramId={futureDiagramId}
+                    />
+                  );
+                }
               default:
                 return children;
             }
@@ -306,49 +396,49 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
           />
         )}
 
-          {/* Contenu du panneau selon la sélection */}
-          {activeRightPanel === 'properties' && (
-            <PropertiesPanel
-              width={rightPanelWidth}
-              selectedElementId={selectedElementId}
-              className="flex-shrink-0"
-            />
-          )}
+        {/* Contenu du panneau selon la sélection */}
+        {activeRightPanel === 'properties' && (
+          <PropertiesPanel
+            width={rightPanelWidth}
+            selectedElementId={selectedElementId}
+            className="flex-shrink-0"
+          />
+        )}
 
-          {activeRightPanel === 'assistant' && (
-            <AgentChatAssistant
-              width={rightPanelWidth}
-              className="flex-shrink-0"
-              onUIEvent={(event: AgentUIEvent) => {
-                // Gérer les événements UI de l'agent
-                console.log('Agent UI Event:', event)
-                if (event.type === 'select_node' && event.payload?.nodeId) {
-                  setSelectedElementId(event.payload.nodeId)
-                }
-                if (event.type === 'open_config') {
-                  useVsmStore.getState().openConfigDialog()
-                }
-                if (event.type === 'zoom_to' && canvasRef?.current) {
-                  // Zoomer sur l'élément si le canvas supporte cette méthode
-                  // canvasRef.current.zoomToElement?.(event.payload?.elementId)
-                }
-              }}
-            />
-          )}
+        {activeRightPanel === 'assistant' && (
+          <AgentChatAssistant
+            width={rightPanelWidth}
+            className="flex-shrink-0"
+            onUIEvent={(event: AgentUIEvent) => {
+              // Gérer les événements UI de l'agent
+              console.log('Agent UI Event:', event)
+              if (event.type === 'select_node' && event.payload?.nodeId) {
+                setSelectedElementId(event.payload.nodeId)
+              }
+              if (event.type === 'open_config') {
+                useVsmStore.getState().openConfigDialog()
+              }
+              if (event.type === 'zoom_to' && canvasRef?.current) {
+                // Zoomer sur l'élément si le canvas supporte cette méthode
+                // canvasRef.current.zoomToElement?.(event.payload?.elementId)
+              }
+            }}
+          />
+        )}
 
-          {activeRightPanel === 'simulation' && (
-            <div
-              className="flex-shrink-0 bg-background border-l overflow-hidden flex flex-col"
-              style={{ width: `${rightPanelWidth}px` }}
-            >
-              <div className="h-9 px-3 border-b flex items-center bg-muted/30">
-                <span className="text-sm font-medium">Simulation</span>
-              </div>
-              <div className="flex-1 overflow-auto">
-                <SimulationPanel canvasRef={canvasRef as React.RefObject<VsmCanvasHandle>} />
-              </div>
+        {activeRightPanel === 'simulation' && (
+          <div
+            className="flex-shrink-0 bg-background border-l overflow-hidden flex flex-col"
+            style={{ width: `${rightPanelWidth}px` }}
+          >
+            <div className="h-9 px-3 border-b flex items-center bg-muted/30">
+              <span className="text-sm font-medium">Simulation</span>
             </div>
-          )}
+            <div className="flex-1 overflow-auto">
+              <SimulationPanel canvasRef={canvasRef as React.RefObject<VsmCanvasHandle>} />
+            </div>
+          </div>
+        )}
 
         {/* Barre verticale avec icônes */}
         <RightSidebar

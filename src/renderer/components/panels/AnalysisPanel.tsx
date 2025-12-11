@@ -6,7 +6,7 @@
  * Inclut un bouton pour créer l'état futur.
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/renderer/components/ui/card';
 import { Badge } from '@/renderer/components/ui/badge';
 import { Button } from '@/renderer/components/ui/button';
@@ -26,12 +26,14 @@ import {
   TrendingUp,
   Filter,
   X,
-  Plus
+  Plus,
+  Pencil,
+  GitCompare,
+  ExternalLink
 } from 'lucide-react';
 import { useVsmStore } from '@/store/vsmStore';
 import { VSMDiagram, NodeType } from '@/shared/types/vsm-model';
 import { FutureStateDialog } from '../dialogs/FutureStateDialog';
-import { useTabsStore } from '@/store/tabsStore';
 
 interface AnalysisResult {
   timestamp: string;
@@ -272,12 +274,12 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
   analysis: externalAnalysis,
   onIssueClick
 }) => {
-  const { diagram, loadDiagram } = useVsmStore();
-  const { openOrFocusTab } = useTabsStore();
+  const { diagram } = useVsmStore();
 
   const [filterType, setFilterType] = useState<'all' | 'bottleneck' | 'waste' | 'opportunity'>('all');
   const [filterSeverity, setFilterSeverity] = useState<'all' | 'low' | 'medium' | 'high' | 'critical'>('all');
   const [isFutureStateDialogOpen, setIsFutureStateDialogOpen] = useState(false);
+  const [existingFutureDiagram, setExistingFutureDiagram] = useState<any>(null);
 
   // Analyser le diagramme actuel
   const liveAnalysis = useMemo(() => analyzeDiagram(diagram), [diagram]);
@@ -285,17 +287,143 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
   // Utiliser l'analyse externe si fournie, sinon l'analyse live
   const analysis = externalAnalysis || liveAnalysis;
 
+  // Vérifier si un état futur existe déjà
+  useEffect(() => {
+    const checkFutureDiagram = async () => {
+      if (!diagram || diagram.diagramType === 'FUTURE') return;
+
+      try {
+        const { useProjectsStore } = await import('@/store/projectsStore');
+        const { currentProject } = useProjectsStore.getState();
+
+        if (currentProject) {
+          const { diagramsApi } = await import('@/services/api');
+          const diagrams = await diagramsApi.list(currentProject.id);
+
+          // Chercher un diagramme futur lié à celui-ci
+          const futureDiagram = diagrams.find((d: any) =>
+            d.type === 'future' && d.data?.currentStateId === diagram.id
+          );
+
+          setExistingFutureDiagram(futureDiagram || null);
+        }
+      } catch (error) {
+        console.error('Erreur lors de la vérification de l\'état futur:', error);
+      }
+    };
+
+    checkFutureDiagram();
+  }, [diagram]);
+
   const handleCreateFutureState = async (futureDiagram: VSMDiagram) => {
-    // Charger le diagramme état futur
-    loadDiagram(futureDiagram);
+    try {
+      // Sauvegarder dans la base de données si un projet est actif
+      const { useProjectsStore } = await import('@/store/projectsStore');
+      const { currentProject } = useProjectsStore.getState();
 
-    // Ouvrir un nouvel onglet pour l'état futur
-    openOrFocusTab('diagram', futureDiagram.metaData.name, {
-      diagramId: futureDiagram.id,
-      diagramType: 'future'
-    });
+      let savedId = futureDiagram.id;
 
-    console.log('État futur créé:', futureDiagram.metaData.name);
+      if (currentProject) {
+        const { diagramsApi } = await import('@/services/api');
+
+        // Créer le diagramme dans la BD
+        const savedDiagram = await diagramsApi.create({
+          project_id: currentProject.id,
+          name: futureDiagram.metaData.name,
+          type: 'future',
+          data: futureDiagram
+        });
+
+        console.log('État futur sauvegardé dans la BD:', savedDiagram.id);
+        savedId = savedDiagram.id;
+        futureDiagram.id = savedId;
+
+        // Mettre à jour l'état existant
+        setExistingFutureDiagram({
+          id: savedId,
+          name: futureDiagram.metaData.name,
+          data: futureDiagram
+        });
+      }
+
+      // Ouvrir un nouvel onglet pour l'état futur (utiliser addTab directement)
+      const { useTabsStore } = await import('@/store/tabsStore');
+      useTabsStore.getState().addTab({
+        id: `future-${savedId}`,
+        type: 'future-diagram',
+        title: `État Futur: ${futureDiagram.metaData.name.replace(' - État Futur', '').slice(0, 20)}`,
+        closable: true,
+        data: {
+          diagram: futureDiagram,
+          diagramId: savedId,
+          currentStateId: diagram?.id
+        }
+      });
+
+      console.log('État futur créé et onglet ouvert:', futureDiagram.metaData.name);
+    } catch (error) {
+      console.error('Erreur lors de la création de l\'état futur:', error);
+      alert('Erreur lors de la création de l\'état futur. Voir la console pour plus de détails.');
+    }
+  };
+
+  const handleOpenFutureDiagram = async () => {
+    if (!existingFutureDiagram) return;
+
+    const { useTabsStore } = await import('@/store/tabsStore');
+    const tabsStore = useTabsStore.getState();
+
+    // Vérifier si l'onglet existe déjà
+    const existingTab = tabsStore.tabs.find(t =>
+      t.type === 'future-diagram' && t.data?.diagramId === existingFutureDiagram.id
+    );
+
+    if (existingTab) {
+      tabsStore.setActiveTab(existingTab.id);
+    } else {
+      tabsStore.addTab({
+        id: `future-${existingFutureDiagram.id}`,
+        type: 'future-diagram',
+        title: `État Futur: ${existingFutureDiagram.name.replace(' - État Futur', '').slice(0, 20)}`,
+        closable: true,
+        data: {
+          diagram: existingFutureDiagram.data,
+          diagramId: existingFutureDiagram.id,
+          currentStateId: diagram?.id
+        }
+      });
+    }
+  };
+
+  const handleOpenComparison = async () => {
+    if (!existingFutureDiagram || !diagram) return;
+
+    const { useTabsStore } = await import('@/store/tabsStore');
+    const tabsStore = useTabsStore.getState();
+
+    // Vérifier si l'onglet de comparaison existe déjà
+    const existingTab = tabsStore.tabs.find(t => t.type === 'comparison');
+
+    if (existingTab) {
+      tabsStore.updateTab(existingTab.id, {
+        data: {
+          currentState: diagram,
+          futureState: existingFutureDiagram.data
+        }
+      });
+      tabsStore.setActiveTab(existingTab.id);
+    } else {
+      tabsStore.addTab({
+        id: `comparison-${Date.now()}`,
+        type: 'comparison',
+        title: 'Comparaison États',
+        closable: true,
+        data: {
+          currentState: diagram,
+          futureState: existingFutureDiagram.data
+        }
+      });
+    }
   };
 
   if (!diagram) {
@@ -395,15 +523,47 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
         </CardContent>
       </Card>
 
-      {/* Bouton Créer État Futur */}
-      <Button
-        className="mb-4 w-full"
-        variant="outline"
-        onClick={() => setIsFutureStateDialogOpen(true)}
-      >
-        <Plus size={16} className="mr-2" />
-        Créer l'État Futur
-      </Button>
+      {/* Boutons État Futur */}
+      <div className="mb-4 space-y-2">
+        {existingFutureDiagram ? (
+          <>
+            {/* État futur existe - Afficher les 3 boutons */}
+            <Button
+              className="w-full"
+              variant="default"
+              onClick={handleOpenFutureDiagram}
+            >
+              <ExternalLink size={16} className="mr-2" />
+              Ouvrir l'État Futur
+            </Button>
+            <Button
+              className="w-full"
+              variant="secondary"
+              onClick={handleOpenComparison}
+            >
+              <GitCompare size={16} className="mr-2" />
+              Comparer les États
+            </Button>
+            <Button
+              className="w-full"
+              variant="outline"
+              onClick={() => setIsFutureStateDialogOpen(true)}
+            >
+              <Pencil size={16} className="mr-2" />
+              Modifier l'État Futur
+            </Button>
+          </>
+        ) : (
+          <Button
+            className="w-full"
+            variant="outline"
+            onClick={() => setIsFutureStateDialogOpen(true)}
+          >
+            <Plus size={16} className="mr-2" />
+            Créer l'État Futur
+          </Button>
+        )}
+      </div>
 
       {/* Filtres */}
       <div className="flex gap-2 mb-4">
@@ -483,8 +643,9 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
                           <span>Optimal: {bottleneck.metrics.optimal}s</span>
                         )}
                       </div>
-                      <div className="text-sm bg-blue-50 dark:bg-blue-950 p-2 rounded">
-                        💡 {bottleneck.recommendation}
+                      <div className="text-sm bg-blue-50 dark:bg-blue-950 p-2 rounded flex items-start gap-2">
+                        <Lightbulb size={16} className="text-blue-600 mt-0.5 shrink-0" />
+                        <span>{bottleneck.recommendation}</span>
                       </div>
                     </CardContent>
                   </Card>
@@ -519,12 +680,14 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
                       </div>
                       <p className="text-sm mb-2">{waste.description}</p>
                       {waste.potentialSavings && (
-                        <div className="text-xs text-green-700 dark:text-green-400 mb-2">
-                          💰 Économie potentielle: {waste.potentialSavings.timeReduction} min
+                        <div className="text-xs text-green-700 dark:text-green-400 mb-2 flex items-center gap-1">
+                          <TrendingUp size={14} className="shrink-0" />
+                          Économie potentielle: {waste.potentialSavings.timeReduction} min
                         </div>
                       )}
-                      <div className="text-sm bg-blue-50 dark:bg-blue-950 p-2 rounded">
-                        💡 {waste.suggestion}
+                      <div className="text-sm bg-blue-50 dark:bg-blue-950 p-2 rounded flex items-start gap-2">
+                        <Lightbulb size={16} className="text-blue-600 mt-0.5 shrink-0" />
+                        <span>{waste.suggestion}</span>
                       </div>
                     </CardContent>
                   </Card>

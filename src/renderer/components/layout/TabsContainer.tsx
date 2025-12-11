@@ -4,13 +4,15 @@
  */
 
 import React, { useCallback } from 'react';
-import { X, Map, Settings, ClipboardList, StickyNote, Database, BarChart3 } from 'lucide-react';
+import { X, Map, Settings, ClipboardList, StickyNote, Database, BarChart3, TrendingUp, GitCompare } from 'lucide-react';
 import { useTabsStore, TabType } from '@/store/tabsStore';
 import { cn } from '@/lib/utils';
 
 // Icônes par type d'onglet
 const tabIcons: Record<TabType, React.ReactNode> = {
   diagram: <Map className="w-4 h-4" />,
+  'future-diagram': <TrendingUp className="w-4 h-4" />,
+  comparison: <GitCompare className="w-4 h-4" />,
   configuration: <Settings className="w-4 h-4" />,
   'action-plan': <ClipboardList className="w-4 h-4" />,
   notes: <StickyNote className="w-4 h-4" />,

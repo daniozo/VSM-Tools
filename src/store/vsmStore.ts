@@ -16,9 +16,14 @@ import {
  */
 export type SelectedElementType =
   | { type: 'node', id: string }
+  | { type: 'supplier' }
+  | { type: 'customer' }
+  | { type: 'controlCenter' }
   | { type: 'inventory', sequenceOrder: number, elementOrder: number }
   | { type: 'improvementPoint', id: string }
   | { type: 'textAnnotation', id: string }
+  | { type: 'informationFlow', id: string }
+  | { type: 'materialFlow', sequenceOrder: number }
   | null
 
 /**

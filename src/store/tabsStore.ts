@@ -6,13 +6,15 @@
 import { create } from 'zustand';
 
 export type TabType =
-  | 'diagram'       // Vue du diagramme VSM (non fermable)
-  | 'configuration' // Configuration du diagramme
-  | 'action-plan'   // Plan d'action
-  | 'notes'         // Notes
-  | 'data-sources'  // Sources de données
-  | 'analysis'      // Analyse
-  | 'custom';       // Vue personnalisée
+  | 'diagram'        // Vue du diagramme VSM état actuel (non fermable)
+  | 'future-diagram' // Vue du diagramme VSM état futur
+  | 'comparison'     // Comparaison état actuel vs futur
+  | 'configuration'  // Configuration du diagramme
+  | 'action-plan'    // Plan d'action
+  | 'notes'          // Notes
+  | 'data-sources'   // Sources de données
+  | 'analysis'       // Analyse
+  | 'custom';        // Vue personnalisée
 
 export interface Tab {
   id: string;

@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useCallback, useImperativeHandle, forwardRef } from 'react'
+import { useEffect, useRef, useImperativeHandle, forwardRef } from 'react'
 import { useVsmStore } from '@/store/vsmStore'
 import { Graph } from '@maxgraph/core'
-import { VSMLayoutEngine, VSMGraphRenderer, createVSMRenderer, LayoutConstants } from '@/services/layout'
+import { VSMLayoutEngine, VSMGraphRenderer, createVSMRenderer } from '@/services/layout'
 
 // Taille de la grille (en pixels) pour l'affichage et l'accrochage
 const GRID_SIZE = 20
@@ -21,65 +21,20 @@ export interface VsmCanvasHandle {
  * - Le layout est calculé par VSMLayoutEngine
  * - Le rendu est effectué par VSMGraphRenderer
  */
-const VsmCanvas = forwardRef<VsmCanvasHandle>((props, ref) => {
+const VsmCanvas = forwardRef<VsmCanvasHandle>((_props, ref) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const graphRef = useRef<Graph | null>(null)
   const rendererRef = useRef<VSMGraphRenderer | null>(null)
   const layoutEngineRef = useRef<VSMLayoutEngine | null>(null)
 
   const {
-    diagram,
-    selectedElement,
-    selectElement
+    diagram
   } = useVsmStore()
 
-  const selectedElementId = selectedElement?.type === 'node' ? selectedElement.id : null
+  // Vérifier si le diagramme a du contenu
+  const hasContent = diagram && diagram.nodes && diagram.nodes.length > 0;
 
-  // Gestionnaire de sélection
-  const handleSelectionChange = useCallback((cellId: string | null) => {
-    if (!diagram) return
-
-    if (cellId) {
-      // Trouver le type d'élément sélectionné
-      const node = diagram.nodes.find(n => n.id === cellId)
-      if (node) {
-        selectElement({ type: 'node', id: cellId })
-        return
-      }
-
-      // Chercher dans les inventories via les flowSequences
-      for (const seq of diagram.flowSequences) {
-        for (const elem of seq.intermediateElements) {
-          if (elem.type === 'INVENTORY' && elem.inventory?.id === cellId) {
-            selectElement({ 
-              type: 'inventory', 
-              sequenceOrder: seq.order, 
-              elementOrder: elem.order 
-            })
-            return
-          }
-        }
-      }
-
-      // Chercher dans les points d'amélioration
-      const improvement = diagram.improvementPoints.find(p => p.id === cellId)
-      if (improvement) {
-        selectElement({ type: 'improvementPoint', id: cellId })
-        return
-      }
-
-      // Chercher dans les annotations
-      const annotation = diagram.textAnnotations.find(a => a.id === cellId)
-      if (annotation) {
-        selectElement({ type: 'textAnnotation', id: cellId })
-        return
-      }
-    }
-    
-    selectElement(null)
-  }, [diagram, selectElement])
-
-  // Initialisation du graph
+  // Initialisation du graph - doit se déclencher quand le container apparaît
   useEffect(() => {
     if (!containerRef.current) return
 
@@ -108,17 +63,7 @@ const VsmCanvas = forwardRef<VsmCanvasHandle>((props, ref) => {
     rendererRef.current = renderer
     layoutEngineRef.current = new VSMLayoutEngine()
 
-    // Gestion des événements de sélection
-    graph.getSelectionModel().addListener('change', () => {
-      const cells = graph.getSelectionCells()
-      if (cells.length > 0) {
-        const selectedCell = cells[0]
-        const id = selectedCell.getId?.() || null
-        handleSelectionChange(id)
-      } else {
-        handleSelectionChange(null)
-      }
-    })
+    // Note: Sélection canvas désactivée - seul le panneau propriétés est mis à jour via l'explorateur
 
     // Nettoyage à la destruction
     return () => {
@@ -129,7 +74,7 @@ const VsmCanvas = forwardRef<VsmCanvasHandle>((props, ref) => {
       rendererRef.current = null
       layoutEngineRef.current = null
     }
-  }, [handleSelectionChange])
+  }, [hasContent]) // Re-initialiser quand hasContent change
 
   // Rendu du diagramme quand il change
   useEffect(() => {
@@ -147,17 +92,17 @@ const VsmCanvas = forwardRef<VsmCanvasHandle>((props, ref) => {
     // Rendre le layout (le fitToContainer est appelé automatiquement dans render())
     rendererRef.current.render(layout)
 
-    // Restaurer la sélection
-    if (selectedElementId) {
-      rendererRef.current.selectElement(selectedElementId)
-    }
-  }, [diagram, selectedElementId])
+    // Note: La sélection visuelle dans le canvas est désactivée
+    // pour éviter les distractions. Seul le panneau de propriétés
+    // affiche l'élément sélectionné.
+  }, [diagram])
 
-  // Centrer sur l'élément sélectionné
-  useEffect(() => {
-    if (!rendererRef.current || !selectedElementId) return
-    rendererRef.current.centerOnElement(selectedElementId)
-  }, [selectedElementId])
+  // Note: Le centrage automatique sur l'élément sélectionné est désactivé
+  // pour éviter les mouvements de caméra non désirés lors de la sélection
+  // useEffect(() => {
+  //   if (!rendererRef.current || !selectedElementId) return
+  //   rendererRef.current.centerOnElement(selectedElementId)
+  // }, [selectedElementId])
 
   // Exposer les méthodes de zoom pour utilisation externe (toolbar)
   useImperativeHandle(ref, () => ({
@@ -183,9 +128,6 @@ const VsmCanvas = forwardRef<VsmCanvasHandle>((props, ref) => {
       }
     }
   }), [diagram])
-
-  // Vérifier si le diagramme a du contenu
-  const hasContent = diagram && diagram.nodes && diagram.nodes.length > 0;
 
   return (
     <div className="relative flex-1 h-full w-full min-h-0 bg-background overflow-auto">
