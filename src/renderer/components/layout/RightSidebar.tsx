@@ -14,10 +14,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/renderer/components/ui/tooltip';
-import { Settings, Zap, Sparkles } from 'lucide-react';
+import { Settings, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export type RightSidebarPanel = 'properties' | 'assistant' | 'simulation' | null;
+export type RightSidebarPanel = 'properties' | 'assistant' | null;
 
 interface RightSidebarProps {
   activePanel: RightSidebarPanel;
@@ -78,23 +78,6 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
           </TooltipTrigger>
           <TooltipContent side="left">
             <p>Assistant</p>
-          </TooltipContent>
-        </Tooltip>
-
-        {/* Simulation */}
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant={activePanel === 'simulation' ? 'default' : 'ghost'}
-              size="icon"
-              className="h-10 w-10"
-              onClick={() => handlePanelClick('simulation')}
-            >
-              <Zap className="h-5 w-5" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="left">
-            <p>Simulation</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>

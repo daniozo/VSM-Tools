@@ -163,3 +163,6 @@ dist
 *.synctex.gz
 *.fdb_latexmk
 *.pdf
+*.nav
+*.snm
+*.vrb

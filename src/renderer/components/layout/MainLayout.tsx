@@ -21,7 +21,6 @@ import { AgentUIEvent } from '@/services/agent'
 import { AnalysisPanel } from '../panels/AnalysisPanel'
 import { ActionPlanPanel } from '../panels/ActionPlanPanel'
 import { ActionPlanTab } from '../panels/ActionPlanTab'
-import { SimulationPanel } from '../simulation/SimulationPanel'
 import { ComparisonPanel } from '../panels/ComparisonPanel'
 import { TipTapEditor } from '../editor/TipTapEditor'
 import { useVsmStore } from '@/store/vsmStore'
@@ -212,6 +211,38 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
     }
   }
 
+  const handleRenameNote = (noteId: string, newTitle: string) => {
+    const updatedNotes = notes.map(n =>
+      n.id === noteId
+        ? { ...n, title: newTitle, updatedAt: new Date() }
+        : n
+    )
+    saveNotes(updatedNotes)
+
+    // Mettre à jour le titre de l'onglet si ouvert
+    const tabsStore = useTabsStore.getState()
+    const tab = tabsStore.tabs.find(t => t.data?.noteId === noteId)
+    if (tab) {
+      tabsStore.updateTab(tab.id, { title: newTitle })
+    }
+  }
+
+  const handleDeleteNote = (noteId: string) => {
+    const updatedNotes = notes.filter(n => n.id !== noteId)
+    saveNotes(updatedNotes)
+
+    if (selectedNoteId === noteId) {
+      setSelectedNoteId(null)
+    }
+
+    // Fermer l'onglet si ouvert
+    const tabsStore = useTabsStore.getState()
+    const tab = tabsStore.tabs.find(t => t.data?.noteId === noteId)
+    if (tab) {
+      tabsStore.removeTab(tab.id)
+    }
+  }
+
   return (
     <div
       className={cn('flex flex-1 overflow-hidden min-h-0', className)}
@@ -244,6 +275,8 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
               selectedNoteId={selectedNoteId}
               onSelectNote={handleSelectNote}
               onCreateNote={handleCreateNote}
+              onRenameNote={handleRenameNote}
+              onDeleteNote={handleDeleteNote}
               canCreate={!!currentProject}
               className="flex-shrink-0"
             />
@@ -257,24 +290,26 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
             />
           )}
 
-          {activeLeftPanel === 'analysis' && (
-            <div
-              className="flex-shrink-0 bg-background border-r overflow-hidden flex flex-col"
-              style={{ width: `${leftPanelWidth}px` }}
-            >
-              <div className="h-9 px-3 border-b flex items-center bg-muted/30">
-                <span className="text-sm font-medium">Analyse</span>
-              </div>
-              <div className="flex-1 overflow-auto p-2">
-                <AnalysisPanel
-                  analysis={(useVsmStore.getState().diagram as any)?.analysis}
-                  onIssueClick={(nodeId: string) => {
-                    console.log('Centrer sur le nœud:', nodeId);
-                  }}
-                />
-              </div>
+          {/* Analyse panel - toujours monté pour préserver l'état */}
+          <div
+            className={cn(
+              "flex-shrink-0 bg-background border-r overflow-hidden flex flex-col",
+              activeLeftPanel !== 'analysis' && "hidden"
+            )}
+            style={{ width: `${leftPanelWidth}px` }}
+          >
+            <div className="h-9 px-3 border-b flex items-center bg-muted/30">
+              <span className="text-sm font-medium">Analyse</span>
             </div>
-          )}
+            <div className="flex-1 overflow-auto p-2">
+              <AnalysisPanel
+                analysis={(useVsmStore.getState().diagram as any)?.analysis}
+                onIssueClick={(nodeId: string) => {
+                  console.log('Centrer sur le nœud:', nodeId);
+                }}
+              />
+            </div>
+          </div>
 
           {/* Poignée de redimensionnement gauche */}
           <div
@@ -424,20 +459,6 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
               }
             }}
           />
-        )}
-
-        {activeRightPanel === 'simulation' && (
-          <div
-            className="flex-shrink-0 bg-background border-l overflow-hidden flex flex-col"
-            style={{ width: `${rightPanelWidth}px` }}
-          >
-            <div className="h-9 px-3 border-b flex items-center bg-muted/30">
-              <span className="text-sm font-medium">Simulation</span>
-            </div>
-            <div className="flex-1 overflow-auto">
-              <SimulationPanel canvasRef={canvasRef as React.RefObject<VsmCanvasHandle>} />
-            </div>
-          </div>
         )}
 
         {/* Barre verticale avec icônes */}

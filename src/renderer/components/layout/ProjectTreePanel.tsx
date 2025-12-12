@@ -110,7 +110,7 @@ function buildTreeFromDiagram(diagram: VSMDiagram | null): TreeNode[] {
   // Flux d'informations
   const infoFlowsChildren: TreeNode[] = (diagram.informationFlows || []).map((flow, index) => ({
     id: flow.id || `info-flow-${index}`,
-    name: `Flux: ${flow.from} → ${flow.to}`,
+    name: `Flux: ${flow.sourceNodeId} → ${flow.targetNodeId}`,
     type: 'entity' as const,
     entityType: 'information-flow',
     icon: <LinkIcon className="h-4 w-4 text-cyan-500" />
@@ -128,11 +128,11 @@ function buildTreeFromDiagram(diagram: VSMDiagram | null): TreeNode[] {
   // Stocks (inventaires) - extraits depuis flowSequences
   const inventoriesChildren: TreeNode[] = [];
   (diagram.flowSequences || []).forEach((sequence, seqIndex) => {
-    (sequence.elements || []).forEach((element, elemIndex) => {
-      if (element.type === 'Inventory' && element.inventory) {
+    (sequence.intermediateElements || []).forEach((element, elemIndex) => {
+      if (element.type === 'INVENTORY' && element.inventory) {
         inventoriesChildren.push({
-          id: `inventory-${seqIndex}-${elemIndex}`,
-          name: element.inventory.label || 'Stock',
+          id: element.inventory.id || `inventory-${seqIndex}-${elemIndex}`,
+          name: element.inventory.name || 'Stock',
           type: 'entity' as const,
           entityType: 'inventory',
           icon: <Boxes className="h-4 w-4 text-amber-500" />
@@ -285,7 +285,7 @@ export const ProjectTreePanel: React.FC<ProjectTreePanelProps> = ({
           ) : (
             <div className="flex flex-col items-center justify-center text-center py-8 text-muted-foreground text-sm">
               <p>Aucun élément</p>
-              <p className="text-xs mt-1">Configurez votre diagramme</p>
+              <p className="text-xs mt-1">Ouvrez un projet pour voir son contenu</p>
             </div>
           )}
         </div>

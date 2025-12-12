@@ -466,8 +466,7 @@ export const ProjectExplorer: React.FC<ProjectExplorerProps> = ({
       ) : (
         /* État vide - Aucun projet ouvert */
         <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
-          <FolderPlus className="h-12 w-12 text-muted-foreground/50 mb-4" />
-          <h3 className="text-sm font-semibold mb-2">Aucun projet ouvert</h3>
+          <p className="text-sm text-muted-foreground mb-2">Aucun projet ouvert</p>
           <p className="text-xs text-muted-foreground mb-6 max-w-[200px]">
             Pour commencer, créez un nouveau projet ou ouvrez un projet existant.
           </p>

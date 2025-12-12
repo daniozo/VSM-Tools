@@ -57,7 +57,21 @@ export const AgentChatAssistant: React.FC<AgentChatAssistantProps> = ({
   const inputRef = useRef<HTMLInputElement>(null)
   const commandsRef = useRef<HTMLDivElement>(null)
 
-  const diagram = useVsmStore(state => state.diagram)  // Configurer le callback UI
+  const diagram = useVsmStore(state => state.diagram)
+
+  // Fermer le menu des commandes quand on clique ailleurs
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showCommands && commandsRef.current && !commandsRef.current.contains(event.target as Node)) {
+        setShowCommands(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [showCommands])
+
+  // Configurer le callback UI
   useEffect(() => {
     if (onUIEvent) {
       agentService.setUIEventCallback(onUIEvent)
@@ -179,13 +193,6 @@ export const AgentChatAssistant: React.FC<AgentChatAssistantProps> = ({
   const handleResetConversation = () => {
     agentService.resetConversation()
     resetConversation()
-  }
-
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      sendMessage()
-    }
   }
 
   return (

@@ -109,7 +109,7 @@ export const ActionPlanTab: React.FC<ActionPlanTabProps> = ({ projectId }) => {
       if (filterStatus !== 'all' && action.status !== filterStatus) return false
       if (filterPriority !== 'all' && action.priority !== filterPriority) return false
       if (searchQuery && !action.action.toLowerCase().includes(searchQuery.toLowerCase()) &&
-          !action.responsible.toLowerCase().includes(searchQuery.toLowerCase())) return false
+        !action.responsible.toLowerCase().includes(searchQuery.toLowerCase())) return false
       return true
     })
     .sort((a, b) => {
@@ -142,7 +142,7 @@ export const ActionPlanTab: React.FC<ActionPlanTabProps> = ({ projectId }) => {
     inProgress: actions.filter(a => a.status === 'in_progress').length,
     completed: actions.filter(a => a.status === 'completed').length,
     highPriority: actions.filter(a => a.priority === 'high' && a.status !== 'completed').length,
-    completionRate: actions.length > 0 
+    completionRate: actions.length > 0
       ? Math.round((actions.filter(a => a.status === 'completed').length / actions.length) * 100)
       : 0
   }
@@ -178,18 +178,18 @@ export const ActionPlanTab: React.FC<ActionPlanTabProps> = ({ projectId }) => {
     const now = new Date()
 
     if (editingAction) {
-      const updated = actions.map(a => 
-        a.id === editingAction.id 
+      const updated = actions.map(a =>
+        a.id === editingAction.id
           ? {
-              ...a,
-              action: formAction.trim(),
-              responsible: formResponsible.trim(),
-              priority: formPriority,
-              notes: formNotes.trim(),
-              status: formStatus,
-              dueDate: formDueDate || undefined,
-              updatedAt: now
-            }
+            ...a,
+            action: formAction.trim(),
+            responsible: formResponsible.trim(),
+            priority: formPriority,
+            notes: formNotes.trim(),
+            status: formStatus,
+            dueDate: formDueDate || undefined,
+            updatedAt: now
+          }
           : a
       )
       saveActions(updated)
@@ -220,8 +220,8 @@ export const ActionPlanTab: React.FC<ActionPlanTabProps> = ({ projectId }) => {
   }
 
   const handleStatusChange = (actionId: string, newStatus: ActionStatus) => {
-    const updated = actions.map(a => 
-      a.id === actionId 
+    const updated = actions.map(a =>
+      a.id === actionId
         ? { ...a, status: newStatus, updatedAt: new Date() }
         : a
     )
@@ -252,9 +252,8 @@ export const ActionPlanTab: React.FC<ActionPlanTabProps> = ({ projectId }) => {
     return (
       <div className="flex-1 flex items-center justify-center text-muted-foreground">
         <div className="text-center">
-          <AlertCircle className="mx-auto mb-4" size={48} />
-          <h3 className="text-lg font-semibold mb-2">Aucun projet ouvert</h3>
-          <p>Ouvrez un projet pour gérer le plan d'action</p>
+          <p className="text-sm">Aucun projet ouvert</p>
+          <p className="text-xs mt-1">Ouvrez un projet pour gérer le plan d'action</p>
         </div>
       </div>
     )
@@ -359,7 +358,7 @@ export const ActionPlanTab: React.FC<ActionPlanTabProps> = ({ projectId }) => {
                 </TableHead>
                 <TableHead className="min-w-[300px]">Action</TableHead>
                 <TableHead className="w-32">Responsable</TableHead>
-                <TableHead 
+                <TableHead
                   className="w-28 cursor-pointer hover:bg-muted"
                   onClick={() => toggleSort('priority')}
                 >
@@ -370,7 +369,7 @@ export const ActionPlanTab: React.FC<ActionPlanTabProps> = ({ projectId }) => {
                     )}
                   </div>
                 </TableHead>
-                <TableHead 
+                <TableHead
                   className="w-28 cursor-pointer hover:bg-muted"
                   onClick={() => toggleSort('status')}
                 >
@@ -381,7 +380,7 @@ export const ActionPlanTab: React.FC<ActionPlanTabProps> = ({ projectId }) => {
                     )}
                   </div>
                 </TableHead>
-                <TableHead 
+                <TableHead
                   className="w-28 cursor-pointer hover:bg-muted"
                   onClick={() => toggleSort('dueDate')}
                 >
@@ -399,7 +398,7 @@ export const ActionPlanTab: React.FC<ActionPlanTabProps> = ({ projectId }) => {
               {filteredActions.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                    {actions.length === 0 
+                    {actions.length === 0
                       ? "Aucune action définie. Cliquez sur 'Nouvelle action' pour commencer."
                       : "Aucune action ne correspond aux filtres."}
                   </TableCell>
@@ -408,9 +407,9 @@ export const ActionPlanTab: React.FC<ActionPlanTabProps> = ({ projectId }) => {
                 filteredActions.map(action => (
                   <TableRow key={action.id} className={action.status === 'completed' ? 'opacity-60' : ''}>
                     <TableCell>
-                      <Checkbox 
+                      <Checkbox
                         checked={action.status === 'completed'}
-                        onCheckedChange={(checked) => 
+                        onCheckedChange={(checked) =>
                           handleStatusChange(action.id, checked ? 'completed' : 'pending')
                         }
                       />
@@ -432,8 +431,8 @@ export const ActionPlanTab: React.FC<ActionPlanTabProps> = ({ projectId }) => {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Select 
-                        value={action.status} 
+                      <Select
+                        value={action.status}
                         onValueChange={(v) => handleStatusChange(action.id, v as ActionStatus)}
                       >
                         <SelectTrigger className="h-8 w-28">
@@ -447,7 +446,7 @@ export const ActionPlanTab: React.FC<ActionPlanTabProps> = ({ projectId }) => {
                       </Select>
                     </TableCell>
                     <TableCell>
-                      {action.dueDate 
+                      {action.dueDate
                         ? new Date(action.dueDate).toLocaleDateString('fr-FR')
                         : '-'}
                     </TableCell>
@@ -487,8 +486,8 @@ export const ActionPlanTab: React.FC<ActionPlanTabProps> = ({ projectId }) => {
               {editingAction ? 'Modifier l\'action' : 'Nouvelle action'}
             </DialogTitle>
             <DialogDescription>
-              {editingAction 
-                ? 'Modifiez les détails de cette action' 
+              {editingAction
+                ? 'Modifiez les détails de cette action'
                 : 'Ajoutez une nouvelle action au plan'}
             </DialogDescription>
           </DialogHeader>

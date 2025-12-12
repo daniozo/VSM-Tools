@@ -21,7 +21,6 @@ import {
 import {
   AlertTriangle,
   AlertCircle,
-  Info,
   Lightbulb,
   TrendingUp,
   Filter,
@@ -429,7 +428,7 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
   if (!diagram) {
     return (
       <div className="flex flex-col items-center justify-center h-full p-4 text-center text-muted-foreground">
-        <p className="text-sm">Aucun diagramme ouvert</p>
+        <p className="text-sm">Aucun projet ouvert</p>
         <p className="text-xs mt-1">Ouvrez ou créez un projet pour voir l'analyse</p>
       </div>
     );
@@ -437,9 +436,8 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
 
   if (!analysis) {
     return (
-      <div className="p-4 text-center text-muted-foreground">
-        <AlertCircle className="mx-auto mb-2" size={48} />
-        <p>Analyse en cours...</p>
+      <div className="flex flex-col items-center justify-center h-full p-4 text-center text-muted-foreground">
+        <p className="text-sm">Analyse en cours...</p>
       </div>
     );
   }
