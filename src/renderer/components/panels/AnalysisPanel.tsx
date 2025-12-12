@@ -429,7 +429,6 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
   if (!diagram) {
     return (
       <div className="flex flex-col items-center justify-center h-full p-4 text-center text-muted-foreground">
-        <Info className="h-8 w-8 mb-2 opacity-50" />
         <p className="text-sm">Aucun diagramme ouvert</p>
         <p className="text-xs mt-1">Ouvrez ou créez un projet pour voir l'analyse</p>
       </div>

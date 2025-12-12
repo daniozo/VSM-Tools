@@ -194,7 +194,7 @@ export const AgentChatAssistant: React.FC<AgentChatAssistantProps> = ({
       className={cn('flex flex-col bg-background border-l h-full', className)}
     >
       {/* Header - Style Gemini */}
-      <div className="h-14 px-4 border-b flex items-center justify-between bg-background">
+      <div className="h-9 px-3 border-b flex items-center justify-between bg-background">
         <div className="flex items-center gap-3">
           <span className="text-base font-medium">Assistant</span>
         </div>

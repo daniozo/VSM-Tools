@@ -300,6 +300,13 @@ L'analyste ou l'ingénieur processus est l'utilisateur principal du \textbf{VSM 
 \begin{enumerate}[leftmargin=*]
     \item \textbf{Initialisation du projet :} L'analyste commence par créer un nouveau projet, qui est une entrée dédiée dans la base de données PostgreSQL. Il peut également importer un fichier \texttt{.vsmx} existant pour initialiser un projet.
 
+          \begin{figure}[H]
+              \centering
+              \includegraphics[width=0.8\textwidth]{../../../images/imgfinals/dialogue_ouvrir_projet.png}
+              \caption{Dialogue d'ouverture et de création de projet.}
+              \label{fig:ouvrir_projet}
+          \end{figure}
+
     \item \textbf{Configuration du modèle de données :} L'étape centrale du travail se déroule dans le \textbf{Dialogue de Configuration Central}. L'analyste ne dessine pas, il modélise en remplissant des formulaires structurés pour :
           \begin{itemize}
               \item Définir les sources de données externes (connexions aux bases de données, API REST...).
@@ -308,6 +315,27 @@ L'analyste ou l'ingénieur processus est l'utilisateur principal du \textbf{VSM 
               \item Attacher des \textbf{indicateurs} à chaque élément pertinent et choisir leur mode de collecte de données : \textit{statique} (valeur fixe), \textit{manuel} (saisie par un opérateur), ou \textit{dynamique} (collecte automatique).
           \end{itemize}
 
+          \begin{figure}[H]
+              \centering
+              \includegraphics[width=0.8\textwidth]{../../../images/imgfinals/dialconfig_vu_infos_general.png}
+              \caption{Configuration : Informations générales du projet.}
+              \label{fig:config_general}
+          \end{figure}
+
+          \begin{figure}[H]
+              \centering
+              \includegraphics[width=0.8\textwidth]{../../../images/imgfinals/dialconfig_vu_etapes_de_production.png}
+              \caption{Configuration : Définition des étapes de production.}
+              \label{fig:config_etapes}
+          \end{figure}
+
+          \begin{figure}[H]
+              \centering
+              \includegraphics[width=0.8\textwidth]{../../../images/imgfinals/dialconfig_vu_indicteurs.png}
+              \caption{Configuration : Gestion des indicateurs.}
+              \label{fig:config_indicateurs}
+          \end{figure}
+
     \item \textbf{Visualisation et analyse de l'état actuel :} Une fois la configuration appliquée, l'algorithme de layout génère automatiquement le diagramme VSM sur le canevas. L'analyste peut alors :
           \begin{itemize}
               \item Naviguer dans le diagramme et analyser les indicateurs globaux calculés automatiquement (Lead Time, taux de valeur ajoutée...).
@@ -315,7 +343,35 @@ L'analyste ou l'ingénieur processus est l'utilisateur principal du \textbf{VSM 
               \item Interagir avec l'\textbf{agent conversationnel} (IA) pour obtenir de l'aide, poser des questions sur la méthodologie ou demander des suggestions d'optimisation.
           \end{itemize}
 
+          \begin{figure}[H]
+              \centering
+              \includegraphics[width=1\textwidth]{../../../images/imgfinals/vu_diagramme_etat_actuel_avec_panneaux_explorateur_et_propriete.png}
+              \caption{Vue du diagramme État Actuel avec les panneaux latéraux.}
+              \label{fig:vue_globale}
+          \end{figure}
+
+          \begin{figure}[H]
+              \centering
+              \includegraphics[width=0.8\textwidth]{../../../images/imgfinals/vu_avec_panneau_analyse_montrant_10_probleme.png}
+              \caption{Panneau d'analyse mettant en évidence les problèmes détectés.}
+              \label{fig:analyse_problemes}
+          \end{figure}
+
+          \begin{figure}[H]
+              \centering
+              \includegraphics[width=0.4\textwidth]{../../../images/imgfinals/vu_avec_panneau_assistant.png}
+              \caption{L'assistant conversationnel intégré.}
+              \label{fig:assistant}
+          \end{figure}
+
     \item \textbf{Conception de l'état futur :} Une fois l'état actuel analysé et les goulots identifiés, l'analyste passe à la conception de la solution. Pour cela, il utilise la fonctionnalité de l'outil pour \textbf{dupliquer son diagramme} afin de créer une version \enquote{état futur}. Sur cette nouvelle carte, il modélise les améliorations envisagées : il supprime un stock, modifie un flux pour le passer en "tiré", réduit un temps de changement de série... L'outil met alors à jour instantanément les indicateurs globaux (Lead Time, \%VA), ce qui permet de \textbf{mesurer et de valider l'efficacité} des améliorations proposées avant même leur déploiement sur le terrain.
+
+          \begin{figure}[H]
+              \centering
+              \includegraphics[width=0.6\textwidth]{../../../images/imgfinals/dial_cration_diagramme_etat_futur.png}
+              \caption{Création d'un diagramme État Futur.}
+              \label{fig:etat_futur}
+          \end{figure}
 
     \item \textbf{Enrichissement et plan d'action :} L'analyse débouche sur des actions concrètes. L'analyste peut :
           \begin{itemize}
@@ -323,6 +379,20 @@ L'analyste ou l'ingénieur processus est l'utilisateur principal du \textbf{VSM 
               \item Rédiger des \textbf{notes} et définir un \textbf{plan d'action} structuré, ces informations étant directement stockées dans la base de données du projet.
               \item Exporter le diagramme finalisé au format \texttt{.vsmx} pour l'archivage ou le partage.
           \end{itemize}
+
+          \begin{figure}[H]
+              \centering
+              \includegraphics[width=0.8\textwidth]{../../../images/imgfinals/vu_avec_panneau_plan_daction_montrant_une_action_a_realiser.png}
+              \caption{Gestion du plan d'action.}
+              \label{fig:plan_action}
+          \end{figure}
+
+          \begin{figure}[H]
+              \centering
+              \includegraphics[width=0.8\textwidth]{../../../images/imgfinals/vu_note_prise.png}
+              \caption{Prise de notes contextuelle.}
+              \label{fig:notes}
+          \end{figure}
 \end{enumerate}
 
 \subsubsection{Focus sur la configuration d'un indicateur dynamique}
@@ -610,7 +680,7 @@ L'ensemble de ces éléments est synthétisé dans le Business Model Canvas ci-d
 
 \begin{figure}[H]
     \centering
-    % \includegraphics[width=0.9\textwidth]{../../../images/business_model_canvas.png}
+    \includegraphics[width=0.9\textwidth]{../../../images/imgfinals/business_model_canvas.png}
     \caption{Business Model Canvas pour VSM-Tools.}
     \label{fig:bmc}
 \end{figure}
@@ -795,11 +865,10 @@ Le diagramme ci-dessous offre une représentation visuelle de la planification d
 
         \end{ganttchart}
     }
-    \caption{Diagramme de Gantt de la phase d'implémentation du projet.}
-    \label{fig:gantt_impl}
+    \caption{Diagramme de Gantt de la phase d'implémentation.}
+    \label{fig:gantt_implementation}
 \end{figure}
 
-% --- SECTION 14 : CONCLUSION ---
 \section{Conclusion}
 
 Au terme de ce projet, la solution VSM-Tools se présente comme une réponse concrète et innovante aux défis de l'optimisation industrielle. Parti du constat que la visibilité des flux est le prérequis à toute amélioration, ce projet a abouti à la création d'un écosystème logiciel complet, conçu pour supporter le cycle intégral de la méthodologie VSM : du diagnostic de l'\textbf{état actuel} à la conception et la quantification de l'\textbf{état futur}.
@@ -818,23 +887,30 @@ En synthèse, VSM-Tools démontre qu'il est possible d'allier la rigueur d'une m
 \appendix
 \section{Annexes}
 
-\subsection{Annexe A : Exemple de VSM généré par VSM-Tools}
-% Ici, vous mettriez une capture d'écran de votre application montrant un diagramme finalisé.
+\subsection{Annexe A : Autres vues de l'application}
+
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{../../../images/imgfinals/}
-    \caption{Exemple de VSM - État Actuel.}
-    \label{fig:vsm_actuel}
+    \includegraphics[width=1\textwidth]{../../../images/imgfinals/vu_diagramme_etat_actuel_sans_panneaux_lateraux.png}
+    \caption{Vue épurée du diagramme État Actuel.}
+    \label{fig:vue_epuree}
 \end{figure}
 
-\subsection{Annexe B : Maquettes de l'Interface Utilisateur}
-% Ici, vous pourriez mettre les captures d'écran des fenêtres de dialogue que vous m'avez montrées (création de source, édition d'indicateur).
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{../../../images/imgfinals/dialconfig_vu_analyse_et_prediction.png}
+    \caption{Configuration de l'analyse et de la prédiction.}
+    \label{fig:config_analyse}
+\end{figure}
 
-\subsection{Annexe C : Business Model Canvas}
-% L'image du Business Model Canvas que vous avez créé.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{../../../images/imgfinals/dial_ajout_de_note.png}
+    \caption{Dialogue d'ajout de note.}
+    \label{fig:ajout_note}
+\end{figure}
 
-\vspace{1cm}
-\subsection{Dépôt GitHub du Projet}
+\subsection{Annexe B : Dépôt GitHub du Projet}
 \noindent Le code source du projet est disponible sur GitHub : \url{https://github.com/daniozo/VSM-Tools}
 
 % --- FIN DU DOCUMENT ---

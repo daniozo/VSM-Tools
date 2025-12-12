@@ -842,17 +842,16 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
         ) : (
           <div className="flex flex-col items-center justify-center h-full p-4 text-center text-muted-foreground">
             {!diagram ? (
-              <>
-                <AlertTriangle className="h-8 w-8 mb-2 opacity-50" />
+              <div className="flex flex-col items-center justify-center">
                 <p className="text-sm">Aucun diagramme ouvert</p>
                 <p className="text-xs mt-1">Ouvrez ou créez un diagramme pour voir ses propriétés</p>
-              </>
+              </div>
             ) : (
-              <>
+              <div className="flex flex-col items-center justify-center">
                 <Info className="h-8 w-8 mb-2 opacity-50" />
                 <p className="text-sm">Sélectionnez un élément</p>
                 <p className="text-xs mt-1">dans l'explorateur ou sur le canevas pour voir ses propriétés</p>
-              </>
+              </div>
             )}
           </div>
         )}

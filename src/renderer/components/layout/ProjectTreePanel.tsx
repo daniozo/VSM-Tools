@@ -5,12 +5,11 @@
 
 import React, { useState } from 'react';
 import { ScrollArea } from '@/renderer/components/ui/scroll-area';
-import { Button } from '@/renderer/components/ui/button';
-import { 
-  ChevronRight, 
+import {
+  ChevronRight,
   ChevronDown,
-  Truck, 
-  Users, 
+  Truck,
+  Users,
   Building2,
   Package,
   Link as LinkIcon,
@@ -45,10 +44,10 @@ function buildTreeFromDiagram(diagram: VSMDiagram | null): TreeNode[] {
   if (!diagram || !diagram.actors) return [];
 
   const nodes: TreeNode[] = [];
-  
+
   // Acteurs
   const actorsChildren: TreeNode[] = [];
-  
+
   if (diagram.actors?.supplier) {
     actorsChildren.push({
       id: 'supplier',
@@ -58,7 +57,7 @@ function buildTreeFromDiagram(diagram: VSMDiagram | null): TreeNode[] {
       icon: <Truck className="h-4 w-4 text-purple-500" />
     });
   }
-  
+
   if (diagram.actors?.customer) {
     actorsChildren.push({
       id: 'customer',
@@ -68,7 +67,7 @@ function buildTreeFromDiagram(diagram: VSMDiagram | null): TreeNode[] {
       icon: <Users className="h-4 w-4 text-green-500" />
     });
   }
-  
+
   if (diagram.actors?.controlCenter) {
     actorsChildren.push({
       id: 'control-center',
@@ -160,7 +159,7 @@ function buildTreeFromDiagram(diagram: VSMDiagram | null): TreeNode[] {
       const toNode = diagram.nodes?.find(n => n.id === sequence.toNodeId);
       const fromName = fromNode?.name || sequence.fromNodeId;
       const toName = toNode?.name || sequence.toNodeId;
-      
+
       materialFlowsChildren.push({
         id: `material-flow-${seqIndex}`,
         name: `${fromName} → ${toName}`,
@@ -284,7 +283,7 @@ export const ProjectTreePanel: React.FC<ProjectTreePanelProps> = ({
               />
             ))
           ) : (
-            <div className="text-center py-8 text-muted-foreground text-sm">
+            <div className="flex flex-col items-center justify-center text-center py-8 text-muted-foreground text-sm">
               <p>Aucun élément</p>
               <p className="text-xs mt-1">Configurez votre diagramme</p>
             </div>
