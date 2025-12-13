@@ -14,3 +14,5 @@ export {
 export { configurationApi, type ConfigurationSection } from './configuration';
 export * as dataSourcesApi from './dataSources';
 export * as analysisApi from './analysis';
+export { notesApi, type Note, type CreateNoteData, type UpdateNoteData } from './notes';
+export { actionPlanApi, type ActionItem, type CreateActionItemData, type UpdateActionItemData, type Priority, type ActionStatus } from './actionPlan';

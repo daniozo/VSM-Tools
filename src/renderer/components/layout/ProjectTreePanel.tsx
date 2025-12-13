@@ -11,13 +11,14 @@ import {
   Truck,
   Users,
   Building2,
-  Package,
-  Link as LinkIcon,
+  Factory,
+  Radio,
   ArrowRight,
   Boxes
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useVsmStore } from '@/store/vsmStore';
+import { useTabsStore } from '@/store/tabsStore';
 import type { VSMDiagram } from '@/shared/types/vsm-model';
 import { NodeType } from '@/shared/types/vsm-model';
 
@@ -95,7 +96,7 @@ function buildTreeFromDiagram(diagram: VSMDiagram | null): TreeNode[] {
       name: node.name || 'Étape',
       type: 'entity' as const,
       entityType: 'process-step',
-      icon: <Package className="h-4 w-4 text-orange-500" />
+      icon: <Factory className="h-4 w-4 text-orange-500" />
     }));
 
   if (stepsChildren.length > 0) {
@@ -113,7 +114,7 @@ function buildTreeFromDiagram(diagram: VSMDiagram | null): TreeNode[] {
     name: `Flux: ${flow.sourceNodeId} → ${flow.targetNodeId}`,
     type: 'entity' as const,
     entityType: 'information-flow',
-    icon: <LinkIcon className="h-4 w-4 text-cyan-500" />
+    icon: <Radio className="h-4 w-4 text-cyan-500" />
   }));
 
   if (infoFlowsChildren.length > 0) {
@@ -254,10 +255,13 @@ export const ProjectTreePanel: React.FC<ProjectTreePanelProps> = ({
 }) => {
   const diagram = useVsmStore(state => state.diagram);
   const tree = buildTreeFromDiagram(diagram);
+  const requestRightPanel = useTabsStore(state => state.requestRightPanel);
 
   const handleSelect = (node: TreeNode) => {
     if (node.type === 'entity' && node.entityType) {
       onSelect(node.id, node.entityType);
+      // Ouvrir automatiquement le panneau de propriétés à droite
+      requestRightPanel('properties');
     }
   };
 

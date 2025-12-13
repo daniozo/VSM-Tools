@@ -1,6 +1,7 @@
 /**
  * Système de gestion des onglets pour VSM-Tools
  * Similaire aux onglets d'un navigateur web
+ * Inclut également la gestion des panneaux latéraux
  */
 
 import { create } from 'zustand';
@@ -16,6 +17,9 @@ export type TabType =
   | 'analysis'       // Analyse
   | 'custom';        // Vue personnalisée
 
+export type LeftSidebarPanel = 'explorer' | 'notes' | 'action-plan' | 'analysis';
+export type RightSidebarPanel = 'properties' | 'assistant';
+
 export interface Tab {
   id: string;
   type: TabType;
@@ -28,6 +32,10 @@ export interface Tab {
 interface TabsStore {
   tabs: Tab[];
   activeTabId: string | null;
+  
+  // Panneaux latéraux
+  requestedLeftPanel: LeftSidebarPanel | null;
+  requestedRightPanel: RightSidebarPanel | null;
 
   // Actions
   addTab: (tab: Omit<Tab, 'id'> & { id?: string }) => void;
@@ -37,6 +45,11 @@ interface TabsStore {
   openOrFocusTab: (type: TabType, title: string, data?: any) => void;
   getTabById: (tabId: string) => Tab | undefined;
   getTabsByType: (type: TabType) => Tab[];
+  
+  // Actions panneaux
+  requestLeftPanel: (panel: LeftSidebarPanel) => void;
+  requestRightPanel: (panel: RightSidebarPanel) => void;
+  clearPanelRequest: () => void;
 }
 
 // Générer un ID unique
@@ -54,6 +67,10 @@ export const useTabsStore = create<TabsStore>((set, get) => ({
     }
   ],
   activeTabId: 'diagram-main',
+  
+  // Panneaux latéraux - null = pas de requête en cours
+  requestedLeftPanel: null,
+  requestedRightPanel: null,
 
   addTab: (tabData) => {
     const id = tabData.id || generateId();
@@ -161,5 +178,20 @@ export const useTabsStore = create<TabsStore>((set, get) => ({
 
   getTabsByType: (type) => {
     return get().tabs.filter(t => t.type === type);
+  },
+  
+  // Demande d'ouverture d'un panneau gauche (sera consommée par MainLayout)
+  requestLeftPanel: (panel) => {
+    set({ requestedLeftPanel: panel });
+  },
+  
+  // Demande d'ouverture d'un panneau droit
+  requestRightPanel: (panel) => {
+    set({ requestedRightPanel: panel });
+  },
+  
+  // Effacer les requêtes (appelé après consommation)
+  clearPanelRequest: () => {
+    set({ requestedLeftPanel: null, requestedRightPanel: null });
   },
 }));

@@ -19,7 +19,7 @@ import {
   Settings2,
   Info,
   Factory,
-  Package,
+  Boxes,
   Users,
   Truck,
   ArrowRight,
@@ -112,7 +112,7 @@ const getIconForType = (type: string): React.ReactNode => {
     case NodeType.CONTROL_CENTER:
       return <Building2 className="h-5 w-5" />
     case 'inventory':
-      return <Package className="h-5 w-5" />
+      return <Boxes className="h-5 w-5" />
     case 'improvementPoint':
       return <Lightbulb className="h-5 w-5" />
     case 'materialFlow':

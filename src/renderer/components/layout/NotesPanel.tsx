@@ -132,7 +132,7 @@ export const NotesPanel: React.FC<NotesPanelProps> = ({
                   </div>
                 ) : (
                   <>
-                    <p className="font-medium truncate text-sm">{note.title}</p>
+                    <p className="font-medium truncate text-sm break-words line-clamp-2">{note.title}</p>
                     <p className="text-xs text-muted-foreground">
                       {note.updatedAt.toLocaleDateString('fr-FR')}
                     </p>

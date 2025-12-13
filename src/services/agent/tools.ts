@@ -8,52 +8,6 @@ import { ToolDefinition } from './types'
 
 export const VSM_TOOLS: ToolDefinition[] = [
   // ============================================
-  // OUTILS DE NAVIGATION
-  // ============================================
-  {
-    name: 'select_node',
-    description: 'Sélectionne un nœud/étape spécifique dans le diagramme VSM',
-    category: 'navigation',
-    parameters: [
-      {
-        name: 'nodeId',
-        type: 'string',
-        description: 'ID du nœud à sélectionner',
-        required: true
-      }
-    ],
-    requiresConfirmation: false
-  },
-  {
-    name: 'zoom_to_element',
-    description: 'Centre la vue sur un élément spécifique du diagramme',
-    category: 'navigation',
-    parameters: [
-      {
-        name: 'elementId',
-        type: 'string',
-        description: 'ID de l\'élément à centrer',
-        required: true
-      },
-      {
-        name: 'elementType',
-        type: 'string',
-        description: 'Type d\'élément (node, inventory, actor)',
-        required: true,
-        enum: ['node', 'inventory', 'actor', 'improvementPoint']
-      }
-    ],
-    requiresConfirmation: false
-  },
-  {
-    name: 'open_configuration_dialog',
-    description: 'Ouvre le dialogue de configuration du diagramme VSM',
-    category: 'navigation',
-    parameters: [],
-    requiresConfirmation: false
-  },
-
-  // ============================================
   // OUTILS DE LECTURE / ANALYSE
   // ============================================
   {
@@ -403,6 +357,191 @@ export const VSM_TOOLS: ToolDefinition[] = [
     requiresConfirmation: true,
     confirmationMessage: (args) =>
       `Voulez-vous définir la demande client à ${args.dailyDemand} ${args.unit || 'pièces'}/jour ?`
+  },
+  {
+    name: 'open_configuration_dialog',
+    description: 'Ouvrir la fenêtre de configuration complète du diagramme VSM',
+    category: 'diagram',
+    parameters: [],
+    requiresConfirmation: false
+  },
+
+  // ============================================
+  // OUTILS DE NOTES
+  // ============================================
+  {
+    name: 'list_notes',
+    description: 'Lister toutes les notes du projet',
+    category: 'notes',
+    parameters: [],
+    requiresConfirmation: false
+  },
+  {
+    name: 'create_note',
+    description: 'Créer une nouvelle note dans le projet',
+    category: 'notes',
+    parameters: [
+      {
+        name: 'title',
+        type: 'string',
+        description: 'Titre de la note',
+        required: true
+      },
+      {
+        name: 'content',
+        type: 'string',
+        description: 'Contenu de la note',
+        required: false,
+        default: ''
+      }
+    ],
+    requiresConfirmation: true,
+    confirmationMessage: (args) =>
+      `Voulez-vous créer la note "${args.title}" ?`
+  },
+  {
+    name: 'update_note',
+    description: 'Modifier une note existante',
+    category: 'notes',
+    parameters: [
+      {
+        name: 'noteId',
+        type: 'string',
+        description: 'ID de la note à modifier',
+        required: true
+      },
+      {
+        name: 'title',
+        type: 'string',
+        description: 'Nouveau titre',
+        required: false
+      },
+      {
+        name: 'content',
+        type: 'string',
+        description: 'Nouveau contenu',
+        required: false
+      }
+    ],
+    requiresConfirmation: true,
+    confirmationMessage: () =>
+      `Voulez-vous mettre à jour cette note ?`
+  },
+
+  // ============================================
+  // OUTILS DE PLAN D'ACTION
+  // ============================================
+  {
+    name: 'list_action_items',
+    description: 'Lister toutes les actions du plan d\'action',
+    category: 'actionplan',
+    parameters: [],
+    requiresConfirmation: false
+  },
+  {
+    name: 'create_action_item',
+    description: 'Créer une nouvelle action dans le plan d\'action',
+    category: 'actionplan',
+    parameters: [
+      {
+        name: 'action',
+        type: 'string',
+        description: 'Description de l\'action',
+        required: true
+      },
+      {
+        name: 'responsible',
+        type: 'string',
+        description: 'Personne responsable',
+        required: false
+      },
+      {
+        name: 'priority',
+        type: 'string',
+        description: 'Priorité de l\'action',
+        required: false,
+        enum: ['low', 'medium', 'high'],
+        default: 'medium'
+      },
+      {
+        name: 'dueDate',
+        type: 'string',
+        description: 'Date d\'échéance (format YYYY-MM-DD)',
+        required: false
+      }
+    ],
+    requiresConfirmation: true,
+    confirmationMessage: (args) =>
+      `Voulez-vous créer l'action "${args.action}" ?`
+  },
+  {
+    name: 'update_action_item',
+    description: 'Modifier une action existante (statut, priorité, responsable)',
+    category: 'actionplan',
+    parameters: [
+      {
+        name: 'actionId',
+        type: 'string',
+        description: 'ID de l\'action à modifier',
+        required: true
+      },
+      {
+        name: 'action',
+        type: 'string',
+        description: 'Nouvelle description',
+        required: false
+      },
+      {
+        name: 'status',
+        type: 'string',
+        description: 'Nouveau statut',
+        required: false,
+        enum: ['pending', 'in_progress', 'completed']
+      },
+      {
+        name: 'priority',
+        type: 'string',
+        description: 'Nouvelle priorité',
+        required: false,
+        enum: ['low', 'medium', 'high']
+      },
+      {
+        name: 'responsible',
+        type: 'string',
+        description: 'Nouveau responsable',
+        required: false
+      }
+    ],
+    requiresConfirmation: true,
+    confirmationMessage: () =>
+      `Voulez-vous mettre à jour cette action ?`
+  },
+
+  // ============================================
+  // OUTILS D'ÉTAT FUTUR
+  // ============================================
+  {
+    name: 'create_future_state',
+    description: 'Créer un diagramme VSM état futur basé sur l\'état actuel avec les améliorations identifiées',
+    category: 'futurestate',
+    parameters: [
+      {
+        name: 'improvements',
+        type: 'string',
+        description: 'Liste des améliorations à appliquer (séparées par des virgules)',
+        required: false
+      },
+      {
+        name: 'targetLeadTimeReduction',
+        type: 'number',
+        description: 'Objectif de réduction du lead time en pourcentage',
+        required: false,
+        default: 30
+      }
+    ],
+    requiresConfirmation: true,
+    confirmationMessage: (args) =>
+      `Voulez-vous créer un état futur avec un objectif de réduction de ${args.targetLeadTimeReduction || 30}% du lead time ?`
   }
 ]
 

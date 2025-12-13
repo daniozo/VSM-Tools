@@ -15,6 +15,7 @@ import { OpenProjectDialog } from './components/dialogs/OpenProjectDialog';
 // Store et données
 import { useVsmStore } from '@/store/vsmStore';
 import { useProjectsStore } from '@/store/projectsStore';
+import { useTabsStore } from '@/store/tabsStore';
 import { demoDiagram } from '@/shared/data/demo-diagram';
 import { demoDiagramWithProblems } from '@/shared/data/demo-diagram-problems';
 import { diagramsApi } from '@/services/api';
@@ -283,7 +284,10 @@ const App: React.FC = () => {
         >
           <VsmCanvas ref={canvasRef} />
         </MainLayout>
-        <StatusBar />
+        <StatusBar 
+          onOpenAnalysisPanel={() => useTabsStore.getState().requestLeftPanel('analysis')}
+          onOpenActionPlanPanel={() => useTabsStore.getState().requestLeftPanel('action-plan')}
+        />
 
         {/* Dialogues */}
         <ConfigurationDialog

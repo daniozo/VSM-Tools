@@ -27,6 +27,7 @@ import { useVsmStore } from '@/store/vsmStore'
 import { useTabsStore } from '@/store/tabsStore'
 import { cn } from '@/lib/utils'
 import { VsmCanvasHandle } from '../editor/VsmCanvas'
+import { notesApi, type Note as ApiNote } from '@/services/api'
 import {
   Dialog,
   DialogContent,
@@ -57,34 +58,80 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
   const [leftPanelWidth, setLeftPanelWidth] = useState(280)
   const [rightPanelWidth, setRightPanelWidth] = useState(320)
   const [selectedElementId, setSelectedElementId] = useState<string | null>(null)
+  
+  // Écouter les requêtes de changement de panneau depuis le store
+  const requestedLeftPanel = useTabsStore(state => state.requestedLeftPanel)
+  const requestedRightPanel = useTabsStore(state => state.requestedRightPanel)
+  const clearPanelRequest = useTabsStore(state => state.clearPanelRequest)
+  
+  // Gérer les requêtes de panneau
+  useEffect(() => {
+    if (requestedLeftPanel) {
+      setActiveLeftPanel(requestedLeftPanel as LeftSidebarPanel)
+      clearPanelRequest()
+    }
+    if (requestedRightPanel) {
+      setActiveRightPanel(requestedRightPanel as RightSidebarPanel)
+      clearPanelRequest()
+    }
+  }, [requestedLeftPanel, requestedRightPanel, clearPanelRequest])
 
   // Gestion des notes
   const [notes, setNotes] = useState<Note[]>([])
   const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null)
   const [isNewNoteDialogOpen, setIsNewNoteDialogOpen] = useState(false)
   const [newNoteTitle, setNewNoteTitle] = useState('')
+  const [_isLoadingNotes, setIsLoadingNotes] = useState(false) // Prefixed to avoid warning
 
-  // Charger les notes
+  // Charger les notes depuis l'API
   useEffect(() => {
-    const storageKey = currentProject?.id ? `vsm-notes-${currentProject.id}` : 'vsm-notes-default'
-    const savedNotes = localStorage.getItem(storageKey)
-    if (savedNotes) {
-      const parsed = JSON.parse(savedNotes)
-      const notesWithDates = parsed.map((note: any) => ({
-        ...note,
-        createdAt: new Date(note.createdAt),
-        updatedAt: new Date(note.updatedAt),
-      }))
-      setNotes(notesWithDates)
-    }
-  }, [currentProject?.id])
+    const loadNotes = async () => {
+      if (!currentProject?.id) {
+        setNotes([])
+        return
+      }
 
-  // Sauvegarder les notes
-  const saveNotes = (updatedNotes: Note[]) => {
-    const storageKey = currentProject?.id ? `vsm-notes-${currentProject.id}` : 'vsm-notes-default'
-    localStorage.setItem(storageKey, JSON.stringify(updatedNotes))
-    setNotes(updatedNotes)
-  }
+      setIsLoadingNotes(true)
+      try {
+        const apiNotes = await notesApi.list(currentProject.id)
+        // Convertir les notes API vers le format local
+        const localNotes: Note[] = apiNotes.map((n: ApiNote) => ({
+          id: n.id,
+          title: n.title,
+          content: n.content,
+          createdAt: new Date(n.created_at),
+          updatedAt: new Date(n.updated_at),
+        }))
+        setNotes(localNotes)
+      } catch (error) {
+        console.error('Erreur lors du chargement des notes:', error)
+        // Fallback vers localStorage si l'API échoue
+        const storageKey = `vsm-notes-${currentProject.id}`
+        const savedNotes = localStorage.getItem(storageKey)
+        if (savedNotes) {
+          const parsed = JSON.parse(savedNotes)
+          const notesWithDates = parsed.map((note: any) => ({
+            ...note,
+            createdAt: new Date(note.createdAt),
+            updatedAt: new Date(note.updatedAt),
+          }))
+          setNotes(notesWithDates)
+        }
+      } finally {
+        setIsLoadingNotes(false)
+      }
+    }
+
+    loadNotes()
+
+    // Écouter les événements de rafraîchissement des notes
+    const handleRefreshNotes = () => {
+      loadNotes()
+    }
+
+    window.addEventListener('notes-refreshed', handleRefreshNotes)
+    return () => window.removeEventListener('notes-refreshed', handleRefreshNotes)
+  }, [currentProject?.id])
 
   // Gestion du redimensionnement
   const [isResizingLeft, setIsResizingLeft] = useState(false)
@@ -182,25 +229,33 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
     setIsNewNoteDialogOpen(true)
   }
 
-  const handleConfirmCreateNote = () => {
-    if (!newNoteTitle.trim()) return
+  const handleConfirmCreateNote = async () => {
+    if (!newNoteTitle.trim() || !currentProject?.id) return
 
-    const newNote: Note = {
-      id: `note-${Date.now()}`,
-      title: newNoteTitle.trim(),
-      content: '',
-      createdAt: new Date(),
-      updatedAt: new Date(),
+    try {
+      const apiNote = await notesApi.create(currentProject.id, {
+        title: newNoteTitle.trim(),
+        content: ''
+      })
+
+      const newNote: Note = {
+        id: apiNote.id,
+        title: apiNote.title,
+        content: apiNote.content,
+        createdAt: new Date(apiNote.created_at),
+        updatedAt: new Date(apiNote.updated_at),
+      }
+
+      setNotes(prev => [...prev, newNote])
+      setSelectedNoteId(newNote.id)
+      setNewNoteTitle('')
+      setIsNewNoteDialogOpen(false)
+
+      // Ouvrir l'onglet de la note
+      useTabsStore.getState().openOrFocusTab('notes', newNote.title, { noteId: newNote.id })
+    } catch (error) {
+      console.error('Erreur lors de la création de la note:', error)
     }
-
-    const updatedNotes = [...notes, newNote]
-    saveNotes(updatedNotes)
-    setSelectedNoteId(newNote.id)
-    setNewNoteTitle('')
-    setIsNewNoteDialogOpen(false)
-
-    // Ouvrir l'onglet de la note
-    useTabsStore.getState().openOrFocusTab('notes', newNote.title, { noteId: newNote.id })
   }
 
   const handleSelectNote = (noteId: string) => {
@@ -211,35 +266,65 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
     }
   }
 
-  const handleRenameNote = (noteId: string, newTitle: string) => {
-    const updatedNotes = notes.map(n =>
-      n.id === noteId
-        ? { ...n, title: newTitle, updatedAt: new Date() }
-        : n
-    )
-    saveNotes(updatedNotes)
+  const handleRenameNote = async (noteId: string, newTitle: string) => {
+    if (!currentProject?.id) return
 
-    // Mettre à jour le titre de l'onglet si ouvert
-    const tabsStore = useTabsStore.getState()
-    const tab = tabsStore.tabs.find(t => t.data?.noteId === noteId)
-    if (tab) {
-      tabsStore.updateTab(tab.id, { title: newTitle })
+    try {
+      await notesApi.update(currentProject.id, noteId, { title: newTitle })
+
+      setNotes(prev => prev.map(n =>
+        n.id === noteId
+          ? { ...n, title: newTitle, updatedAt: new Date() }
+          : n
+      ))
+
+      // Mettre à jour le titre de l'onglet si ouvert
+      const tabsStore = useTabsStore.getState()
+      const tab = tabsStore.tabs.find(t => t.data?.noteId === noteId)
+      if (tab) {
+        tabsStore.updateTab(tab.id, { title: newTitle })
+      }
+    } catch (error) {
+      console.error('Erreur lors du renommage de la note:', error)
     }
   }
 
-  const handleDeleteNote = (noteId: string) => {
-    const updatedNotes = notes.filter(n => n.id !== noteId)
-    saveNotes(updatedNotes)
+  const handleDeleteNote = async (noteId: string) => {
+    if (!currentProject?.id) return
 
-    if (selectedNoteId === noteId) {
-      setSelectedNoteId(null)
+    try {
+      await notesApi.delete(currentProject.id, noteId)
+
+      setNotes(prev => prev.filter(n => n.id !== noteId))
+
+      if (selectedNoteId === noteId) {
+        setSelectedNoteId(null)
+      }
+
+      // Fermer l'onglet si ouvert
+      const tabsStore = useTabsStore.getState()
+      const tab = tabsStore.tabs.find(t => t.data?.noteId === noteId)
+      if (tab) {
+        tabsStore.removeTab(tab.id)
+      }
+    } catch (error) {
+      console.error('Erreur lors de la suppression de la note:', error)
     }
+  }
 
-    // Fermer l'onglet si ouvert
-    const tabsStore = useTabsStore.getState()
-    const tab = tabsStore.tabs.find(t => t.data?.noteId === noteId)
-    if (tab) {
-      tabsStore.removeTab(tab.id)
+  const handleUpdateNoteContent = async (noteId: string, content: string) => {
+    if (!currentProject?.id) return
+
+    try {
+      await notesApi.update(currentProject.id, noteId, { content })
+
+      setNotes(prev => prev.map(n =>
+        n.id === noteId
+          ? { ...n, content, updatedAt: new Date() }
+          : n
+      ))
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour du contenu:', error)
     }
   }
 
@@ -358,12 +443,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
                       <TipTapEditor
                         content={note.content}
                         onChange={(content) => {
-                          const updatedNotes = notes.map(n =>
-                            n.id === note.id
-                              ? { ...n, content, updatedAt: new Date() }
-                              : n
-                          );
-                          saveNotes(updatedNotes);
+                          handleUpdateNoteContent(note.id, content)
                         }}
                         placeholder="Écrivez vos notes ici..."
                         editable={true}

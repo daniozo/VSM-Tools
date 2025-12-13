@@ -79,11 +79,7 @@ export class ToolExecutor {
 
   private async executeToolAction(toolName: string, args: Record<string, any>): Promise<any> {
     switch (toolName) {
-      // Navigation
-      case 'select_node':
-        return this.selectNode(args.nodeId)
-      case 'zoom_to_element':
-        return this.zoomToElement(args.elementId, args.elementType)
+      // Configuration / Navigation
       case 'open_configuration_dialog':
         return this.openConfigDialog()
 
@@ -127,36 +123,34 @@ export class ToolExecutor {
       case 'update_customer_demand':
         return this.updateCustomerDemand(args.dailyDemand, args.unit)
 
+      // Notes
+      case 'list_notes':
+        return this.listNotes()
+      case 'create_note':
+        return this.createNote(args.title, args.content)
+      case 'update_note':
+        return this.updateNote(args.noteId, args.title, args.content)
+
+      // Plan d'action
+      case 'list_action_items':
+        return this.listActionItems()
+      case 'create_action_item':
+        return this.createActionItem(args.action, args.responsible, args.priority, args.dueDate)
+      case 'update_action_item':
+        return this.updateActionItem(args.actionId, args)
+
+      // État futur
+      case 'create_future_state':
+        return this.createFutureState(args.improvements, args.targetLeadTimeReduction)
+
       default:
         throw new Error(`Outil non implémenté: ${toolName}`)
     }
   }
 
   // ============================================
-  // NAVIGATION
+  // CONFIGURATION
   // ============================================
-
-  private selectNode(nodeId: string) {
-    const store = useVsmStore.getState()
-    const node = store.getNode(nodeId)
-
-    if (!node) {
-      throw new Error(`Nœud non trouvé: ${nodeId}`)
-    }
-
-    store.selectElement({ type: 'node', id: nodeId })
-    this.emitUIEvent({ type: 'select_node', payload: { nodeId } })
-
-    return {
-      message: `Nœud "${node.name}" sélectionné`,
-      node: { id: node.id, name: node.name }
-    }
-  }
-
-  private zoomToElement(elementId: string, elementType: string) {
-    this.emitUIEvent({ type: 'zoom_to', payload: { elementId, elementType } })
-    return { message: `Vue centrée sur l'élément ${elementId}` }
-  }
 
   private openConfigDialog() {
     const store = useVsmStore.getState()
@@ -624,6 +618,261 @@ export class ToolExecutor {
 
     this.emitUIEvent({ type: 'refresh' })
     return { message: `Demande client: ${dailyDemand} ${unit || 'pièces'}/jour, Takt Time: ${Math.round(taktTime)}s` }
+  }
+
+  // ============================================
+  // NOTES
+  // ============================================
+
+  private async listNotes() {
+    try {
+      const { useProjectsStore } = await import('@/store/projectsStore')
+      const { currentProject } = useProjectsStore.getState()
+      
+      if (!currentProject?.id) {
+        return { notes: [], message: 'Aucun projet ouvert' }
+      }
+
+      const { notesApi } = await import('@/services/api')
+      const notes = await notesApi.list(currentProject.id)
+      
+      return {
+        notes: notes.map((n: any) => ({
+          id: n.id,
+          title: n.title,
+          content: n.content?.substring(0, 100) + (n.content?.length > 100 ? '...' : ''),
+          createdAt: n.created_at
+        })),
+        count: notes.length,
+        message: `${notes.length} note(s) trouvée(s)`
+      }
+    } catch (error) {
+      // Fallback localStorage
+      const { useProjectsStore } = await import('@/store/projectsStore')
+      const { currentProject } = useProjectsStore.getState()
+      const storageKey = currentProject?.id ? `vsm-notes-${currentProject.id}` : 'vsm-notes-default'
+      const saved = localStorage.getItem(storageKey)
+      const notes = saved ? JSON.parse(saved) : []
+      return { notes, count: notes.length, message: `${notes.length} note(s) (localStorage)` }
+    }
+  }
+
+  private async createNote(title: string, content?: string) {
+    try {
+      const { useProjectsStore } = await import('@/store/projectsStore')
+      const { currentProject } = useProjectsStore.getState()
+      
+      if (!currentProject?.id) {
+        throw new Error('Aucun projet ouvert')
+      }
+
+      const { notesApi } = await import('@/services/api')
+      const note = await notesApi.create(currentProject.id, {
+        title,
+        content: content || ''
+      })
+      
+      this.emitUIEvent({ type: 'refresh' })
+      // Émettre un événement spécifique pour rafraîchir les notes dans MainLayout
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('notes-refreshed', { detail: { projectId: currentProject.id } }))
+      }
+      return { note, message: `Note "${title}" créée avec succès` }
+    } catch (error) {
+      throw new Error(`Erreur lors de la création de la note: ${error}`)
+    }
+  }
+
+  private async updateNote(noteId: string, title?: string, content?: string) {
+    try {
+      const { useProjectsStore } = await import('@/store/projectsStore')
+      const { currentProject } = useProjectsStore.getState()
+      
+      if (!currentProject?.id) {
+        throw new Error('Aucun projet ouvert')
+      }
+
+      const { notesApi } = await import('@/services/api')
+      const updates: any = {}
+      if (title) updates.title = title
+      if (content !== undefined) updates.content = content
+      
+      const note = await notesApi.update(currentProject.id, noteId, updates)
+      
+      this.emitUIEvent({ type: 'refresh' })
+      // Émettre un événement spécifique pour rafraîchir les notes dans MainLayout
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('notes-refreshed', { detail: { projectId: currentProject.id } }))
+      }
+      return { note, message: `Note mise à jour avec succès` }
+    } catch (error) {
+      throw new Error(`Erreur lors de la mise à jour de la note: ${error}`)
+    }
+  }
+
+  // ============================================
+  // PLAN D'ACTION
+  // ============================================
+
+  private async listActionItems() {
+    try {
+      const { useProjectsStore } = await import('@/store/projectsStore')
+      const { currentProject } = useProjectsStore.getState()
+      
+      if (!currentProject?.id) {
+        return { actions: [], message: 'Aucun projet ouvert' }
+      }
+
+      const { actionPlanApi } = await import('@/services/api')
+      const actions = await actionPlanApi.list(currentProject.id)
+      
+      const stats = {
+        total: actions.length,
+        pending: actions.filter((a: any) => a.status === 'pending').length,
+        inProgress: actions.filter((a: any) => a.status === 'in_progress').length,
+        completed: actions.filter((a: any) => a.status === 'completed').length
+      }
+      
+      return {
+        actions: actions.map((a: any) => ({
+          id: a.id,
+          action: a.action,
+          responsible: a.responsible,
+          priority: a.priority,
+          status: a.status,
+          dueDate: a.due_date
+        })),
+        stats,
+        message: `${stats.total} action(s): ${stats.pending} en attente, ${stats.inProgress} en cours, ${stats.completed} terminée(s)`
+      }
+    } catch (error) {
+      // Fallback localStorage
+      const { useProjectsStore } = await import('@/store/projectsStore')
+      const { currentProject } = useProjectsStore.getState()
+      const storageKey = currentProject?.id ? `vsm-action-plan-${currentProject.id}` : 'vsm-action-plan-default'
+      const saved = localStorage.getItem(storageKey)
+      const actions = saved ? JSON.parse(saved) : []
+      return { actions, count: actions.length, message: `${actions.length} action(s) (localStorage)` }
+    }
+  }
+
+  private async createActionItem(action: string, responsible?: string, priority?: string, dueDate?: string) {
+    try {
+      const { useProjectsStore } = await import('@/store/projectsStore')
+      const { currentProject } = useProjectsStore.getState()
+      
+      if (!currentProject?.id) {
+        throw new Error('Aucun projet ouvert')
+      }
+
+      const { actionPlanApi } = await import('@/services/api')
+      const item = await actionPlanApi.create(currentProject.id, {
+        action,
+        responsible: responsible || '',
+        priority: (priority as 'low' | 'medium' | 'high') || 'medium',
+        status: 'pending',
+        due_date: dueDate
+      })
+      
+      this.emitUIEvent({ type: 'refresh' })
+      return { item, message: `Action créée: "${action.substring(0, 50)}${action.length > 50 ? '...' : ''}"` }
+    } catch (error) {
+      throw new Error(`Erreur lors de la création de l'action: ${error}`)
+    }
+  }
+
+  private async updateActionItem(actionId: string, updates: Record<string, any>) {
+    try {
+      const { useProjectsStore } = await import('@/store/projectsStore')
+      const { currentProject } = useProjectsStore.getState()
+      
+      if (!currentProject?.id) {
+        throw new Error('Aucun projet ouvert')
+      }
+
+      const { actionPlanApi } = await import('@/services/api')
+      const updateData: any = {}
+      if (updates.action) updateData.action = updates.action
+      if (updates.status) updateData.status = updates.status
+      if (updates.priority) updateData.priority = updates.priority
+      if (updates.responsible) updateData.responsible = updates.responsible
+      
+      const item = await actionPlanApi.update(currentProject.id, actionId, updateData)
+      
+      this.emitUIEvent({ type: 'refresh' })
+      return { item, message: `Action mise à jour avec succès` }
+    } catch (error) {
+      throw new Error(`Erreur lors de la mise à jour de l'action: ${error}`)
+    }
+  }
+
+  // ============================================
+  // ÉTAT FUTUR
+  // ============================================
+
+  private async createFutureState(improvements?: string, targetLeadTimeReduction?: number) {
+    const store = useVsmStore.getState()
+    
+    if (!store.diagram) {
+      throw new Error('Aucun diagramme ouvert')
+    }
+
+    const currentDiagram = store.diagram
+    const reductionTarget = targetLeadTimeReduction || 30
+
+    // Créer une copie profonde du diagramme
+    const futureDiagram = JSON.parse(JSON.stringify(currentDiagram))
+    
+    // Modifier les métadonnées
+    futureDiagram.id = `future-${Date.now()}`
+    futureDiagram.diagramType = 'FUTURE'
+    futureDiagram.metaData = {
+      ...futureDiagram.metaData,
+      name: `${currentDiagram.metaData.name} - État Futur`,
+      description: `État futur avec objectif de réduction de ${reductionTarget}% du lead time`,
+      lastModified: new Date().toISOString()
+    }
+
+    // Appliquer les améliorations de base
+    // Réduire les temps d'attente dans les stocks
+    futureDiagram.flowSequences?.forEach((seq: any) => {
+      seq.intermediateElements?.forEach((elem: any) => {
+        if (elem.type === 'INVENTORY' && elem.inventory) {
+          // Réduire les stocks de moitié
+          elem.inventory.quantity = Math.round((elem.inventory.quantity || 0) * 0.5)
+          elem.inventory.duration = Math.round((elem.inventory.duration || 0) * 0.5)
+        }
+      })
+    })
+
+    // Ajouter des points d'amélioration basés sur l'analyse
+    const improvementsList = improvements?.split(',').map(s => s.trim()) || []
+    improvementsList.forEach((imp, index) => {
+      if (imp) {
+        futureDiagram.improvementPoints = futureDiagram.improvementPoints || []
+        futureDiagram.improvementPoints.push({
+          id: `improvement-future-${Date.now()}-${index}`,
+          description: imp,
+          x: 100 + (index * 50),
+          y: 50,
+          priority: 1,
+          status: 'PLANNED'
+        })
+      }
+    })
+
+    // Émettre un événement pour ouvrir l'état futur dans un nouvel onglet
+    this.emitUIEvent({ 
+      type: 'open_future_state', 
+      payload: { diagram: futureDiagram, currentStateId: currentDiagram.id } 
+    })
+
+    return {
+      futureStateId: futureDiagram.id,
+      targetReduction: reductionTarget,
+      improvements: improvementsList,
+      message: `État futur créé avec un objectif de réduction de ${reductionTarget}% du lead time`
+    }
   }
 }
 

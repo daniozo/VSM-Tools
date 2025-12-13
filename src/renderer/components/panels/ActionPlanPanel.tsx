@@ -85,6 +85,7 @@ export const ActionPlanPanel: React.FC<ActionPlanPanelProps> = ({
   const [editingAction, setEditingAction] = useState<ActionItem | null>(null)
   const [filterStatus, setFilterStatus] = useState<ActionStatus | 'all'>('all')
   const [filterPriority, setFilterPriority] = useState<Priority | 'all'>('all')
+  const [_isLoading, setIsLoading] = useState(false) // Prefixed to avoid warning
 
   // Form state
   const [formAction, setFormAction] = useState('')
@@ -94,26 +95,128 @@ export const ActionPlanPanel: React.FC<ActionPlanPanelProps> = ({
   const [formStatus, setFormStatus] = useState<ActionStatus>('pending')
   const [formDueDate, setFormDueDate] = useState('')
 
-  // Load actions from localStorage (à remplacer par API plus tard)
+  // Load actions from API (fallback to localStorage)
   useEffect(() => {
-    const storageKey = projectId ? `vsm-action-plan-${projectId}` : 'vsm-action-plan-default'
-    const saved = localStorage.getItem(storageKey)
-    if (saved) {
-      const parsed = JSON.parse(saved)
-      const withDates = parsed.map((item: any) => ({
-        ...item,
-        createdAt: new Date(item.createdAt),
-        updatedAt: new Date(item.updatedAt),
-      }))
-      setActions(withDates)
+    const loadActions = async () => {
+      if (!projectId) {
+        setActions([])
+        return
+      }
+      
+      setIsLoading(true)
+      try {
+        const { actionPlanApi } = await import('@/services/api')
+        const apiActions = await actionPlanApi.list(projectId)
+        const withDates = apiActions.map((item: any) => ({
+          id: item.id,
+          action: item.action,
+          responsible: item.responsible || '',
+          priority: item.priority as Priority,
+          status: item.status as ActionStatus,
+          notes: item.notes || '',
+          dueDate: item.due_date ? item.due_date.split('T')[0] : undefined, // Keep as string YYYY-MM-DD
+          createdAt: new Date(item.created_at),
+          updatedAt: new Date(item.updated_at),
+        }))
+        setActions(withDates)
+      } catch (error) {
+        console.error('Erreur lors du chargement du plan d\'action:', error)
+        // Fallback vers localStorage
+        const storageKey = `vsm-action-plan-${projectId}`
+        const saved = localStorage.getItem(storageKey)
+        if (saved) {
+          const parsed = JSON.parse(saved)
+          const withDates = parsed.map((item: any) => ({
+            ...item,
+            createdAt: new Date(item.createdAt),
+            updatedAt: new Date(item.updatedAt),
+          }))
+          setActions(withDates)
+        }
+      } finally {
+        setIsLoading(false)
+      }
     }
+    
+    loadActions()
   }, [projectId])
 
-  // Save actions to localStorage
-  const saveActions = (updatedActions: ActionItem[]) => {
-    const storageKey = projectId ? `vsm-action-plan-${projectId}` : 'vsm-action-plan-default'
-    localStorage.setItem(storageKey, JSON.stringify(updatedActions))
-    setActions(updatedActions)
+  // Save action to API (fallback to localStorage)
+  const saveAction = async (action: ActionItem, isNew: boolean): Promise<ActionItem | null> => {
+    if (!projectId) return null
+    
+    try {
+      const { actionPlanApi } = await import('@/services/api')
+      
+      if (isNew) {
+        const created = await actionPlanApi.create(projectId, {
+          action: action.action,
+          responsible: action.responsible,
+          priority: action.priority,
+          status: action.status,
+          notes: action.notes,
+          due_date: action.dueDate || undefined,
+        })
+        return {
+          id: created.id,
+          action: created.action,
+          responsible: created.responsible || '',
+          priority: created.priority as Priority,
+          status: created.status as ActionStatus,
+          notes: created.notes || '',
+          dueDate: created.due_date ? created.due_date.split('T')[0] : undefined,
+          createdAt: new Date(created.created_at),
+          updatedAt: new Date(created.updated_at),
+        }
+      } else {
+        const updated = await actionPlanApi.update(projectId, action.id, {
+          action: action.action,
+          responsible: action.responsible,
+          priority: action.priority,
+          status: action.status,
+          notes: action.notes,
+          due_date: action.dueDate || undefined,
+        })
+        return {
+          id: updated.id,
+          action: updated.action,
+          responsible: updated.responsible || '',
+          priority: updated.priority as Priority,
+          status: updated.status as ActionStatus,
+          notes: updated.notes || '',
+          dueDate: updated.due_date ? updated.due_date.split('T')[0] : undefined,
+          createdAt: new Date(updated.created_at),
+          updatedAt: new Date(updated.updated_at),
+        }
+      }
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde de l\'action:', error)
+      // Fallback localStorage
+      const storageKey = `vsm-action-plan-${projectId}`
+      const updatedActions = isNew 
+        ? [...actions, action]
+        : actions.map(a => a.id === action.id ? action : a)
+      localStorage.setItem(storageKey, JSON.stringify(updatedActions))
+      return action
+    }
+  }
+
+  // Delete action from API (fallback to localStorage)
+  const deleteAction = async (actionId: string): Promise<boolean> => {
+    if (!projectId) return false
+    
+    try {
+      const { actionPlanApi } = await import('@/services/api')
+      await actionPlanApi.delete(projectId, actionId)
+      return true
+    } catch (error) {
+      console.error('Erreur lors de la suppression de l\'action:', error)
+      // Fallback localStorage
+      const storageKey = `vsm-action-plan-${projectId}`
+      const updatedActions = actions.filter(a => a.id !== actionId)
+      localStorage.setItem(storageKey, JSON.stringify(updatedActions))
+      return true
+    }
   }
 
   // Filtrage
@@ -157,28 +260,27 @@ export const ActionPlanPanel: React.FC<ActionPlanPanelProps> = ({
     setIsDialogOpen(true)
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!formAction.trim()) return
 
     const now = new Date()
 
     if (editingAction) {
       // Mise à jour
-      const updated = actions.map(a =>
-        a.id === editingAction.id
-          ? {
-            ...a,
-            action: formAction.trim(),
-            responsible: formResponsible.trim(),
-            priority: formPriority,
-            notes: formNotes.trim(),
-            status: formStatus,
-            dueDate: formDueDate || undefined,
-            updatedAt: now
-          }
-          : a
-      )
-      saveActions(updated)
+      const updatedAction: ActionItem = {
+        ...editingAction,
+        action: formAction.trim(),
+        responsible: formResponsible.trim(),
+        priority: formPriority,
+        notes: formNotes.trim(),
+        status: formStatus,
+        dueDate: formDueDate || undefined,
+        updatedAt: now
+      }
+      const saved = await saveAction(updatedAction, false)
+      if (saved) {
+        setActions(prev => prev.map(a => a.id === editingAction.id ? saved : a))
+      }
     } else {
       // Création
       const newAction: ActionItem = {
@@ -192,30 +294,42 @@ export const ActionPlanPanel: React.FC<ActionPlanPanelProps> = ({
         createdAt: now,
         updatedAt: now
       }
-      saveActions([...actions, newAction])
+      const saved = await saveAction(newAction, true)
+      if (saved) {
+        setActions(prev => [...prev, saved])
+      }
     }
 
     setIsDialogOpen(false)
     resetForm()
   }
 
-  const handleDelete = (actionId: string) => {
-    const updated = actions.filter(a => a.id !== actionId)
-    saveActions(updated)
+  const handleDelete = async (actionId: string) => {
+    const success = await deleteAction(actionId)
+    if (success) {
+      setActions(prev => prev.filter(a => a.id !== actionId))
+    }
   }
 
-  const handleToggleStatus = (actionId: string) => {
-    const updated = actions.map(a => {
-      if (a.id === actionId) {
-        // Cycle: pending -> in_progress -> completed -> pending
-        const nextStatus: ActionStatus =
-          a.status === 'pending' ? 'in_progress' :
-            a.status === 'in_progress' ? 'completed' : 'pending'
-        return { ...a, status: nextStatus, updatedAt: new Date() }
-      }
-      return a
-    })
-    saveActions(updated)
+  const handleToggleStatus = async (actionId: string) => {
+    const actionToUpdate = actions.find(a => a.id === actionId)
+    if (!actionToUpdate) return
+    
+    // Cycle: pending -> in_progress -> completed -> pending
+    const nextStatus: ActionStatus =
+      actionToUpdate.status === 'pending' ? 'in_progress' :
+        actionToUpdate.status === 'in_progress' ? 'completed' : 'pending'
+    
+    const updatedAction: ActionItem = {
+      ...actionToUpdate,
+      status: nextStatus,
+      updatedAt: new Date()
+    }
+    
+    const saved = await saveAction(updatedAction, false)
+    if (saved) {
+      setActions(prev => prev.map(a => a.id === actionId ? saved : a))
+    }
   }
 
   if (!projectId) {
