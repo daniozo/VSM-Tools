@@ -366,6 +366,53 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
     }
   };
 
+  const handleUpdateFutureState = async (futureDiagram: VSMDiagram) => {
+    try {
+      const { useProjectsStore } = await import('@/store/projectsStore');
+      const { currentProject } = useProjectsStore.getState();
+
+      if (currentProject && existingFutureDiagram) {
+        const { diagramsApi } = await import('@/services/api');
+
+        // Mettre à jour le diagramme dans la BD
+        await diagramsApi.update(existingFutureDiagram.id, {
+          name: futureDiagram.metaData.name,
+          data: futureDiagram
+        });
+
+        console.log('État futur mis à jour dans la BD:', existingFutureDiagram.id);
+
+        // Mettre à jour l'état local
+        setExistingFutureDiagram({
+          id: existingFutureDiagram.id,
+          name: futureDiagram.metaData.name,
+          data: futureDiagram
+        });
+
+        // Mettre à jour l'onglet si ouvert
+        const { useTabsStore } = await import('@/store/tabsStore');
+        const tabsStore = useTabsStore.getState();
+        const existingTab = tabsStore.tabs.find(t =>
+          t.type === 'future-diagram' && t.data?.diagramId === existingFutureDiagram.id
+        );
+
+        if (existingTab) {
+          tabsStore.updateTab(existingTab.id, {
+            data: {
+              ...existingTab.data,
+              diagram: futureDiagram
+            }
+          });
+        }
+
+        console.log('État futur mis à jour:', futureDiagram.metaData.name);
+      }
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour de l\'état futur:', error);
+      alert('Erreur lors de la mise à jour de l\'état futur. Voir la console pour plus de détails.');
+    }
+  };
+
   const handleOpenFutureDiagram = async () => {
     if (!existingFutureDiagram) return;
 
@@ -482,95 +529,87 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
 
   return (
     <div className="h-full flex flex-col">
-      {/* Header avec score global */}
-      <Card className="mb-4">
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-lg">Analyse VSM</CardTitle>
-            <Badge variant="outline" className={getSeverityColor(analysis.summary.severity)}>
+      {/* Header compact avec score global */}
+      <div className="shrink-0 mb-3">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <span className="font-semibold">Analyse VSM</span>
+            <Badge variant="outline" className={getSeverityColor(analysis.summary.severity)} style={{ fontSize: '10px', padding: '2px 6px' }}>
               {analysis.summary.severity.toUpperCase()}
             </Badge>
           </div>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-muted-foreground">Score de performance</span>
-            <span className={`text-3xl font-bold ${getScoreColor(analysis.summary.score)}`}>
-              {analysis.summary.score}/100
-            </span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div
-              className={`h-2 rounded-full transition-all ${analysis.summary.score >= 80 ? 'bg-green-600' :
-                analysis.summary.score >= 60 ? 'bg-yellow-600' :
-                  analysis.summary.score >= 40 ? 'bg-orange-600' : 'bg-red-600'
-                }`}
-              style={{ width: `${analysis.summary.score}%` }}
-            />
-          </div>
-          <div className="flex items-center justify-between mt-3 text-sm">
-            <div>
-              <span className="text-muted-foreground">Problèmes détectés: </span>
-              <span className="font-semibold">{analysis.summary.totalIssues}</span>
-            </div>
-            <div className="text-xs text-muted-foreground">
-              {new Date(analysis.timestamp).toLocaleString('fr-FR')}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          <span className={`text-xl font-bold ${getScoreColor(analysis.summary.score)}`}>
+            {analysis.summary.score}/100
+          </span>
+        </div>
+        <div className="w-full bg-gray-200 rounded-full h-1.5">
+          <div
+            className={`h-1.5 rounded-full transition-all ${analysis.summary.score >= 80 ? 'bg-green-600' :
+              analysis.summary.score >= 60 ? 'bg-yellow-600' :
+                analysis.summary.score >= 40 ? 'bg-orange-600' : 'bg-red-600'
+              }`}
+            style={{ width: `${analysis.summary.score}%` }}
+          />
+        </div>
+        <div className="flex items-center justify-between mt-1 text-xs text-muted-foreground">
+          <span>{analysis.summary.totalIssues} problème{analysis.summary.totalIssues > 1 ? 's' : ''}</span>
+          <span>{new Date(analysis.timestamp).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span>
+        </div>
+      </div>
 
-      {/* Boutons État Futur */}
-      <div className="mb-4 space-y-2">
+      {/* Boutons État Futur - Version compacte */}
+      <div className="shrink-0 mb-3 flex gap-2">
         {existingFutureDiagram ? (
           <>
-            {/* État futur existe - Afficher les 3 boutons */}
             <Button
-              className="w-full"
+              size="sm"
               variant="default"
+              className="flex-1 h-8 text-xs"
               onClick={handleOpenFutureDiagram}
             >
-              <ExternalLink size={16} className="mr-2" />
-              Ouvrir l'État Futur
+              <ExternalLink size={14} className="mr-1" />
+              Ouvrir
             </Button>
             <Button
-              className="w-full"
+              size="sm"
               variant="secondary"
+              className="flex-1 h-8 text-xs"
               onClick={handleOpenComparison}
             >
-              <GitCompare size={16} className="mr-2" />
-              Comparer les États
+              <GitCompare size={14} className="mr-1" />
+              Comparer
             </Button>
             <Button
-              className="w-full"
+              size="sm"
               variant="outline"
+              className="h-8 text-xs px-2"
               onClick={() => setIsFutureStateDialogOpen(true)}
             >
-              <Pencil size={16} className="mr-2" />
-              Modifier l'État Futur
+              <Pencil size={14} />
             </Button>
           </>
         ) : (
           <Button
-            className="w-full"
+            size="sm"
             variant="outline"
+            className="w-full h-8 text-xs"
             onClick={() => setIsFutureStateDialogOpen(true)}
           >
-            <Plus size={16} className="mr-2" />
+            <Plus size={14} className="mr-1" />
             Créer l'État Futur
           </Button>
         )}
       </div>
 
-      {/* Filtres */}
-      <div className="flex gap-2 mb-4">
+      {/* Filtres - Version compacte */}
+      <div className="shrink-0 flex gap-1.5 mb-3">
         <Select value={filterType} onValueChange={(v: any) => setFilterType(v)}>
-          <SelectTrigger className="flex-1">
-            <Filter size={16} className="mr-2" />
+          <SelectTrigger className="flex-1 h-8 text-xs">
+            <Filter size={12} className="mr-1" />
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Tous les types</SelectItem>
+            <SelectItem value="all">Tous</SelectItem>
             <SelectItem value="bottleneck">Goulots</SelectItem>
             <SelectItem value="waste">Gaspillages</SelectItem>
             <SelectItem value="opportunity">Opportunités</SelectItem>
@@ -578,11 +617,11 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
         </Select>
 
         <Select value={filterSeverity} onValueChange={(v: any) => setFilterSeverity(v)}>
-          <SelectTrigger className="flex-1">
+          <SelectTrigger className="flex-1 h-8 text-xs">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Toutes sévérités</SelectItem>
+            <SelectItem value="all">Toutes</SelectItem>
             <SelectItem value="critical">Critique</SelectItem>
             <SelectItem value="high">Haute</SelectItem>
             <SelectItem value="medium">Moyenne</SelectItem>
@@ -594,18 +633,19 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
           <Button
             variant="ghost"
             size="icon"
+            className="h-8 w-8 shrink-0"
             onClick={() => {
               setFilterType('all');
               setFilterSeverity('all');
             }}
           >
-            <X size={16} />
+            <X size={14} />
           </Button>
         )}
       </div>
 
       {/* Liste des problèmes */}
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 -mx-2 px-2">
         <div className="space-y-4">
           {/* Goulots d'étranglement */}
           {showBottlenecks && filteredBottlenecks.length > 0 && (
@@ -762,7 +802,9 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
           open={isFutureStateDialogOpen}
           onOpenChange={setIsFutureStateDialogOpen}
           currentStateDiagram={diagram}
+          existingFutureDiagram={existingFutureDiagram?.data}
           onCreateFutureState={handleCreateFutureState}
+          onUpdateFutureState={handleUpdateFutureState}
         />
       )}
     </div>

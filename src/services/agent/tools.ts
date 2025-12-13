@@ -521,6 +521,20 @@ export const VSM_TOOLS: ToolDefinition[] = [
   // OUTILS D'ÉTAT FUTUR
   // ============================================
   {
+    name: 'get_future_state',
+    description: 'Récupère les informations du diagramme VSM état futur s\'il existe',
+    category: 'futurestate',
+    parameters: [],
+    requiresConfirmation: false
+  },
+  {
+    name: 'list_future_states',
+    description: 'Liste tous les états futurs disponibles pour le diagramme actuel',
+    category: 'futurestate',
+    parameters: [],
+    requiresConfirmation: false
+  },
+  {
     name: 'create_future_state',
     description: 'Créer un diagramme VSM état futur basé sur l\'état actuel avec les améliorations identifiées',
     category: 'futurestate',
@@ -542,6 +556,68 @@ export const VSM_TOOLS: ToolDefinition[] = [
     requiresConfirmation: true,
     confirmationMessage: (args) =>
       `Voulez-vous créer un état futur avec un objectif de réduction de ${args.targetLeadTimeReduction || 30}% du lead time ?`
+  },
+  {
+    name: 'update_future_state',
+    description: 'Met à jour les propriétés d\'un diagramme état futur existant',
+    category: 'futurestate',
+    parameters: [
+      {
+        name: 'futureStateId',
+        type: 'string',
+        description: 'ID de l\'état futur à modifier',
+        required: true
+      },
+      {
+        name: 'name',
+        type: 'string',
+        description: 'Nouveau nom de l\'état futur',
+        required: false
+      },
+      {
+        name: 'description',
+        type: 'string',
+        description: 'Nouvelle description',
+        required: false
+      },
+      {
+        name: 'targetLeadTimeReduction',
+        type: 'number',
+        description: 'Nouvel objectif de réduction du lead time en pourcentage',
+        required: false
+      }
+    ],
+    requiresConfirmation: true,
+    confirmationMessage: () =>
+      `Voulez-vous mettre à jour cet état futur ?`
+  },
+  {
+    name: 'compare_current_vs_future',
+    description: 'Compare les métriques entre l\'état actuel et l\'état futur',
+    category: 'futurestate',
+    parameters: [
+      {
+        name: 'futureStateId',
+        type: 'string',
+        description: 'ID de l\'état futur à comparer (si non fourni, utilise l\'état futur actif)',
+        required: false
+      }
+    ],
+    requiresConfirmation: false
+  },
+  {
+    name: 'open_future_state_tab',
+    description: 'Ouvre l\'onglet du diagramme état futur dans l\'interface',
+    category: 'futurestate',
+    parameters: [
+      {
+        name: 'futureStateId',
+        type: 'string',
+        description: 'ID de l\'état futur à ouvrir (si non fourni, utilise l\'état futur actif)',
+        required: false
+      }
+    ],
+    requiresConfirmation: false
   }
 ]
 

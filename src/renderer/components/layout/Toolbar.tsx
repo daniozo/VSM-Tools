@@ -66,8 +66,10 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   const hasProject = !!currentProject
   const hasDiagram = !!currentDiagram
   
-  // Le zoom est actif uniquement sur l'onglet diagramme
+  // Le zoom est actif sur les onglets diagramme ET état futur
   const isDiagramTab = activeTabType === 'diagram'
+  const isFutureDiagramTab = activeTabType === 'future-diagram'
+  const canZoom = isDiagramTab || isFutureDiagramTab
   
   // La sauvegarde est active pour diagramme (si dirty) ou notes/plan-action
   const isNoteOrActionPlan = activeTabType === 'notes' || activeTabType === 'action-plan'
@@ -114,21 +116,21 @@ export const Toolbar: React.FC<ToolbarProps> = ({
       icon: <ZoomIn className="h-4 w-4" />, 
       label: 'Zoom Avant', 
       shortcut: 'Ctrl++',
-      disabled: !isDiagramTab || !hasDiagram // Actif uniquement sur onglet diagramme
+      disabled: !canZoom || (!hasDiagram && isDiagramTab) // Actif sur diagramme et état futur
     },
     { 
       id: 'zoomOut', 
       icon: <ZoomOut className="h-4 w-4" />, 
       label: 'Zoom Arrière', 
       shortcut: 'Ctrl+-',
-      disabled: !isDiagramTab || !hasDiagram // Actif uniquement sur onglet diagramme
+      disabled: !canZoom || (!hasDiagram && isDiagramTab) // Actif sur diagramme et état futur
     },
     { 
       id: 'zoomReset', 
       icon: <RotateCcw className="h-4 w-4" />, 
       label: 'Réinitialiser Zoom', 
       shortcut: 'Ctrl+0',
-      disabled: !isDiagramTab || !hasDiagram // Actif uniquement sur onglet diagramme
+      disabled: !canZoom || (!hasDiagram && isDiagramTab) // Actif sur diagramme et état futur
     },
   ]
 

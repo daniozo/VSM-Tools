@@ -140,8 +140,18 @@ export class ToolExecutor {
         return this.updateActionItem(args.actionId, args)
 
       // État futur
+      case 'get_future_state':
+        return this.getFutureState()
+      case 'list_future_states':
+        return this.listFutureStates()
       case 'create_future_state':
         return this.createFutureState(args.improvements, args.targetLeadTimeReduction)
+      case 'update_future_state':
+        return this.updateFutureState(args.futureStateId, args)
+      case 'compare_current_vs_future':
+        return this.compareCurrentVsFuture(args.futureStateId)
+      case 'open_future_state_tab':
+        return this.openFutureStateTab(args.futureStateId)
 
       default:
         throw new Error(`Outil non implémenté: ${toolName}`)
@@ -809,6 +819,270 @@ export class ToolExecutor {
   // ============================================
   // ÉTAT FUTUR
   // ============================================
+
+  private async getFutureState() {
+    const store = useVsmStore.getState()
+    
+    if (!store.diagram) {
+      throw new Error('Aucun diagramme ouvert')
+    }
+
+    // Importer le tabsStore pour trouver les onglets état futur
+    const { useTabsStore } = await import('@/store/tabsStore')
+    const { tabs } = useTabsStore.getState()
+    
+    // Trouver les onglets de type future-diagram
+    const futureTabs = tabs.filter(tab => tab.type === 'future-diagram')
+    
+    if (futureTabs.length === 0) {
+      return {
+        hasFutureState: false,
+        message: 'Aucun état futur n\'existe pour ce diagramme. Utilisez create_future_state pour en créer un.'
+      }
+    }
+
+    // Récupérer les données des états futurs depuis le store
+    const futureDiagrams = store.futureDiagrams || []
+    const activeFuture = futureDiagrams[0] // Premier état futur disponible
+    
+    if (!activeFuture) {
+      return {
+        hasFutureState: true,
+        tabsCount: futureTabs.length,
+        message: `${futureTabs.length} onglet(s) état futur trouvé(s) mais données non disponibles`
+      }
+    }
+
+    // Calculer les métriques de l'état futur
+    const futureCycleTime = activeFuture.nodes?.reduce((sum: number, n: Node) => 
+      sum + getIndicatorValue(n.indicators, 'cycle'), 0) || 0
+    
+    let futureWaitTime = 0
+    activeFuture.flowSequences?.forEach((seq: any) => {
+      seq.intermediateElements?.forEach((el: any) => {
+        if (el.type === 'INVENTORY' && el.inventory?.duration) {
+          futureWaitTime += el.inventory.duration * 24 * 3600
+        }
+      })
+    })
+
+    return {
+      hasFutureState: true,
+      futureState: {
+        id: activeFuture.id,
+        name: activeFuture.metaData?.name || 'État Futur',
+        description: activeFuture.metaData?.description,
+        nodesCount: activeFuture.nodes?.length || 0,
+        totalCycleTime: futureCycleTime,
+        totalWaitTime: futureWaitTime,
+        totalLeadTime: futureCycleTime + futureWaitTime,
+        improvementPointsCount: activeFuture.improvementPoints?.length || 0
+      },
+      message: `État futur "${activeFuture.metaData?.name || 'État Futur'}" avec ${activeFuture.nodes?.length || 0} étapes`
+    }
+  }
+
+  private async listFutureStates() {
+    const store = useVsmStore.getState()
+    
+    if (!store.diagram) {
+      throw new Error('Aucun diagramme ouvert')
+    }
+
+    const futureDiagrams = store.futureDiagrams || []
+    
+    if (futureDiagrams.length === 0) {
+      return {
+        futureStates: [],
+        count: 0,
+        message: 'Aucun état futur disponible. Utilisez create_future_state pour en créer un.'
+      }
+    }
+
+    const futureStates = futureDiagrams.map((fd: any) => ({
+      id: fd.id,
+      name: fd.metaData?.name || 'État Futur',
+      description: fd.metaData?.description,
+      nodesCount: fd.nodes?.length || 0,
+      createdAt: fd.metaData?.createdDate,
+      lastModified: fd.metaData?.lastModified
+    }))
+
+    return {
+      futureStates,
+      count: futureStates.length,
+      message: `${futureStates.length} état(s) futur(s) disponible(s)`
+    }
+  }
+
+  private async updateFutureState(futureStateId: string, updates: Record<string, any>) {
+    const store = useVsmStore.getState()
+    
+    if (!store.diagram) {
+      throw new Error('Aucun diagramme ouvert')
+    }
+
+    const futureDiagrams = store.futureDiagrams || []
+    const futureIndex = futureDiagrams.findIndex((fd: any) => fd.id === futureStateId)
+    
+    if (futureIndex === -1) {
+      throw new Error(`État futur non trouvé: ${futureStateId}`)
+    }
+
+    // Mettre à jour l'état futur
+    const updated = { ...futureDiagrams[futureIndex] }
+    
+    if (updates.name) {
+      updated.metaData = { ...updated.metaData, name: updates.name }
+    }
+    if (updates.description) {
+      updated.metaData = { ...updated.metaData, description: updates.description }
+    }
+    updated.metaData = { ...updated.metaData, lastModified: new Date().toISOString() }
+
+    // Appliquer la mise à jour dans le store
+    const newFutureDiagrams = [...futureDiagrams]
+    newFutureDiagrams[futureIndex] = updated
+    store.setFutureDiagrams(newFutureDiagrams)
+
+    this.emitUIEvent({ type: 'refresh' })
+
+    return {
+      futureState: {
+        id: updated.id,
+        name: updated.metaData?.name,
+        description: updated.metaData?.description
+      },
+      message: `État futur "${updated.metaData?.name}" mis à jour avec succès`
+    }
+  }
+
+  private async compareCurrentVsFuture(futureStateId?: string) {
+    const store = useVsmStore.getState()
+    
+    if (!store.diagram) {
+      throw new Error('Aucun diagramme ouvert')
+    }
+
+    const currentDiagram = store.diagram
+    const futureDiagrams = store.futureDiagrams || []
+    
+    // Trouver l'état futur
+    let futureDiagram
+    if (futureStateId) {
+      futureDiagram = futureDiagrams.find((fd: any) => fd.id === futureStateId)
+    } else {
+      futureDiagram = futureDiagrams[0]
+    }
+
+    if (!futureDiagram) {
+      throw new Error('Aucun état futur disponible pour la comparaison')
+    }
+
+    // Calculer les métriques de l'état actuel
+    const currentCycleTime = currentDiagram.nodes.reduce((sum: number, n: Node) => 
+      sum + getIndicatorValue(n.indicators, 'cycle'), 0)
+    
+    let currentWaitTime = 0
+    currentDiagram.flowSequences.forEach(seq => {
+      seq.intermediateElements?.forEach(el => {
+        if (el.type === 'INVENTORY' && el.inventory?.duration) {
+          currentWaitTime += el.inventory.duration * 24 * 3600
+        }
+      })
+    })
+    const currentLeadTime = currentCycleTime + currentWaitTime
+
+    // Calculer les métriques de l'état futur
+    const futureCycleTime = futureDiagram.nodes?.reduce((sum: number, n: Node) => 
+      sum + getIndicatorValue(n.indicators, 'cycle'), 0) || 0
+    
+    let futureWaitTime = 0
+    futureDiagram.flowSequences?.forEach((seq: any) => {
+      seq.intermediateElements?.forEach((el: any) => {
+        if (el.type === 'INVENTORY' && el.inventory?.duration) {
+          futureWaitTime += el.inventory.duration * 24 * 3600
+        }
+      })
+    })
+    const futureLeadTime = futureCycleTime + futureWaitTime
+
+    // Calculer les améliorations
+    const leadTimeReduction = currentLeadTime > 0 
+      ? ((currentLeadTime - futureLeadTime) / currentLeadTime * 100) 
+      : 0
+    const cycleTimeReduction = currentCycleTime > 0 
+      ? ((currentCycleTime - futureCycleTime) / currentCycleTime * 100) 
+      : 0
+    const waitTimeReduction = currentWaitTime > 0 
+      ? ((currentWaitTime - futureWaitTime) / currentWaitTime * 100) 
+      : 0
+
+    const currentEfficiency = currentLeadTime > 0 ? (currentCycleTime / currentLeadTime * 100) : 0
+    const futureEfficiency = futureLeadTime > 0 ? (futureCycleTime / futureLeadTime * 100) : 0
+
+    return {
+      comparison: {
+        currentState: {
+          name: currentDiagram.metaData.name,
+          cycleTime: currentCycleTime,
+          waitTime: currentWaitTime,
+          leadTime: currentLeadTime,
+          efficiency: Math.round(currentEfficiency * 100) / 100,
+          nodesCount: currentDiagram.nodes.length
+        },
+        futureState: {
+          name: futureDiagram.metaData?.name || 'État Futur',
+          cycleTime: futureCycleTime,
+          waitTime: futureWaitTime,
+          leadTime: futureLeadTime,
+          efficiency: Math.round(futureEfficiency * 100) / 100,
+          nodesCount: futureDiagram.nodes?.length || 0
+        },
+        improvements: {
+          leadTimeReduction: Math.round(leadTimeReduction * 100) / 100,
+          cycleTimeReduction: Math.round(cycleTimeReduction * 100) / 100,
+          waitTimeReduction: Math.round(waitTimeReduction * 100) / 100,
+          efficiencyGain: Math.round((futureEfficiency - currentEfficiency) * 100) / 100
+        }
+      },
+      message: `Comparaison: Lead Time réduit de ${Math.round(leadTimeReduction)}%, Efficacité améliorée de ${Math.round(futureEfficiency - currentEfficiency)}%`
+    }
+  }
+
+  private async openFutureStateTab(futureStateId?: string) {
+    const store = useVsmStore.getState()
+    
+    if (!store.diagram) {
+      throw new Error('Aucun diagramme ouvert')
+    }
+
+    const futureDiagrams = store.futureDiagrams || []
+    
+    // Trouver l'état futur
+    let futureDiagram
+    if (futureStateId) {
+      futureDiagram = futureDiagrams.find((fd: any) => fd.id === futureStateId)
+    } else {
+      futureDiagram = futureDiagrams[0]
+    }
+
+    if (!futureDiagram) {
+      throw new Error('Aucun état futur disponible. Utilisez create_future_state pour en créer un.')
+    }
+
+    // Émettre un événement pour ouvrir l'onglet
+    this.emitUIEvent({ 
+      type: 'open_future_state', 
+      payload: { diagram: futureDiagram, currentStateId: store.diagram.id } 
+    })
+
+    return {
+      futureStateId: futureDiagram.id,
+      name: futureDiagram.metaData?.name || 'État Futur',
+      message: `Onglet état futur "${futureDiagram.metaData?.name || 'État Futur'}" ouvert`
+    }
+  }
 
   private async createFutureState(improvements?: string, targetLeadTimeReduction?: number) {
     const store = useVsmStore.getState()

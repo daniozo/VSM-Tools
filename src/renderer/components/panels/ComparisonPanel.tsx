@@ -17,8 +17,10 @@ import { VSMDiagram, DiagramType } from '@/shared/vsm-model';
 import { useProjectsStore } from '@/store/projectsStore';
 
 interface ComparisonPanelProps {
-  currentDiagramId: string;
-  futureDiagramId: string;
+  currentDiagramId?: string;
+  futureDiagramId?: string;
+  currentDiagram?: VSMDiagram;
+  futureDiagram?: VSMDiagram;
 }
 
 interface MetricComparison {
@@ -33,16 +35,27 @@ interface MetricComparison {
 
 export const ComparisonPanel: React.FC<ComparisonPanelProps> = ({
   currentDiagramId,
-  futureDiagramId
+  futureDiagramId,
+  currentDiagram: currentDiagramProp,
+  futureDiagram: futureDiagramProp
 }) => {
-  const [currentDiagram, setCurrentDiagram] = useState<VSMDiagram | null>(null);
-  const [futureDiagram, setFutureDiagram] = useState<VSMDiagram | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [currentDiagram, setCurrentDiagram] = useState<VSMDiagram | null>(currentDiagramProp || null);
+  const [futureDiagram, setFutureDiagram] = useState<VSMDiagram | null>(futureDiagramProp || null);
+  const [loading, setLoading] = useState(!currentDiagramProp || !futureDiagramProp);
   const { diagramsApi, selectedProject } = useProjectsStore();
 
   useEffect(() => {
+    // Si les diagrammes sont déjà fournis, on les utilise directement
+    if (currentDiagramProp && futureDiagramProp) {
+      setCurrentDiagram(currentDiagramProp);
+      setFutureDiagram(futureDiagramProp);
+      setLoading(false);
+      return;
+    }
+
+    // Sinon, on charge depuis l'API avec les IDs
     const loadDiagrams = async () => {
-      if (!diagramsApi) return;
+      if (!diagramsApi || !currentDiagramId || !futureDiagramId) return;
 
       try {
         setLoading(true);
@@ -60,7 +73,7 @@ export const ComparisonPanel: React.FC<ComparisonPanelProps> = ({
     };
 
     loadDiagrams();
-  }, [currentDiagramId, futureDiagramId, diagramsApi]);
+  }, [currentDiagramId, futureDiagramId, currentDiagramProp, futureDiagramProp, diagramsApi]);
 
   const calculateMetrics = (diagram: VSMDiagram | null) => {
     if (!diagram) return {

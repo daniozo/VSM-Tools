@@ -58,17 +58,17 @@ export class MenuBuilder {
   private buildTemplate(): Electron.MenuItemConstructorOptions[] {
     const templateDefault: Electron.MenuItemConstructorOptions[] = [
       {
-        label: '&Fichier',
+        label: '&Projet',
         submenu: [
           {
-            label: '&Nouveau',
+            label: '&Nouveau projet',
             accelerator: 'CmdOrCtrl+N',
             click: () => {
               this.mainWindow.webContents.send('menu:new-map');
             },
           },
           {
-            label: '&Ouvrir',
+            label: '&Ouvrir un projet...',
             accelerator: 'CmdOrCtrl+O',
             click: () => {
               this.mainWindow.webContents.send('menu:open-map');
@@ -90,24 +90,45 @@ export class MenuBuilder {
           },
           { type: 'separator' },
           {
+            label: 'Importer un fichier VSMX...',
+            click: () => {
+              this.mainWindow.webContents.send('menu:import-vsmx');
+            },
+          },
+          { type: 'separator' },
+          {
             label: '&Exporter',
             submenu: [
               {
-                label: 'Exporter en PNG',
+                label: 'Exporter en VSMX...',
+                click: () => {
+                  this.mainWindow.webContents.send('menu:export-vsmx');
+                },
+              },
+              { type: 'separator' },
+              {
+                label: 'Exporter en PNG...',
                 click: () => {
                   this.mainWindow.webContents.send('menu:export-png');
                 },
               },
               {
-                label: 'Exporter en SVG',
+                label: 'Exporter en SVG...',
                 click: () => {
                   this.mainWindow.webContents.send('menu:export-svg');
                 },
               },
               {
-                label: 'Exporter en PDF',
+                label: 'Exporter en PDF...',
                 click: () => {
                   this.mainWindow.webContents.send('menu:export-pdf');
+                },
+              },
+              { type: 'separator' },
+              {
+                label: 'Générer un rapport...',
+                click: () => {
+                  this.mainWindow.webContents.send('menu:export-report');
                 },
               },
             ],
@@ -217,7 +238,7 @@ export class MenuBuilder {
         ],
       },
       {
-        label: '&Carte',
+        label: '&Diagramme',
         submenu: [
           {
             label: '&Configuration du diagramme...',

@@ -3,7 +3,7 @@ import { ErrorBoundary } from 'react-error-boundary';
 import './styles/App.css';
 
 // Nouveau layout Model-First
-import { MainLayout, Toolbar, StatusBar } from './components/layout';
+import { MainLayout, MainLayoutHandle, Toolbar, StatusBar } from './components/layout';
 
 // Composants de l'éditeur VSM
 import VsmCanvas from './components/editor/VsmCanvas';
@@ -23,15 +23,20 @@ import { saveDiagram } from '@/services/sync/diagramSync';
 
 // Hook de connexion backend
 import { useBackendConnection } from './hooks/useBackendConnection';
+import { AppMenuBar } from './components/layout/AppMenuBar';
+
+// Détecter si on est dans Electron
+const isElectron = !!(window as any).electron;
 
 const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isNewProjectDialogOpen, setIsNewProjectDialogOpen] = useState<boolean>(false);
   const [isOpenProjectDialogOpen, setIsOpenProjectDialogOpen] = useState<boolean>(false);
   const canvasRef = useRef<any>(null);
+  const mainLayoutRef = useRef<MainLayoutHandle>(null);
 
   // Store VSM - utiliser le store pour isConfigDialogOpen (permet au toolExecutor de l'ouvrir)
-  const { loadDiagram, createNewDiagram, isConfigDialogOpen, openConfigDialog, closeConfigDialog } = useVsmStore();
+  const { loadDiagram, diagram, isDirty, createNewDiagram, isConfigDialogOpen, openConfigDialog, closeConfigDialog } = useVsmStore();
   const setIsConfigDialogOpen = (open: boolean) => open ? openConfigDialog() : closeConfigDialog();
 
   // Connexion backend (auto-connect)
@@ -40,6 +45,7 @@ const App: React.FC = () => {
     connectionStatus,
     projects,
     currentProject,
+    currentDiagram,
     isLoadingProjects,
     fetchProjects,
     fetchDiagrams,
@@ -146,18 +152,18 @@ const App: React.FC = () => {
         console.log('Refaire');
         break;
       case 'zoomIn':
-        if (canvasRef.current) {
-          canvasRef.current.zoomIn();
+        if (mainLayoutRef.current) {
+          mainLayoutRef.current.zoomIn();
         }
         break;
       case 'zoomOut':
-        if (canvasRef.current) {
-          canvasRef.current.zoomOut();
+        if (mainLayoutRef.current) {
+          mainLayoutRef.current.zoomOut();
         }
         break;
       case 'zoomReset':
-        if (canvasRef.current) {
-          canvasRef.current.zoomReset();
+        if (mainLayoutRef.current) {
+          mainLayoutRef.current.zoomReset();
         }
         break;
       case 'configure':
@@ -205,28 +211,6 @@ const App: React.FC = () => {
     }
   };
 
-  const handleImportVSMX = async (file: File, projectName: string, description?: string) => {
-    try {
-      // TODO: Parser le fichier VSMX et extraire les données
-      // Pour l'instant, on crée juste un projet vide
-      console.log('Import VSMX:', file.name);
-      const newProject = await createProject(projectName, description);
-      await selectProject(newProject);
-
-      // TODO: Charger les données du fichier VSMX dans le diagramme
-      console.log('Projet créé depuis VSMX:', newProject);
-
-      // Fermer le dialogue d'import
-      setIsNewProjectDialogOpen(false);
-
-      // Ouvrir le dialogue de configuration après l'import
-      setTimeout(() => setIsConfigDialogOpen(true), 100);
-    } catch (error) {
-      console.error('Erreur lors de l\'import VSMX:', error);
-      throw error;
-    }
-  };
-
   const handleSelectProject = async (project: typeof currentProject) => {
     try {
       await selectProject(project);
@@ -262,6 +246,57 @@ const App: React.FC = () => {
     }
   };
 
+  // Fonctions d'export
+  const handleExportVSMX = () => {
+    const diagram = useVsmStore.getState().diagram;
+    if (!diagram) {
+      alert('Aucun diagramme à exporter');
+      return;
+    }
+    
+    const vsmxContent = JSON.stringify(diagram, null, 2);
+    const blob = new Blob([vsmxContent], { type: 'application/xml' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${diagram.metaData?.name || 'diagram'}.vsmx`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleExportPNG = () => {
+    // TODO: Implémenter l'export PNG via le canvas
+    alert('Export PNG - Fonctionnalité à venir');
+  };
+
+  const handleImportVSMX = () => {
+    // Ouvrir le dialogue d'import
+    setIsNewProjectDialogOpen(true);
+  };
+
+  const handleExportReport = () => {
+    // TODO: Générer un rapport PDF/HTML
+    alert('Génération de rapport - Fonctionnalité à venir');
+  };
+
+  const handleUndo = () => {
+    console.log('Annuler - À implémenter');
+  };
+
+  const handleRedo = () => {
+    console.log('Rétablir - À implémenter');
+  };
+
+  const handleShowAbout = () => {
+    alert('VSM-Tools v1.0\n\nOutil de cartographie de flux de valeur (VSM)\n\n© 2025');
+  };
+
+  const handleShowHelp = () => {
+    window.open('https://github.com/vsmtools/docs', '_blank');
+  };
+
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-background">
@@ -275,10 +310,33 @@ const App: React.FC = () => {
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback} onError={handleError}>
       <div className="flex flex-col h-screen bg-background select-none">
+        {/* Menu web (uniquement hors Electron) */}
+        {!isElectron && (
+          <AppMenuBar
+            onNewProject={handleNewProject}
+            onOpenProject={handleOpenProject}
+            onSave={handleSave}
+            onExportPNG={handleExportPNG}
+            onExportVSMX={handleExportVSMX}
+            onImportVSMX={handleImportVSMX}
+            onExportReport={handleExportReport}
+            onUndo={handleUndo}
+            onRedo={handleRedo}
+            onZoomIn={() => mainLayoutRef.current?.zoomIn()}
+            onZoomOut={() => mainLayoutRef.current?.zoomOut()}
+            onZoomReset={() => mainLayoutRef.current?.zoomReset()}
+            onOpenConfiguration={() => openConfigDialog()}
+            onShowAbout={handleShowAbout}
+            onShowHelp={handleShowHelp}
+            canSave={!!currentProject && isDirty}
+            hasProject={!!currentProject}
+          />
+        )}
         <Toolbar
           onAction={handleToolbarAction}
         />
         <MainLayout
+          ref={mainLayoutRef}
           currentProject={currentProject}
           canvasRef={canvasRef}
         >

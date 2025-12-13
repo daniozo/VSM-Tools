@@ -33,6 +33,7 @@ export type SelectedElementType =
 export interface VsmStore {
   // État principal
   diagram: VSMDiagram | null
+  futureDiagrams: VSMDiagram[] // États futurs associés au diagramme actuel
 
   // Sélection
   selectedElement: SelectedElementType
@@ -139,6 +140,16 @@ export interface VsmStore {
   removeTextAnnotation: (id: string) => void
 
   // ========================================
+  // ACTIONS - ÉTATS FUTURS
+  // ========================================
+
+  addFutureDiagram: (diagram: VSMDiagram) => void
+  updateFutureDiagram: (id: string, diagram: Partial<VSMDiagram>) => void
+  removeFutureDiagram: (id: string) => void
+  setFutureDiagrams: (diagrams: VSMDiagram[]) => void
+  getFutureDiagram: (id: string) => VSMDiagram | undefined
+
+  // ========================================
   // ACTIONS - UI
   // ========================================
 
@@ -150,6 +161,7 @@ export interface VsmStore {
 export const useVsmStore = create<VsmStore>((set, get) => ({
   // État initial
   diagram: null,
+  futureDiagrams: [],
   selectedElement: null,
   isConfigDialogOpen: false,
   isDirty: false,
@@ -166,12 +178,14 @@ export const useVsmStore = create<VsmStore>((set, get) => ({
 
   loadDiagram: (diagram: VSMDiagram) => set(() => ({
     diagram,
+    futureDiagrams: [], // Réinitialiser les états futurs lors du chargement d'un nouveau diagramme
     selectedElement: null,
     isDirty: false
   })),
 
   resetDiagram: () => set(() => ({
     diagram: null,
+    futureDiagrams: [],
     selectedElement: null,
     isConfigDialogOpen: false,
     isDirty: false
@@ -581,6 +595,36 @@ export const useVsmStore = create<VsmStore>((set, get) => ({
         : state.selectedElement
     }
   }),
+
+  // ========================================
+  // IMPLÉMENTATIONS - ÉTATS FUTURS
+  // ========================================
+
+  addFutureDiagram: (diagram) => set((state) => ({
+    futureDiagrams: [...state.futureDiagrams, diagram],
+    isDirty: true
+  })),
+
+  updateFutureDiagram: (id, updates) => set((state) => ({
+    futureDiagrams: state.futureDiagrams.map(fd =>
+      fd.id === id ? { ...fd, ...updates } : fd
+    ),
+    isDirty: true
+  })),
+
+  removeFutureDiagram: (id) => set((state) => ({
+    futureDiagrams: state.futureDiagrams.filter(fd => fd.id !== id),
+    isDirty: true
+  })),
+
+  setFutureDiagrams: (diagrams) => set(() => ({
+    futureDiagrams: diagrams
+  })),
+
+  getFutureDiagram: (id) => {
+    const state = get()
+    return state.futureDiagrams.find(fd => fd.id === id)
+  },
 
   // ========================================
   // IMPLÉMENTATIONS - UI

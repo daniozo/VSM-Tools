@@ -3,6 +3,7 @@
  */
 
 export { MainLayout } from './MainLayout'
+export type { MainLayoutHandle } from './MainLayout'
 export { Toolbar } from './Toolbar'
 export { ProjectExplorer } from './ProjectExplorer'
 export { ProjectTreePanel } from './ProjectTreePanel'

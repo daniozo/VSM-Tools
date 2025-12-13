@@ -9,7 +9,7 @@
  * Note: Toolbar et StatusBar sont gérés par App.tsx
  */
 
-import React, { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useEffect, useRef, forwardRef, useImperativeHandle } from 'react'
 import { ProjectTreePanel } from './ProjectTreePanel'
 import { NotesPanel, Note } from './NotesPanel'
 import { PropertiesPanel } from './PropertiesPanel'
@@ -20,9 +20,10 @@ import { TabsContainer } from './TabsContainer'
 import { AgentUIEvent } from '@/services/agent'
 import { AnalysisPanel } from '../panels/AnalysisPanel'
 import { ActionPlanPanel } from '../panels/ActionPlanPanel'
-import { ActionPlanTab } from '../panels/ActionPlanTab'
+
 import { ComparisonPanel } from '../panels/ComparisonPanel'
 import { TipTapEditor } from '../editor/TipTapEditor'
+import FutureDiagramCanvas, { FutureDiagramCanvasHandle } from '../editor/FutureDiagramCanvas'
 import { useVsmStore } from '@/store/vsmStore'
 import { useTabsStore } from '@/store/tabsStore'
 import { cn } from '@/lib/utils'
@@ -39,6 +40,12 @@ import {
 import { Button } from '@/renderer/components/ui/button'
 import { Input } from '@/renderer/components/ui/input'
 
+export interface MainLayoutHandle {
+  zoomIn: () => void
+  zoomOut: () => void
+  zoomReset: () => void
+}
+
 interface MainLayoutProps {
   children: React.ReactNode
   currentProject?: any
@@ -46,18 +53,21 @@ interface MainLayoutProps {
   className?: string
 }
 
-export const MainLayout: React.FC<MainLayoutProps> = ({
+export const MainLayout = forwardRef<MainLayoutHandle, MainLayoutProps>(({
   children,
   currentProject,
   canvasRef,
   className
-}) => {
-  // État des panneaux
-  const [activeLeftPanel, setActiveLeftPanel] = useState<LeftSidebarPanel>('explorer')
-  const [activeRightPanel, setActiveRightPanel] = useState<RightSidebarPanel>('properties')
+}, ref) => {
+  // État des panneaux - utiliser null pour "fermé" au lieu de changer la valeur
+  const [activeLeftPanel, setActiveLeftPanel] = useState<LeftSidebarPanel | null>('explorer')
+  const [activeRightPanel, setActiveRightPanel] = useState<RightSidebarPanel | null>('properties')
   const [leftPanelWidth, setLeftPanelWidth] = useState(280)
   const [rightPanelWidth, setRightPanelWidth] = useState(320)
   const [selectedElementId, setSelectedElementId] = useState<string | null>(null)
+  
+  // Refs pour les canvas d'état futur (un par onglet)
+  const futureDiagramCanvasRefs = useRef<Map<string, FutureDiagramCanvasHandle | null>>(new Map())
   
   // Écouter les requêtes de changement de panneau depuis le store
   const requestedLeftPanel = useTabsStore(state => state.requestedLeftPanel)
@@ -75,6 +85,49 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
       clearPanelRequest()
     }
   }, [requestedLeftPanel, requestedRightPanel, clearPanelRequest])
+
+  // Exposer les méthodes de zoom pour l'état futur
+  useImperativeHandle(ref, () => ({
+    zoomIn: () => {
+      const activeTabId = useTabsStore.getState().activeTabId
+      const activeTab = useTabsStore.getState().tabs.find(t => t.id === activeTabId)
+      
+      if (activeTab?.type === 'future-diagram' && activeTabId) {
+        const futureCanvasRef = futureDiagramCanvasRefs.current.get(activeTabId)
+        if (futureCanvasRef) {
+          futureCanvasRef.zoomIn()
+        }
+      } else if (canvasRef?.current) {
+        canvasRef.current.zoomIn()
+      }
+    },
+    zoomOut: () => {
+      const activeTabId = useTabsStore.getState().activeTabId
+      const activeTab = useTabsStore.getState().tabs.find(t => t.id === activeTabId)
+      
+      if (activeTab?.type === 'future-diagram' && activeTabId) {
+        const futureCanvasRef = futureDiagramCanvasRefs.current.get(activeTabId)
+        if (futureCanvasRef) {
+          futureCanvasRef.zoomOut()
+        }
+      } else if (canvasRef?.current) {
+        canvasRef.current.zoomOut()
+      }
+    },
+    zoomReset: () => {
+      const activeTabId = useTabsStore.getState().activeTabId
+      const activeTab = useTabsStore.getState().tabs.find(t => t.id === activeTabId)
+      
+      if (activeTab?.type === 'future-diagram' && activeTabId) {
+        const futureCanvasRef = futureDiagramCanvasRefs.current.get(activeTabId)
+        if (futureCanvasRef) {
+          futureCanvasRef.zoomReset()
+        }
+      } else if (canvasRef?.current) {
+        canvasRef.current.zoomReset()
+      }
+    }
+  }), [canvasRef])
 
   // Gestion des notes
   const [notes, setNotes] = useState<Note[]>([])
@@ -341,68 +394,76 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
         onPanelChange={setActiveLeftPanel}
       />
 
-      {/* Panneaux gauche selon sélection */}
-      {activeLeftPanel && (
-        <>
-          {activeLeftPanel === 'explorer' && (
-            <ProjectTreePanel
-              width={leftPanelWidth}
-              selectedElementId={selectedElementId}
-              onSelect={handleExplorerSelect}
-              className="flex-shrink-0"
-            />
-          )}
+      {/* Panneaux gauche - toujours montés pour préserver l'état */}
+      <div
+        className={cn(
+          "flex-shrink-0",
+          !activeLeftPanel && "hidden"
+        )}
+      >
+        {/* Explorateur */}
+        <div className={activeLeftPanel !== 'explorer' ? "hidden" : ""}>
+          <ProjectTreePanel
+            width={leftPanelWidth}
+            selectedElementId={selectedElementId}
+            onSelect={handleExplorerSelect}
+            className="flex-shrink-0"
+          />
+        </div>
 
-          {activeLeftPanel === 'notes' && (
-            <NotesPanel
-              width={leftPanelWidth}
-              notes={notes}
-              selectedNoteId={selectedNoteId}
-              onSelectNote={handleSelectNote}
-              onCreateNote={handleCreateNote}
-              onRenameNote={handleRenameNote}
-              onDeleteNote={handleDeleteNote}
-              canCreate={!!currentProject}
-              className="flex-shrink-0"
-            />
-          )}
+        {/* Notes */}
+        <div className={activeLeftPanel !== 'notes' ? "hidden" : ""}>
+          <NotesPanel
+            width={leftPanelWidth}
+            notes={notes}
+            selectedNoteId={selectedNoteId}
+            onSelectNote={handleSelectNote}
+            onCreateNote={handleCreateNote}
+            onRenameNote={handleRenameNote}
+            onDeleteNote={handleDeleteNote}
+            canCreate={!!currentProject}
+            className="flex-shrink-0"
+          />
+        </div>
 
-          {activeLeftPanel === 'action-plan' && (
-            <ActionPlanPanel
-              width={leftPanelWidth}
-              projectId={currentProject?.id}
-              className="flex-shrink-0"
-            />
-          )}
+        {/* Plan d'action */}
+        <div className={activeLeftPanel !== 'action-plan' ? "hidden" : ""}>
+          <ActionPlanPanel
+            width={leftPanelWidth}
+            projectId={currentProject?.id}
+            className="flex-shrink-0"
+          />
+        </div>
 
-          {/* Analyse panel - toujours monté pour préserver l'état */}
-          <div
-            className={cn(
-              "flex-shrink-0 bg-background border-r overflow-hidden flex flex-col",
-              activeLeftPanel !== 'analysis' && "hidden"
-            )}
-            style={{ width: `${leftPanelWidth}px` }}
-          >
-            <div className="h-9 px-3 border-b flex items-center bg-muted/30">
-              <span className="text-sm font-medium">Analyse</span>
-            </div>
-            <div className="flex-1 overflow-auto p-2">
-              <AnalysisPanel
-                analysis={(useVsmStore.getState().diagram as any)?.analysis}
-                onIssueClick={(nodeId: string) => {
-                  console.log('Centrer sur le nœud:', nodeId);
-                }}
-              />
-            </div>
+        {/* Analyse panel */}
+        <div
+          className={cn(
+            "flex-shrink-0 bg-background border-r overflow-hidden flex flex-col",
+            activeLeftPanel !== 'analysis' && "hidden"
+          )}
+          style={{ width: `${leftPanelWidth}px` }}
+        >
+          <div className="h-9 px-3 border-b flex items-center bg-muted/30">
+            <span className="text-sm font-medium">Analyse</span>
           </div>
+          <div className="flex-1 overflow-auto p-2">
+            <AnalysisPanel
+              analysis={(useVsmStore.getState().diagram as any)?.analysis}
+              onIssueClick={(nodeId: string) => {
+                console.log('Centrer sur le nœud:', nodeId);
+              }}
+            />
+          </div>
+        </div>
 
-          {/* Poignée de redimensionnement gauche */}
+        {/* Poignée de redimensionnement gauche - visible uniquement si un panneau est actif */}
+        {activeLeftPanel && (
           <div
             className="w-1 cursor-col-resize hover:bg-primary/50 active:bg-primary transition-colors"
             onMouseDown={() => setIsResizingLeft(true)}
           />
-        </>
-      )}
+        )}
+      </div>
 
       {/* Zone centrale - Système d'onglets */}
       <div className="flex-1 overflow-hidden bg-muted/30">
@@ -421,7 +482,9 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
                 );
               case 'action-plan':
                 return (
-                  <ActionPlanTab projectId={currentProject?.id} />
+                  <div className="flex-1 flex items-center justify-center text-muted-foreground">
+                    <p>Utilisez le panneau Plan d'action à gauche</p>
+                  </div>
                 );
               case 'notes':
                 {
@@ -471,26 +534,55 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
                   </div>
                 );
               case 'future-diagram':
-                // Pour l'état futur, on affiche le même canvas mais avec le diagramme futur chargé
-                return children;
+                {
+                  // Pour l'état futur, on utilise un canvas dédié avec son propre état
+                  const activeTab = useTabsStore.getState().tabs.find(t => t.id === activeTabId);
+                  const futureDiagram = activeTab?.data?.diagram;
+                  
+                  if (!futureDiagram) {
+                    return (
+                      <div className="flex-1 w-full h-full flex items-center justify-center text-muted-foreground">
+                        <div className="text-center">
+                          <p>Diagramme d'état futur non trouvé</p>
+                          <p className="text-xs mt-2">Créez un état futur depuis le panneau d'analyse</p>
+                        </div>
+                      </div>
+                    );
+                  }
+                  
+                  return (
+                    <FutureDiagramCanvas
+                      ref={(handle) => {
+                        if (activeTabId) {
+                          futureDiagramCanvasRefs.current.set(activeTabId, handle);
+                        }
+                      }}
+                      diagram={futureDiagram}
+                      tabId={activeTabId || 'unknown'}
+                    />
+                  );
+                }
               case 'comparison':
                 {
                   const activeTab = useTabsStore.getState().tabs.find(t => t.id === activeTabId);
-                  const currentDiagramId = activeTab?.data?.currentDiagramId;
-                  const futureDiagramId = activeTab?.data?.futureDiagramId;
+                  const currentState = activeTab?.data?.currentState;
+                  const futureState = activeTab?.data?.futureState;
 
-                  if (!currentDiagramId || !futureDiagramId) {
+                  if (!currentState || !futureState) {
                     return (
-                      <div className="flex-1 flex items-center justify-center text-muted-foreground">
-                        <p>Données de comparaison manquantes</p>
+                      <div className="flex-1 w-full h-full flex items-center justify-center text-muted-foreground">
+                        <div className="text-center">
+                          <p>Données de comparaison manquantes</p>
+                          <p className="text-xs mt-2">Créez d'abord un état futur depuis le panneau d'analyse</p>
+                        </div>
                       </div>
                     );
                   }
 
                   return (
                     <ComparisonPanel
-                      currentDiagramId={currentDiagramId}
-                      futureDiagramId={futureDiagramId}
+                      currentDiagram={currentState}
+                      futureDiagram={futureState}
                     />
                   );
                 }
@@ -582,4 +674,6 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
       </Dialog>
     </div>
   )
-}
+})
+
+MainLayout.displayName = 'MainLayout'

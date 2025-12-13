@@ -100,7 +100,9 @@ interface FutureStateDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   currentStateDiagram: VSMDiagram
+  existingFutureDiagram?: VSMDiagram | null  // Pour le mode édition
   onCreateFutureState: (futureDiagram: VSMDiagram) => Promise<void>
+  onUpdateFutureState?: (futureDiagram: VSMDiagram) => Promise<void>  // Pour le mode édition
 }
 
 // ============================================
@@ -260,48 +262,61 @@ export const FutureStateDialog: React.FC<FutureStateDialogProps> = ({
   open,
   onOpenChange,
   currentStateDiagram,
-  onCreateFutureState
+  existingFutureDiagram,
+  onCreateFutureState,
+  onUpdateFutureState
 }) => {
   const [activeTab, setActiveTab] = useState<FutureStateTab>('general')
   const [localDiagram, setLocalDiagram] = useState<VSMDiagram | null>(null)
   const [hasChanges, setHasChanges] = useState(false)
   const [isCreating, setIsCreating] = useState(false)
+  
+  // Déterminer si on est en mode édition
+  const isEditMode = !!existingFutureDiagram
 
   // Initialiser le diagramme local quand le dialogue s'ouvre
   useEffect(() => {
     if (open && currentStateDiagram) {
-      // Deep clone du diagramme actuel
-      const cloned = JSON.parse(JSON.stringify(currentStateDiagram)) as VSMDiagram
+      if (existingFutureDiagram) {
+        // Mode édition : utiliser le diagramme existant
+        const cloned = JSON.parse(JSON.stringify(existingFutureDiagram)) as VSMDiagram
+        setLocalDiagram(cloned)
+        setHasChanges(false)
+        setActiveTab('general')
+      } else {
+        // Mode création : créer à partir de l'état actuel
+        const cloned = JSON.parse(JSON.stringify(currentStateDiagram)) as VSMDiagram
 
-      // Configurer comme état futur
-      cloned.id = generateId('future')
-      cloned.diagramType = DiagramType.FUTURE
-      cloned.currentStateId = currentStateDiagram.id
+        // Configurer comme état futur
+        cloned.id = generateId('future')
+        cloned.diagramType = DiagramType.FUTURE
+        cloned.currentStateId = currentStateDiagram.id
 
-      if (cloned.metaData) {
-        cloned.metaData.name = `${cloned.metaData.name} - État Futur`
-        cloned.metaData.description = `État futur basé sur: ${currentStateDiagram.metaData?.name || 'État actuel'}`
-        cloned.metaData.createdDate = new Date().toISOString()
-        cloned.metaData.modifiedDate = new Date().toISOString()
-      }
+        if (cloned.metaData) {
+          cloned.metaData.name = `${cloned.metaData.name} - État Futur`
+          cloned.metaData.description = `État futur basé sur: ${currentStateDiagram.metaData?.name || 'État actuel'}`
+          cloned.metaData.createdDate = new Date().toISOString()
+          cloned.metaData.modifiedDate = new Date().toISOString()
+        }
 
-      // Forcer tous les indicateurs en mode Statique
-      cloned.nodes = cloned.nodes.map(node => ({
-        ...node,
-        indicators: node.indicators.map(ind => ({
-          ...ind,
-          mode: 'Statique' as const
+        // Forcer tous les indicateurs en mode Statique
+        cloned.nodes = cloned.nodes.map(node => ({
+          ...node,
+          indicators: node.indicators.map(ind => ({
+            ...ind,
+            mode: 'Statique' as const
+          }))
         }))
-      }))
 
-      // Vider les sources de données (pas de dynamique)
-      cloned.dataSources = []
+        // Vider les sources de données (pas de dynamique)
+        cloned.dataSources = []
 
-      setLocalDiagram(cloned)
-      setHasChanges(false)
-      setActiveTab('general')
+        setLocalDiagram(cloned)
+        setHasChanges(false)
+        setActiveTab('general')
+      }
     }
-  }, [open, currentStateDiagram])
+  }, [open, currentStateDiagram, existingFutureDiagram])
 
   const updateLocalDiagram = (updates: Partial<VSMDiagram>) => {
     if (!localDiagram) return
@@ -309,15 +324,21 @@ export const FutureStateDialog: React.FC<FutureStateDialogProps> = ({
     setHasChanges(true)
   }
 
-  const handleCreate = async () => {
+  const handleSave = async () => {
     if (!localDiagram) return
 
     setIsCreating(true)
     try {
-      await onCreateFutureState(localDiagram)
+      if (isEditMode && onUpdateFutureState) {
+        // Mode édition : mettre à jour
+        await onUpdateFutureState(localDiagram)
+      } else {
+        // Mode création
+        await onCreateFutureState(localDiagram)
+      }
       onOpenChange(false)
     } catch (error) {
-      console.error('Erreur création état futur:', error)
+      console.error('Erreur sauvegarde état futur:', error)
     } finally {
       setIsCreating(false)
     }
@@ -1127,7 +1148,7 @@ export const FutureStateDialog: React.FC<FutureStateDialogProps> = ({
       <DialogContent className="w-[90vw] max-w-[1400px] h-[85vh] flex flex-col p-0">
         <DialogHeader className="px-6 pt-6 pb-4 border-b">
           <DialogTitle className="text-xl flex items-center gap-2">
-            Créer l'État Futur
+            {isEditMode ? 'Modifier l\'État Futur' : 'Créer l\'État Futur'}
           </DialogTitle>
         </DialogHeader>
 
@@ -1158,8 +1179,11 @@ export const FutureStateDialog: React.FC<FutureStateDialogProps> = ({
               <Button variant="outline" onClick={handleCancel}>
                 Annuler
               </Button>
-              <Button onClick={handleCreate} disabled={isCreating}>
-                {isCreating ? 'Création...' : 'Créer l\'État Futur'}
+              <Button onClick={handleSave} disabled={isCreating}>
+                {isCreating 
+                  ? (isEditMode ? 'Sauvegarde...' : 'Création...') 
+                  : (isEditMode ? 'Sauvegarder' : 'Créer l\'État Futur')
+                }
               </Button>
             </div>
           </div>
