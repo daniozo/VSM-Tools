@@ -42,7 +42,9 @@ export const ComparisonPanel: React.FC<ComparisonPanelProps> = ({
   const [currentDiagram, setCurrentDiagram] = useState<VSMDiagram | null>(currentDiagramProp || null);
   const [futureDiagram, setFutureDiagram] = useState<VSMDiagram | null>(futureDiagramProp || null);
   const [loading, setLoading] = useState(!currentDiagramProp || !futureDiagramProp);
-  const { diagramsApi, selectedProject } = useProjectsStore();
+  const { diagramsApi } = useProjectsStore();
+  // Utiliser currentProject au lieu de selectedProject qui n'existe pas
+  const currentProject = useProjectsStore(state => state.currentProject);
 
   useEffect(() => {
     // Si les diagrammes sont déjà fournis, on les utilise directement
@@ -258,7 +260,7 @@ export const ComparisonPanel: React.FC<ComparisonPanelProps> = ({
         <div>
           <h2 className="text-2xl font-bold">Comparaison État Actuel vs État Futur</h2>
           <p className="text-muted-foreground">
-            Projet: {selectedProject?.name || 'Non sélectionné'}
+            Projet: {currentProject?.name || 'Non sélectionné'}
           </p>
         </div>
         <div className="flex gap-2">

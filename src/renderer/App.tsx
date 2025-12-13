@@ -266,9 +266,193 @@ const App: React.FC = () => {
     URL.revokeObjectURL(url);
   };
 
-  const handleExportPNG = () => {
-    // TODO: Implémenter l'export PNG via le canvas
-    alert('Export PNG - Fonctionnalité à venir');
+  const handleExportPNG = async () => {
+    const diagram = useVsmStore.getState().diagram;
+    if (!diagram) {
+      alert('Aucun diagramme à exporter');
+      return;
+    }
+
+    // Trouver le conteneur du canvas maxGraph
+    const canvasContainer = document.querySelector('.min-w-full.min-h-full.cursor-default') as HTMLElement;
+    if (!canvasContainer) {
+      alert('Impossible de trouver le diagramme');
+      return;
+    }
+
+    try {
+      // Utiliser l'élément SVG généré par maxGraph
+      const svgElement = canvasContainer.querySelector('svg');
+      if (!svgElement) {
+        alert('Le diagramme n\'est pas encore rendu');
+        return;
+      }
+
+      // Cloner le SVG pour le modifier
+      const svgClone = svgElement.cloneNode(true) as SVGElement;
+      svgClone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+      
+      // Obtenir les dimensions
+      const bbox = svgElement.getBBox();
+      const padding = 40;
+      svgClone.setAttribute('width', String(bbox.width + padding * 2));
+      svgClone.setAttribute('height', String(bbox.height + padding * 2));
+      svgClone.setAttribute('viewBox', `${bbox.x - padding} ${bbox.y - padding} ${bbox.width + padding * 2} ${bbox.height + padding * 2}`);
+      
+      // Ajouter un fond blanc
+      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      rect.setAttribute('x', String(bbox.x - padding));
+      rect.setAttribute('y', String(bbox.y - padding));
+      rect.setAttribute('width', '100%');
+      rect.setAttribute('height', '100%');
+      rect.setAttribute('fill', 'white');
+      svgClone.insertBefore(rect, svgClone.firstChild);
+
+      // Convertir en data URL
+      const serializer = new XMLSerializer();
+      const svgString = serializer.serializeToString(svgClone);
+      const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+      const svgUrl = URL.createObjectURL(svgBlob);
+
+      // Créer une image et un canvas pour la conversion
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = bbox.width + padding * 2;
+        canvas.height = bbox.height + padding * 2;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.fillStyle = 'white';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(img, 0, 0);
+          
+          canvas.toBlob((blob) => {
+            if (blob) {
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `${diagram.metaData?.name || 'diagram'}.png`;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              URL.revokeObjectURL(url);
+            }
+          }, 'image/png');
+        }
+        URL.revokeObjectURL(svgUrl);
+      };
+      img.src = svgUrl;
+    } catch (error) {
+      console.error('Erreur lors de l\'export PNG:', error);
+      alert('Erreur lors de l\'export PNG');
+    }
+  };
+
+  const handleExportSVG = () => {
+    const diagram = useVsmStore.getState().diagram;
+    if (!diagram) {
+      alert('Aucun diagramme à exporter');
+      return;
+    }
+
+    const canvasContainer = document.querySelector('.min-w-full.min-h-full.cursor-default') as HTMLElement;
+    if (!canvasContainer) {
+      alert('Impossible de trouver le diagramme');
+      return;
+    }
+
+    const svgElement = canvasContainer.querySelector('svg');
+    if (!svgElement) {
+      alert('Le diagramme n\'est pas encore rendu');
+      return;
+    }
+
+    // Cloner et préparer le SVG
+    const svgClone = svgElement.cloneNode(true) as SVGElement;
+    svgClone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    
+    const bbox = svgElement.getBBox();
+    const padding = 40;
+    svgClone.setAttribute('width', String(bbox.width + padding * 2));
+    svgClone.setAttribute('height', String(bbox.height + padding * 2));
+    svgClone.setAttribute('viewBox', `${bbox.x - padding} ${bbox.y - padding} ${bbox.width + padding * 2} ${bbox.height + padding * 2}`);
+
+    // Ajouter un fond blanc
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('x', String(bbox.x - padding));
+    rect.setAttribute('y', String(bbox.y - padding));
+    rect.setAttribute('width', '100%');
+    rect.setAttribute('height', '100%');
+    rect.setAttribute('fill', 'white');
+    svgClone.insertBefore(rect, svgClone.firstChild);
+
+    const serializer = new XMLSerializer();
+    const svgString = serializer.serializeToString(svgClone);
+    const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${diagram.metaData?.name || 'diagram'}.svg`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleExportPDF = () => {
+    const diagram = useVsmStore.getState().diagram;
+    if (!diagram) {
+      alert('Aucun diagramme à exporter');
+      return;
+    }
+
+    // Pour le PDF, on ouvre la fenêtre d'impression du navigateur
+    // qui permet de sauvegarder en PDF
+    const canvasContainer = document.querySelector('.min-w-full.min-h-full.cursor-default') as HTMLElement;
+    if (!canvasContainer) {
+      alert('Impossible de trouver le diagramme');
+      return;
+    }
+
+    const svgElement = canvasContainer.querySelector('svg');
+    if (!svgElement) {
+      alert('Le diagramme n\'est pas encore rendu');
+      return;
+    }
+
+    // Créer une fenêtre d'impression avec le SVG
+    const svgClone = svgElement.cloneNode(true) as SVGElement;
+    const bbox = svgElement.getBBox();
+    const padding = 40;
+    svgClone.setAttribute('width', String(bbox.width + padding * 2));
+    svgClone.setAttribute('height', String(bbox.height + padding * 2));
+    svgClone.setAttribute('viewBox', `${bbox.x - padding} ${bbox.y - padding} ${bbox.width + padding * 2} ${bbox.height + padding * 2}`);
+
+    const serializer = new XMLSerializer();
+    const svgString = serializer.serializeToString(svgClone);
+
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>${diagram.metaData?.name || 'Diagramme VSM'}</title>
+          <style>
+            body { margin: 0; padding: 20px; display: flex; justify-content: center; }
+            svg { max-width: 100%; height: auto; }
+            @media print { body { padding: 0; } }
+          </style>
+        </head>
+        <body>
+          <h1 style="text-align: center; margin-bottom: 20px;">${diagram.metaData?.name || 'Diagramme VSM'}</h1>
+          ${svgString}
+          <script>setTimeout(() => { window.print(); }, 500);<\/script>
+        </body>
+        </html>
+      `);
+      printWindow.document.close();
+    }
   };
 
   const handleImportVSMX = () => {
@@ -297,6 +481,12 @@ const App: React.FC = () => {
     window.open('https://github.com/vsmtools/docs', '_blank');
   };
 
+  const handleOpenSettings = () => {
+    // Pour l'instant, on affiche un message
+    // TODO: Créer un dialogue de paramètres
+    alert('Paramètres - Dialogue à venir\n\nVous pouvez changer le thème via le menu Paramètres > Thème');
+  };
+
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-background">
@@ -317,6 +507,8 @@ const App: React.FC = () => {
             onOpenProject={handleOpenProject}
             onSave={handleSave}
             onExportPNG={handleExportPNG}
+            onExportSVG={handleExportSVG}
+            onExportPDF={handleExportPDF}
             onExportVSMX={handleExportVSMX}
             onImportVSMX={handleImportVSMX}
             onExportReport={handleExportReport}
@@ -326,6 +518,7 @@ const App: React.FC = () => {
             onZoomOut={() => mainLayoutRef.current?.zoomOut()}
             onZoomReset={() => mainLayoutRef.current?.zoomReset()}
             onOpenConfiguration={() => openConfigDialog()}
+            onOpenSettings={handleOpenSettings}
             onShowAbout={handleShowAbout}
             onShowHelp={handleShowHelp}
             canSave={!!currentProject && isDirty}

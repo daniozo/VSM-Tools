@@ -26,6 +26,7 @@ import {
   Upload,
   FileImage,
   FileText,
+  Settings,
   Settings2,
   Undo,
   Redo,
@@ -40,6 +41,12 @@ import {
   HelpCircle,
   Info,
   BookOpen,
+  FileCode,
+  FileType,
+  Palette,
+  Database,
+  Globe,
+  Bell,
 } from 'lucide-react'
 
 export interface AppMenuBarProps {
@@ -47,6 +54,8 @@ export interface AppMenuBarProps {
   onOpenProject: () => void
   onSave: () => void
   onExportPNG: () => void
+  onExportSVG: () => void
+  onExportPDF: () => void
   onExportVSMX: () => void
   onImportVSMX: () => void
   onExportReport: () => void
@@ -56,6 +65,7 @@ export interface AppMenuBarProps {
   onZoomOut: () => void
   onZoomReset: () => void
   onOpenConfiguration: () => void
+  onOpenSettings: () => void
   onShowAbout: () => void
   onShowHelp: () => void
   // États pour désactiver les boutons
@@ -70,6 +80,8 @@ export const AppMenuBar: React.FC<AppMenuBarProps> = ({
   onOpenProject,
   onSave,
   onExportPNG,
+  onExportSVG,
+  onExportPDF,
   onExportVSMX,
   onImportVSMX,
   onExportReport,
@@ -79,6 +91,7 @@ export const AppMenuBar: React.FC<AppMenuBarProps> = ({
   onZoomOut,
   onZoomReset,
   onOpenConfiguration,
+  onOpenSettings,
   onShowAbout,
   onShowHelp,
   canSave = false,
@@ -116,62 +129,33 @@ export const AppMenuBar: React.FC<AppMenuBarProps> = ({
             </MenubarSubTrigger>
             <MenubarSubContent>
               <MenubarItem onClick={onExportVSMX} disabled={!hasProject}>
-                <FileText className="mr-2 h-4 w-4" />
+                <FileCode className="mr-2 h-4 w-4" />
                 Exporter en VSMX
               </MenubarItem>
+              <MenubarSeparator />
               <MenubarItem onClick={onExportPNG} disabled={!hasProject}>
                 <FileImage className="mr-2 h-4 w-4" />
                 Exporter en PNG
               </MenubarItem>
+              <MenubarItem onClick={onExportSVG} disabled={!hasProject}>
+                <FileType className="mr-2 h-4 w-4" />
+                Exporter en SVG
+              </MenubarItem>
+              <MenubarItem onClick={onExportPDF} disabled={!hasProject}>
+                <FileText className="mr-2 h-4 w-4" />
+                Exporter en PDF
+              </MenubarItem>
               <MenubarSeparator />
-              <MenubarItem onClick={onExportReport} disabled={!hasProject}>
+              <MenubarItem onClick={onExportReport} disabled>
                 <BookOpen className="mr-2 h-4 w-4" />
                 Générer un Rapport
+                <span className="ml-2 text-xs text-muted-foreground">(bientôt)</span>
               </MenubarItem>
             </MenubarSubContent>
           </MenubarSub>
           <MenubarItem onClick={onImportVSMX}>
             <Upload className="mr-2 h-4 w-4" />
             Importer VSMX
-          </MenubarItem>
-        </MenubarContent>
-      </MenubarMenu>
-
-      {/* Menu Édition */}
-      <MenubarMenu>
-        <MenubarTrigger className="font-medium">Édition</MenubarTrigger>
-        <MenubarContent>
-          <MenubarItem onClick={onUndo} disabled={!canUndo}>
-            <Undo className="mr-2 h-4 w-4" />
-            Annuler
-            <MenubarShortcut>Ctrl+Z</MenubarShortcut>
-          </MenubarItem>
-          <MenubarItem onClick={onRedo} disabled={!canRedo}>
-            <Redo className="mr-2 h-4 w-4" />
-            Rétablir
-            <MenubarShortcut>Ctrl+Y</MenubarShortcut>
-          </MenubarItem>
-          <MenubarSeparator />
-          <MenubarItem disabled>
-            <Scissors className="mr-2 h-4 w-4" />
-            Couper
-            <MenubarShortcut>Ctrl+X</MenubarShortcut>
-          </MenubarItem>
-          <MenubarItem disabled>
-            <Copy className="mr-2 h-4 w-4" />
-            Copier
-            <MenubarShortcut>Ctrl+C</MenubarShortcut>
-          </MenubarItem>
-          <MenubarItem disabled>
-            <Clipboard className="mr-2 h-4 w-4" />
-            Coller
-            <MenubarShortcut>Ctrl+V</MenubarShortcut>
-          </MenubarItem>
-          <MenubarSeparator />
-          <MenubarItem disabled>
-            <Trash2 className="mr-2 h-4 w-4" />
-            Supprimer
-            <MenubarShortcut>Suppr</MenubarShortcut>
           </MenubarItem>
         </MenubarContent>
       </MenubarMenu>
@@ -212,6 +196,51 @@ export const AppMenuBar: React.FC<AppMenuBarProps> = ({
             <Settings2 className="mr-2 h-4 w-4" />
             Configurer le Diagramme
             <MenubarShortcut>Ctrl+K</MenubarShortcut>
+          </MenubarItem>
+        </MenubarContent>
+      </MenubarMenu>
+
+      {/* Menu Paramètres */}
+      <MenubarMenu>
+        <MenubarTrigger className="font-medium">Paramètres</MenubarTrigger>
+        <MenubarContent>
+          <MenubarItem onClick={onOpenSettings}>
+            <Settings className="mr-2 h-4 w-4" />
+            Préférences générales
+          </MenubarItem>
+          <MenubarSeparator />
+          <MenubarSub>
+            <MenubarSubTrigger>
+              <Palette className="mr-2 h-4 w-4" />
+              Thème
+            </MenubarSubTrigger>
+            <MenubarSubContent>
+              <MenubarItem onClick={() => document.documentElement.classList.remove('dark')}>
+                Clair
+              </MenubarItem>
+              <MenubarItem onClick={() => document.documentElement.classList.add('dark')}>
+                Sombre
+              </MenubarItem>
+              <MenubarItem onClick={() => {
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                document.documentElement.classList.toggle('dark', prefersDark);
+              }}>
+                Système
+              </MenubarItem>
+            </MenubarSubContent>
+          </MenubarSub>
+          <MenubarSeparator />
+          <MenubarItem disabled>
+            <Database className="mr-2 h-4 w-4" />
+            Connexion Backend
+          </MenubarItem>
+          <MenubarItem disabled>
+            <Globe className="mr-2 h-4 w-4" />
+            Langue
+          </MenubarItem>
+          <MenubarItem disabled>
+            <Bell className="mr-2 h-4 w-4" />
+            Notifications
           </MenubarItem>
         </MenubarContent>
       </MenubarMenu>

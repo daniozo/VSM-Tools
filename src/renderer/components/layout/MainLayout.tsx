@@ -397,7 +397,7 @@ export const MainLayout = forwardRef<MainLayoutHandle, MainLayoutProps>(({
       {/* Panneaux gauche - toujours montés pour préserver l'état */}
       <div
         className={cn(
-          "flex-shrink-0",
+          "flex-shrink-0 flex",
           !activeLeftPanel && "hidden"
         )}
       >
@@ -438,15 +438,15 @@ export const MainLayout = forwardRef<MainLayoutHandle, MainLayoutProps>(({
         {/* Analyse panel */}
         <div
           className={cn(
-            "flex-shrink-0 bg-background border-r overflow-hidden flex flex-col",
+            "flex-shrink-0 bg-background border-r flex flex-col",
             activeLeftPanel !== 'analysis' && "hidden"
           )}
-          style={{ width: `${leftPanelWidth}px` }}
+          style={{ width: `${leftPanelWidth}px`, height: '100%' }}
         >
-          <div className="h-9 px-3 border-b flex items-center bg-muted/30">
+          <div className="h-9 px-3 border-b flex items-center bg-muted/30 flex-shrink-0">
             <span className="text-sm font-medium">Analyse</span>
           </div>
-          <div className="flex-1 overflow-auto p-2">
+          <div className="flex-1 overflow-y-auto overflow-x-hidden p-2 min-h-0">
             <AnalysisPanel
               analysis={(useVsmStore.getState().diagram as any)?.analysis}
               onIssueClick={(nodeId: string) => {
@@ -456,14 +456,15 @@ export const MainLayout = forwardRef<MainLayoutHandle, MainLayoutProps>(({
           </div>
         </div>
 
-        {/* Poignée de redimensionnement gauche - visible uniquement si un panneau est actif */}
-        {activeLeftPanel && (
-          <div
-            className="w-1 cursor-col-resize hover:bg-primary/50 active:bg-primary transition-colors"
-            onMouseDown={() => setIsResizingLeft(true)}
-          />
-        )}
       </div>
+      
+      {/* Poignée de redimensionnement gauche - visible uniquement si un panneau est actif */}
+      {activeLeftPanel && (
+        <div
+          className="w-1 cursor-col-resize hover:bg-primary/50 active:bg-primary transition-colors flex-shrink-0"
+          onMouseDown={() => setIsResizingLeft(true)}
+        />
+      )}
 
       {/* Zone centrale - Système d'onglets */}
       <div className="flex-1 overflow-hidden bg-muted/30">

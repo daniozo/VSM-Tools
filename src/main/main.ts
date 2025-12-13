@@ -60,9 +60,14 @@ async function createWindow() {
     return { action: 'deny' };
   });
 
-  // Construction des menus de l'application
-  const menuBuilder = new MenuBuilder(mainWindow);
-  menuBuilder.buildMenu();
+  // Masquer le menu natif Electron - on utilise le menu React à la place
+  // Le menu natif est complètement désactivé car le menu React est plus adapté
+  // const menuBuilder = new MenuBuilder(mainWindow);
+  // menuBuilder.buildMenu();
+  
+  // Définir un menu null pour masquer complètement le menu natif
+  const { Menu } = require('electron');
+  Menu.setApplicationMenu(null);
 }
 
 /**
