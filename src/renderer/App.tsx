@@ -253,7 +253,7 @@ const App: React.FC = () => {
       alert('Aucun diagramme à exporter');
       return;
     }
-    
+
     const vsmxContent = JSON.stringify(diagram, null, 2);
     const blob = new Blob([vsmxContent], { type: 'application/xml' });
     const url = URL.createObjectURL(blob);
@@ -291,14 +291,14 @@ const App: React.FC = () => {
       // Cloner le SVG pour le modifier
       const svgClone = svgElement.cloneNode(true) as SVGElement;
       svgClone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-      
+
       // Obtenir les dimensions
       const bbox = svgElement.getBBox();
       const padding = 40;
       svgClone.setAttribute('width', String(bbox.width + padding * 2));
       svgClone.setAttribute('height', String(bbox.height + padding * 2));
       svgClone.setAttribute('viewBox', `${bbox.x - padding} ${bbox.y - padding} ${bbox.width + padding * 2} ${bbox.height + padding * 2}`);
-      
+
       // Ajouter un fond blanc
       const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
       rect.setAttribute('x', String(bbox.x - padding));
@@ -325,7 +325,7 @@ const App: React.FC = () => {
           ctx.fillStyle = 'white';
           ctx.fillRect(0, 0, canvas.width, canvas.height);
           ctx.drawImage(img, 0, 0);
-          
+
           canvas.toBlob((blob) => {
             if (blob) {
               const url = URL.createObjectURL(blob);
@@ -370,7 +370,7 @@ const App: React.FC = () => {
     // Cloner et préparer le SVG
     const svgClone = svgElement.cloneNode(true) as SVGElement;
     svgClone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-    
+
     const bbox = svgElement.getBBox();
     const padding = 40;
     svgClone.setAttribute('width', String(bbox.width + padding * 2));
@@ -455,9 +455,43 @@ const App: React.FC = () => {
     }
   };
 
-  const handleImportVSMX = () => {
-    // Ouvrir le dialogue d'import
+  const handleImportVSMXFromMenu = () => {
+    // Ouvrir le dialogue d'import (depuis le menu)
     setIsNewProjectDialogOpen(true);
+  };
+
+  const handleImportVSMXFile = async (file: File, projectName: string, description?: string) => {
+    // Importer un fichier VSMX et créer un projet
+    try {
+      const content = await file.text();
+      const diagramData = JSON.parse(content);
+
+      // Créer le projet
+      const newProject = await createProject(projectName, description);
+      await selectProject(newProject);
+
+      // Charger les diagrammes du projet
+      await fetchDiagrams(newProject.id);
+      const projectDiagrams = useProjectsStore.getState().diagrams;
+
+      if (projectDiagrams && projectDiagrams.length > 0) {
+        // Mettre à jour le diagramme existant avec les données importées
+        await diagramsApi.update(projectDiagrams[0].id, {
+          name: diagramData.metaData?.name || projectName,
+          data: diagramData
+        });
+
+        // Charger dans le store
+        loadDiagram(diagramData);
+      }
+
+      console.log('✅ Projet importé avec succès:', projectName);
+      setIsNewProjectDialogOpen(false);
+    } catch (error) {
+      console.error('❌ Erreur lors de l\'import VSMX:', error);
+      alert('Erreur lors de l\'import du fichier VSMX. Vérifiez que le fichier est valide.');
+      throw error;
+    }
   };
 
   const handleExportReport = () => {
@@ -510,7 +544,7 @@ const App: React.FC = () => {
             onExportSVG={handleExportSVG}
             onExportPDF={handleExportPDF}
             onExportVSMX={handleExportVSMX}
-            onImportVSMX={handleImportVSMX}
+            onImportVSMX={handleImportVSMXFromMenu}
             onExportReport={handleExportReport}
             onUndo={handleUndo}
             onRedo={handleRedo}
@@ -535,7 +569,7 @@ const App: React.FC = () => {
         >
           <VsmCanvas ref={canvasRef} />
         </MainLayout>
-        <StatusBar 
+        <StatusBar
           onOpenAnalysisPanel={() => useTabsStore.getState().requestLeftPanel('analysis')}
           onOpenActionPlanPanel={() => useTabsStore.getState().requestLeftPanel('action-plan')}
         />
@@ -550,7 +584,7 @@ const App: React.FC = () => {
           open={isNewProjectDialogOpen}
           onOpenChange={setIsNewProjectDialogOpen}
           onCreateProject={handleCreateProject}
-          onImportVSMX={handleImportVSMX}
+          onImportVSMX={handleImportVSMXFile}
         />
 
         <OpenProjectDialog

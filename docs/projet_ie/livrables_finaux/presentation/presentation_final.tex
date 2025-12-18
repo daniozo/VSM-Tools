@@ -19,14 +19,13 @@
 \usepackage{tikz}     % Pour positionner le logo
 
 % --- Informations pour la page de titre ---
-\title[VSM-Tools - Rapport Final]{Développement d'une application de visualisation des flux de production pour identifier les goulots d'étranglement et optimiser les performances industrielles}
+\title[VSM-Tools]{Développement d'une application de visualisation des flux de production pour identifier les goulots d'étranglement et optimiser les performances
+industrielles}
 \subtitle{Présentation Finale}
-\author{MPOKE Jonathan \\
-        PAMBO PAGA Chris Jeredh \\
-        ZIDA Eben-Ezer \\
-        ZOUGOU TOVIGNON Comlan Daniel}
+\author{MPOKE Jonathan, PAMBO PAGA Chris Jeredh,\\
+        ZIDA Eben-Ezer, ZOUGOU TOVIGNON Comlan Daniel}
 \institute{EIGSI}
-\date{Année académique : 2025 - 2026}
+\date{2025 - 2026}
 
 % --- Logo sur chaque slide (coin supérieur droit) ---
 \addtobeamertemplate{frametitle}{}{%
@@ -37,15 +36,24 @@
   \end{tikzpicture}%
 }
 
-\setbeamertemplate{footline}{} % Supprime la ligne de pied de page
+% Pagination simple : numéro de slide seulement
+\setbeamertemplate{footline}{%
+  \leavevmode%
+  \hbox{%
+    \begin{beamercolorbox}[wd=\paperwidth,ht=2.5ex,dp=1.125ex,right]{author in head/foot}%
+      \usebeamerfont{page number in head/foot}\insertframenumber\hspace{0.5em}
+    \end{beamercolorbox}%
+  }%
+}
 
 \begin{document}
 
 % --- Page de Titre ---
 \begin{frame}
   \centering
-  \includegraphics[width=0.25\textwidth]{../../../images/logo_eigsi.png}
-  \vspace{0.5cm}
+  \vspace{0.3cm}
+  \includegraphics[width=0.22\textwidth]{../../../images/logo_eigsi.png}
+  \vspace{0.3cm}
   \titlepage
 \end{frame}
 
@@ -55,883 +63,505 @@
 \end{frame}
 
 % ==============================================================================
-% SECTION 1 : INTRODUCTION
+% SECTION 1 : INTRODUCTION (2 slides)
 % ==============================================================================
 \section{Introduction}
 
-\begin{frame}{Contexte du Projet}
+\begin{frame}{Contexte et Objectifs}
   \frametitle{Introduction : Le Défi de l'Industrie Moderne}
-  \begin{itemize}
-    \item L'industrie moderne : quête perpétuelle d'\textbf{efficacité}.
-    \item Compétition mondiale + exigences clients croissantes.
-    \item \textbf{Nécessité stratégique} : visualiser, comprendre et améliorer les processus.
-  \end{itemize}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \textbf{Contexte :}
+      \begin{itemize}
+        \item Quête perpétuelle d'\textbf{efficacité}
+        \item Compétition mondiale
+        \item Exigences clients croissantes
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \textbf{Notre réponse :}
+      \begin{itemize}
+        \item Solution logicielle dédiée
+        \item Basée sur le \textbf{VSM}
+        \item Analyse et optimisation des flux
+      \end{itemize}
+    \end{column}
+  \end{columns}
   \vfill
-  \textbf{Notre réponse :} \\
-  Une solution logicielle dédiée basée sur le \textbf{Value Stream Mapping (VSM)}.
-\end{frame}
-
-\begin{frame}{Objectif de la Présentation}
-  \frametitle{Ce que nous allons vous présenter}
+  \textbf{Ce que nous allons présenter :}
   \begin{enumerate}
-    \item Les \textbf{enjeux} de l'optimisation industrielle.
-    \item La méthodologie \textbf{VSM} comme outil de clarification.
-    \item \textbf{VSM-Tools} : notre solution et son architecture.
-    \item \textbf{Parcours utilisateur} et fonctionnalités clés.
-    \item \textbf{Démonstration} de l'application.
+    \item Enjeux industriels et méthodologie VSM
+    \item VSM-Tools : architecture et fonctionnalités
+    \item Positionnement, modèle économique et perspectives
   \end{enumerate}
 \end{frame}
 
 % ==============================================================================
-% SECTION 2 : LES ENJEUX DE L'OPTIMISATION INDUSTRIELLE
+% SECTION 2 : LES ENJEUX DE L'OPTIMISATION INDUSTRIELLE (2 slides)
 % ==============================================================================
 \section{Les enjeux de l'optimisation industrielle}
 
-\begin{frame}{Un Contexte de Pression Continue}
-  \frametitle{Les Défis des Entreprises Industrielles}
-  \begin{itemize}
-    \item \textbf{Concurrence mondiale :} Produire mieux, plus vite, moins cher.
-    \item \textbf{Exigence des clients :} Haute qualité, personnalisation, délais courts.
-    \item \textbf{Volatilité des marchés :} Chaînes d'approvisionnement complexes et fragiles.
-    \item \textbf{Pression sur les ressources :} Coûts croissants, réglementations environnementales.
-  \end{itemize}
+\begin{frame}{Contexte et Piliers de la Performance}
+  \frametitle{Les Défis et le Triptyque QCD}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \textbf{Pressions continues :}
+      \begin{itemize}
+        \item Concurrence mondiale
+        \item Exigence clients
+        \item Volatilité des marchés
+        \item Pression sur les ressources
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \textbf{Triptyque QCD :}
+      \begin{itemize}
+        \item \textbf{Qualité} : Zéro défaut
+        \item \textbf{Coûts} : Éliminer les gaspillages
+        \item \textbf{Délais} : Réduire le Lead Time
+      \end{itemize}
+    \end{column}
+  \end{columns}
   \vfill
+  \centering
   \textit{L'optimisation n'est plus un confort, c'est une condition de survie.}
-\end{frame}
-
-\begin{frame}{Les Piliers de la Performance}
-  \frametitle{Le Triptyque QCD : Qualité - Coûts - Délais}
-  \begin{itemize}
-    \item \textbf{Maîtriser les Coûts :}
-          \begin{itemize}
-            \item Éliminer les gaspillages (Muda).
-            \item Surproduction, stocks excessifs, temps d'attente, défauts\ldots
-          \end{itemize}
-    \item \textbf{Améliorer la Qualité :}
-          \begin{itemize}
-            \item Tendre vers le « zéro défaut ».
-            \item Construire la qualité au cœur du processus.
-          \end{itemize}
-    \item \textbf{Réduire les Délais :}
-          \begin{itemize}
-            \item Réduire le \textit{Lead Time} (commande $\rightarrow$ livraison).
-            \item Améliorer satisfaction client et flexibilité.
-          \end{itemize}
-  \end{itemize}
 \end{frame}
 
 \begin{frame}{Le Défi de la Visibilité}
   \frametitle{De la Donnée à la Décision}
   \textbf{Principal obstacle :} Le manque de \textbf{visibilité}.
-  \vfill
   \begin{itemize}
-    \item Processus = systèmes complexes avec dépendances cachées.
-    \item Gaspillages et goulots souvent \textbf{noyés dans la complexité}.
-    \item Efforts d'amélioration locaux, parcellaires, parfois contre-productifs.
+    \item Processus = systèmes complexes avec dépendances cachées
+    \item Gaspillages et goulots \textbf{noyés dans la complexité}
+    \item Efforts d'amélioration locaux, parfois contre-productifs
   \end{itemize}
   \vfill
   \centering
-  \textbf{\textit{Pour optimiser, il faut d'abord VOIR.}}
+  {\Large \textbf{Pour optimiser, il faut d'abord VOIR.}}
+  \vfill
+  \textit{C'est la raison d'être du Value Stream Mapping.}
 \end{frame}
 
 % ==============================================================================
-% SECTION 3 : LE VALUE STREAM MAPPING
+% SECTION 3 : LE VALUE STREAM MAPPING (2 slides)
 % ==============================================================================
 \section{Le Value Stream Mapping}
 
-\begin{frame}{Qu'est-ce que le VSM ?}
-  \frametitle{Value Stream Mapping : Définition}
-  \begin{itemize}
-    \item Méthode visuelle issue du \textbf{Lean Management}.
-    \item Cartographie des \textbf{flux} (matière et information).
-    \item Du \textbf{Fournisseur} jusqu'au \textbf{Client}.
-    \item Objectif : Visualiser \textbf{toutes} les étapes (valeur ajoutée ou non).
-  \end{itemize}
-  \vfill
-  \textit{L'analyse ne se limite pas aux machines, mais inclut ce qui se passe \textbf{entre} elles : temps d'attente, stocks, mouvements.}
-\end{frame}
-
-\begin{frame}{Du VSM État Actuel au VSM État Futur}
-  \frametitle{Exemples de Value Stream Mapping}
-  \begin{columns}[c]
+\begin{frame}{Le VSM : Définition et Importance}
+  \frametitle{Cartographie des Flux de Valeur}
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \textbf{Qu'est-ce que le VSM ?}
+      \begin{itemize}
+        \item Méthode visuelle du \textbf{Lean Management}
+        \item Cartographie flux matière + information
+        \item Du Fournisseur au Client
+        \item \textbf{Toutes} les étapes (VA ou non)
+      \end{itemize}
+      \vspace{0.3cm}
+      \textbf{Pourquoi c'est essentiel :}
+      \begin{itemize}
+        \item Identifier gaspillages et goulots
+        \item Réduire délais et coûts
+        \item Base de l'amélioration continue
+      \end{itemize}
+    \end{column}
     \begin{column}{0.45\textwidth}
       \centering
-      \includegraphics[width=\textwidth]{../../../images/vsm_etat_actuel}
-      \textbf{État Actuel}
-    \end{column}
-
-    \begin{column}{0.1\textwidth}
-      \centering
-      \LARGE{$\Rightarrow$}
-    \end{column}
-
-    \begin{column}{0.45\textwidth}
-      \centering
-      \includegraphics[width=\textwidth]{../../../images/vsm_etat_futur}
-      \textbf{État Futur}
+      \includegraphics[width=0.9\textwidth]{../../../images/vsm_etat_actuel}
+      \tiny{Exemple de VSM État Actuel}
     \end{column}
   \end{columns}
-\end{frame}
-
-\begin{frame}{Importance du VSM}
-  \frametitle{Pourquoi le VSM est Essentiel ?}
-  \begin{itemize}
-    \item \textbf{Identifier \& quantifier} les gaspillages (Muda).
-    \item \textbf{Localiser} précisément les goulots d'étranglement.
-    \item \textbf{Réduire} les délais de production (Lead Time).
-    \item \textbf{Améliorer} la productivité et réduire les coûts.
-    \item \textbf{Base} pour l'amélioration continue (Kaizen).
-  \end{itemize}
-  \vfill
-  \textbf{Bénéficiaires :} Ingénieurs process, Responsables (Prod, Log, Qualité), Lean Managers, Direction.
 \end{frame}
 
 \begin{frame}{Limites des Méthodes Traditionnelles}
-  \frametitle{Le Défi des Outils Classiques}
-  \begin{itemize}
-    \item \textbf{Papier/Post-it :}
-          \begin{itemize}
-            \item Difficile à maintenir, partager, analyser quantitativement.
-          \end{itemize}
-    \item \textbf{Tableurs (Excel) :}
-          \begin{itemize}
-            \item Calculs possibles, mais visualisation limitée et non standardisée.
-          \end{itemize}
-    \item \textbf{Logiciels de dessin (Visio, Draw.io) :}
-          \begin{itemize}
-            \item Flexibles, mais \textbf{sans intelligence métier}.
-            \item Pas de calculs automatiques, pas de liens logiques.
-            \item La carte reste un \textbf{dessin statique}.
-          \end{itemize}
-  \end{itemize}
+  \frametitle{Le Besoin d'un Outil Dédié}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \textbf{Outils actuels :}
+      \begin{itemize}
+        \item \textbf{Papier/Post-it :} Difficile à maintenir
+        \item \textbf{Excel :} Pas de visualisation
+        \item \textbf{Visio/Draw.io :} Pas d'intelligence métier
+      \end{itemize}
+      \vspace{0.3cm}
+      \textbf{Problèmes communs :}
+      \begin{itemize}
+        \item Aucun calcul automatique
+        \item Pas de connexion aux données
+        \item Cartes \textbf{statiques}
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \centering
+      \includegraphics[width=0.9\textwidth]{../../../images/vsm_etat_futur}
+      \tiny{Exemple de VSM État Futur}
+    \end{column}
+  \end{columns}
   \vfill
   \centering
-  \textit{Besoin d'un outil dédié, simple et puissant.}
+  \textit{Besoin d'un outil simple, puissant et connecté aux données réelles.}
 \end{frame}
 
 % ==============================================================================
-% SECTION 4 : VSM-TOOLS : NOTRE SOLUTION
+% SECTION 4 : VSM-TOOLS : NOTRE SOLUTION (2 slides)
 % ==============================================================================
 \section{VSM-Tools : Notre Solution}
 
-\begin{frame}{Mission et Vision}
+\begin{frame}{Mission et Apports Clés}
   \frametitle{VSM-Tools : Notre Réponse aux Défis}
-  \textbf{Mission :}
-  \begin{itemize}
-    \item Rendre l'analyse VSM \textbf{accessible, rapide et actionnable}.
-    \item Lever les barrières liées à la complexité des outils ou à la collecte de données.
-  \end{itemize}
+  \textbf{Mission :} Rendre l'analyse VSM \textbf{accessible, rapide et actionnable}.
   \vfill
-  \textbf{Vision :}
-  \begin{itemize}
-    \item Devenir un outil de \textbf{référence} pour une cartographie VSM intuitive.
-    \item \textbf{Guider} l'utilisateur dans l'analyse et l'identification des pistes d'amélioration.
-  \end{itemize}
-\end{frame}
-
-\begin{frame}{Les 4 Apports Clés}
-  \frametitle{Comment VSM-Tools se Distingue ?}
+  \textbf{Les 4 apports clés :}
   \begin{enumerate}
-    \item \textbf{Simplification du processus VSM}
-          \begin{itemize}
-            \item Modélisation guidée (approche « Model-First »).
-            \item Calculs automatiques (Lead Time, \% Valeur Ajoutée).
-          \end{itemize}
-    \item \textbf{Dynamisation des données}
-          \begin{itemize}
-            \item 3 modes : Statique, Manuel (opérateur), Dynamique (SQL/API).
-          \end{itemize}
-    \item \textbf{Analyse augmentée par l'intelligence}
-          \begin{itemize}
-            \item Détection des goulots, suggestions d'optimisation.
-            \item Assistant conversationnel (IA) intégré.
-          \end{itemize}
-    \item \textbf{Architecture moderne et évolutive}
-          \begin{itemize}
-            \item Studio (Electron) + Engine (Node.js) + Interfaces Web (React).
-          \end{itemize}
+    \item \textbf{Simplification :} Modélisation guidée, calculs automatiques
+    \item \textbf{Dynamisation :} 3 modes de collecte (Statique, Manuel, Dynamique SQL/API)
+    \item \textbf{Intelligence :} Détection goulots, suggestions IA, assistant conversationnel
+    \item \textbf{Architecture moderne :} Studio + Moteur (Server) + Interfaces Web (Interfaces opérateur et Dashboard de visualisation)
   \end{enumerate}
 \end{frame}
 
-\begin{frame}{Gestion du Cycle VSM}
-  \frametitle{État Actuel $\rightarrow$ État Futur}
-  \begin{itemize}
-    \item \textbf{Duplication facile} d'une cartographie « état actuel ».
-    \item Modélisation des \textbf{améliorations} sur l'état futur.
-    \item \textbf{Mise à jour instantanée} des indicateurs globaux.
-    \item \textbf{Quantification de l'impact} des propositions avant déploiement.
-  \end{itemize}
-  \vfill
-  \textbf{+ Gestion de projet intégrée :}
-  \begin{itemize}
-    \item Plan d'action, notes, import/export \texttt{.vsmx}.
-    \item Base de données centralisée.
-  \end{itemize}
+\begin{frame}{Cycle VSM et Gestion de Projet}
+  \frametitle{État Actuel → État Futur}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \textbf{Gestion du cycle VSM :}
+      \begin{itemize}
+        \item Duplication état actuel → futur
+        \item Modélisation des améliorations
+        \item Mise à jour instantanée des KPIs
+        \item Quantification de l'impact
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \textbf{Gestion de projet intégrée :}
+      \begin{itemize}
+        \item Plan d'action structuré
+        \item Notes contextuelles
+        \item Import/Export \texttt{.vsmx}
+        \item Base de données centralisée
+      \end{itemize}
+    \end{column}
+  \end{columns}
 \end{frame}
 
 % ==============================================================================
-% SECTION 5 : ARCHITECTURE TECHNIQUE
+% SECTION 5 : ARCHITECTURE TECHNIQUE (2 slides)
 % ==============================================================================
 \section{Architecture Technique}
 
-\begin{frame}{Vue d'Ensemble de l'Architecture}
-  \frametitle{Une Architecture Modulaire et Découplée}
+\begin{frame}{Vue d'Ensemble}
+  \frametitle{Architecture Modulaire et Découplée}
   \begin{figure}
     \centering
-    \includegraphics[width=0.75\textwidth]{../../../images/architecture_vsm_tools}
-    \caption{Architecture générale de VSM-Tools}
+    \includegraphics[width=0.7\textwidth]{../../../images/architecture_vsm_tools}
   \end{figure}
-
-  \textbf{3 composants principaux :}
-  \begin{itemize}
-    \item VSM Studio (Electron)
-    \item VSM Engine (Node.js)
-    \item Base de données PostgreSQL
-  \end{itemize}
+  \textbf{3 composants principaux:} VSM Studio • VSM Engine • Base de données
 \end{frame}
 
-\begin{frame}{Le VSM Studio}
-  \frametitle{L'Application de Bureau (Electron)}
-  \textbf{Pourquoi Electron ?}
-  \begin{itemize}
-    \item Application de bureau \textbf{multi-plateformes} (Windows, macOS, Linux).
-    \item Technologies web standard (HTML, CSS, JavaScript).
-  \end{itemize}
+\begin{frame}{Composants et Interfaces}
+  \frametitle{Technologies et Responsabilités}
+  \begin{columns}[T]
+    \begin{column}{0.33\textwidth}
+      \textbf{VSM Studio}
+      \begin{itemize}
+        \item Electron (multi-OS)
+        \item Interface principale
+        \item Modélisation
+        \item Assistant IA
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.33\textwidth}
+      \textbf{VSM Engine}
+      \begin{itemize}
+        \item Node.js
+        \item Logique métier
+        \item Calculs auto
+        \item Connecteurs SQL/API
+        \item API REST
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.33\textwidth}
+      \textbf{Interfaces Web}
+      \begin{itemize}
+        \item React
+        \item Saisie opérateur
+        \item Dashboard manager
+        \item Temps réel
+      \end{itemize}
+    \end{column}
+  \end{columns}
   \vfill
-  \textbf{2 types de processus :}
-  \begin{itemize}
-    \item \textbf{Processus Principal :}
-          \begin{itemize}
-            \item Gestion des fenêtres, menus natifs.
-            \item Communication avec l'Engine et la base de données.
-          \end{itemize}
-    \item \textbf{Processus de Rendu :}
-          \begin{itemize}
-            \item Interface utilisateur (navigateur Chromium).
-            \item Affichage des diagrammes et formulaires.
-          \end{itemize}
-  \end{itemize}
-\end{frame}
-
-\begin{frame}{Le VSM Engine}
-  \frametitle{Le Moteur de Services (Node.js)}
-  \textbf{Service en arrière-plan} lancé par le Studio.
-  \vfill
-  \textbf{Responsabilités :}
-  \begin{itemize}
-    \item \textbf{Logique métier :} Validation du modèle VSM, calculs automatiques.
-    \item \textbf{Gestion de la base de données :} Communication avec PostgreSQL.
-    \item \textbf{Connectivité externe :} Connecteurs SQL et API REST pour le mode dynamique.
-    \item \textbf{API REST interne :} Exposition des données pour le Studio et les interfaces web.
-  \end{itemize}
-\end{frame}
-
-\begin{frame}{Base de Données Centralisée}
-  \frametitle{PostgreSQL : Le Cœur du Système}
-  \textbf{Avantages vs. stockage local :}
-  \begin{itemize}
-    \item \textbf{Centralisation et partage :} Plusieurs utilisateurs peuvent accéder aux mêmes projets.
-    \item \textbf{Robustesse et intégrité :} Transactions ACID, contraintes d'intégrité.
-    \item \textbf{Performance et scalabilité :} Gestion efficace de grands volumes de données.
-    \item \textbf{Accès unifié :} L'Engine est la seule couche d'accès (sécurité).
-  \end{itemize}
-  \vfill
-  \textit{VSM-Tools = Plateforme d'entreprise, pas un simple outil isolé.}
-\end{frame}
-
-\begin{frame}{Les Interfaces Web}
-  \frametitle{Interfaces React pour Tous les Acteurs}
-  \textbf{2 applications web légères :}
-  \begin{enumerate}
-    \item \textbf{Interface de saisie opérateur}
-          \begin{itemize}
-            \item Ultra-simplifiée, accessible via navigateur.
-            \item Saisie des valeurs d'indicateurs depuis l'atelier.
-          \end{itemize}
-    \item \textbf{Dashboard de visualisation}
-          \begin{itemize}
-            \item Lecture seule pour le management.
-            \item Consultation des diagrammes VSM à jour.
-          \end{itemize}
-  \end{enumerate}
-  \vfill
-  \textbf{Servies par l'Engine}, consomment la même API REST.
-\end{frame}
-
-\begin{frame}{Intégration de l'IA}
-  \frametitle{Assistant Conversationnel Intégré}
-  \textbf{Agent conversationnel} dans le VSM Studio :
-  \begin{itemize}
-    \item Alimenté par un \textbf{modèle de langage} (LLM).
-    \item Communication gérée par le \textbf{Processus Principal} (sécurité).
-    \item Capacités :
-          \begin{itemize}
-            \item Répondre aux questions sur la méthodologie VSM.
-            \item Guider dans l'utilisation du logiciel.
-            \item Interpréter les données et suggérer des améliorations.
-          \end{itemize}
-  \end{itemize}
-  \vfill
-  \textit{Clés d'API sécurisées, jamais exposées côté client.}
+  \textbf{PostgreSQL :} Centralisation des données, scalabilité, accès unifié via Engine.
 \end{frame}
 
 % ==============================================================================
-% SECTION 6 : PARCOURS UTILISATEUR
+% SECTION 6 : PARCOURS UTILISATEUR (1 slide)
 % ==============================================================================
 \section{Parcours Utilisateur}
 
-\begin{frame}{Trois Parcours, Trois Acteurs}
-  \frametitle{Des Interfaces Adaptées à Chaque Rôle}
+\begin{frame}{Parcours de l'Analyste}
+  \frametitle{De la Configuration à l'Action}
+  \textbf{Étapes du parcours :}
   \begin{enumerate}
-    \item \textbf{L'Analyste} : Conception et analyse (VSM Studio).
-    \item \textbf{L'Opérateur} : Collecte de données terrain (Interface Web).
-    \item \textbf{Le Manager} : Supervision et décision (Dashboard Web).
+    \item Initialisation projet
+    \item Configuration modèle
+    \item Visualisation état actuel
+    \item Analyse et détection goulots
+    \item Conception état futur
+    \item Plan d'action et export
   \end{enumerate}
   \vfill
-  \textit{Tous s'articulent autour de la même base de données centrale.}
-\end{frame}
-
-\begin{frame}{Parcours de l'Analyste (1/4)}
-  \frametitle{1. Initialisation du Projet}
-  \begin{itemize}
-    \item Création d'un nouveau projet dans la base de données.
-    \item Ou import d'un fichier \texttt{.vsmx} existant.
-  \end{itemize}
-  \begin{figure}
-    \centering
-    \includegraphics[width=0.7\textwidth]{../../../images/imgfinals/dialogue_ouvrir_projet.png}
-    \caption{Dialogue d'ouverture et de création de projet}
-  \end{figure}
-\end{frame}
-
-\begin{frame}{Parcours de l'Analyste (2/4)}
-  \frametitle{2. Configuration du Modèle}
-  \textbf{Dialogue de Configuration Central :}
-  \begin{itemize}
-    \item Définition des \textbf{sources de données} (SQL, API REST).
-    \item Création des \textbf{entités du flux} (étapes, fournisseurs, clients).
-    \item Définition de la \textbf{séquence logique} du flux.
-    \item Attachement des \textbf{indicateurs} avec mode de collecte.
-  \end{itemize}
-  \vfill
-  \textbf{Approche « Model-First » :} On modélise, on ne dessine pas.
-\end{frame}
-
-\begin{frame}{Parcours de l'Analyste (2/4 suite)}
-  \frametitle{Captures : Configuration du Modèle}
-  \begin{columns}[c]
-    \begin{column}{0.48\textwidth}
-      \centering
-      \includegraphics[width=\textwidth]{../../../images/imgfinals/dialconfig_vu_infos_general.png}
-      \tiny{Infos générales}
-    \end{column}
-    \begin{column}{0.48\textwidth}
-      \centering
-      \includegraphics[width=\textwidth]{../../../images/imgfinals/dialconfig_vu_etapes_de_production.png}
-      \tiny{Étapes de production}
-    \end{column}
-  \end{columns}
-  \vfill
-  \begin{center}
-    \includegraphics[width=0.45\textwidth]{../../../images/imgfinals/dialconfig_vu_indicteurs.png}
-    \tiny{Gestion des indicateurs}
-  \end{center}
-\end{frame}
-
-\begin{frame}{Parcours de l'Analyste (3/4)}
-  \frametitle{3. Visualisation et Analyse de l'État Actuel}
-  \textbf{Après configuration :} Diagramme généré automatiquement.
-  \begin{itemize}
-    \item Navigation dans le diagramme.
-    \item Analyse des \textbf{indicateurs globaux calculés} (Lead Time, \% VA).
-    \item \textbf{Règles de détection intelligentes} : goulots, gaspillages surlignés.
-    \item Interaction avec l'\textbf{assistant IA}.
-  \end{itemize}
-\end{frame}
-
-\begin{frame}{Parcours de l'Analyste (3/4 suite)}
-  \frametitle{Captures : Analyse de l'État Actuel}
-  \begin{figure}
-    \centering
-    \includegraphics[width=0.9\textwidth]{../../../images/imgfinals/vu_diagramme_etat_actuel_avec_panneaux_explorateur_et_propriete.png}
-    \caption{Vue globale avec panneaux latéraux}
-  \end{figure}
-\end{frame}
-
-\begin{frame}{Parcours de l'Analyste (3/4 suite)}
-  \frametitle{Détection des Problèmes}
-  \begin{figure}
-    \centering
-    \includegraphics[width=0.8\textwidth]{../../../images/imgfinals/vu_avec_panneau_analyse_montrant_10_probleme.png}
-    \caption{Panneau d'analyse : 10 problèmes détectés}
-  \end{figure}
-\end{frame}
-
-\begin{frame}{Parcours de l'Analyste (3/4 suite)}
-  \frametitle{Assistant Conversationnel}
-  \begin{figure}
-    \centering
-    \includegraphics[width=0.35\textwidth]{../../../images/imgfinals/vu_avec_panneau_assistant.png}
-    \caption{L'assistant IA intégré}
-  \end{figure}
-\end{frame}
-
-\begin{frame}{Parcours de l'Analyste (4/4)}
-  \frametitle{4. Conception de l'État Futur}
-  \begin{itemize}
-    \item \textbf{Duplication} du diagramme état actuel.
-    \item Modélisation des \textbf{améliorations} envisagées.
-    \item \textbf{Mise à jour instantanée} des indicateurs globaux.
-    \item \textbf{Mesure de l'efficacité} avant déploiement terrain.
-  \end{itemize}
-  \begin{figure}
-    \centering
-    \includegraphics[width=0.6\textwidth]{../../../images/imgfinals/dial_cration_diagramme_etat_futur.png}
-    \caption{Création d'un diagramme État Futur}
-  \end{figure}
-\end{frame}
-
-\begin{frame}{Parcours de l'Analyste (5/5)}
-  \frametitle{5. Enrichissement et Plan d'Action}
-  \begin{itemize}
-    \item Ajout de \textbf{points d'amélioration} (Kaizen) sur le diagramme.
-    \item Rédaction de \textbf{notes} contextuelles.
-    \item Définition d'un \textbf{plan d'action} structuré.
-    \item Export au format \texttt{.vsmx}.
-  \end{itemize}
-  \vfill
-  Tout est stocké dans la base de données.
-\end{frame}
-
-\begin{frame}{Parcours de l'Analyste (5/5 suite)}
-  \frametitle{Captures : Plan d'Action et Notes}
-  \begin{columns}[c]
-    \begin{column}{0.48\textwidth}
-      \centering
-      \includegraphics[width=\textwidth]{../../../images/imgfinals/vu_avec_panneau_plan_daction_montrant_une_action_a_realiser.png}
-      \tiny{Gestion du plan d'action}
-    \end{column}
-    \begin{column}{0.48\textwidth}
-      \centering
-      \includegraphics[width=\textwidth]{../../../images/imgfinals/vu_note_prise.png}
-      \tiny{Prise de notes contextuelle}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-\begin{frame}{Configuration Indicateur Dynamique}
-  \frametitle{Focus : Mode Dynamique en 2 Étapes}
-  \textbf{Étape 1 : Définition des sources de données}
-  \begin{itemize}
-    \item Bibliothèque de connexions (SQL, API REST).
-    \item Informations de connexion centralisées et réutilisables.
-  \end{itemize}
-  \vfill
-  \textbf{Étape 2 : Liaison de l'indicateur}
-  \begin{itemize}
-    \item Sélection de la source de données.
-    \item Configuration contextuelle :
-          \begin{itemize}
-            \item Si SQL : Requête SQL personnalisée.
-            \item Si API : Endpoint spécifique.
-          \end{itemize}
-  \end{itemize}
-  \vfill
-  \textit{Configuration claire, sécurisée et flexible.}
-\end{frame}
-
-\begin{frame}{Parcours de l'Opérateur}
-  \frametitle{Collecte de Données Terrain}
-  \textbf{Interface Web simplifiée :}
-  \begin{enumerate}
-    \item Accès via navigateur depuis l'atelier.
-    \item Sélection du poste / processus.
-    \item Saisie des valeurs d'indicateurs (mode manuel).
-    \item Validation $\rightarrow$ Synchronisation instantanée avec la base de données.
-  \end{enumerate}
-  \vfill
-  \textbf{Objectif :} Minimiser l'impact sur les tâches de production.
-\end{frame}
-
-\begin{frame}{Parcours du Manager}
-  \frametitle{Supervision et Prise de Décision}
-  \textbf{Dashboard de visualisation (Web) :}
-  \begin{enumerate}
-    \item Accès via navigateur (bureau ou salle de réunion).
-    \item Consultation du diagramme VSM en \textbf{lecture seule}.
-    \item Indicateurs rafraîchis en \textbf{temps réel}.
-    \item Alertes visuelles (goulots surlignés).
-  \end{enumerate}
-  \vfill
-  \textbf{Résultat :} Décisions éclairées pour piloter l'activité.
+  \textbf{Trois acteurs :} Analyste (Studio) • Opérateur (Web saisie) • Manager (Dashboard)
 \end{frame}
 
 % ==============================================================================
-% SECTION 7 : POSITIONNEMENT CONCURRENTIEL
+% SECTION 7 : POSITIONNEMENT CONCURRENTIEL (2 slides)
 % ==============================================================================
 \section{Positionnement Concurrentiel}
 
-\begin{frame}{Panorama des Solutions Existantes}
+\begin{frame}{Panorama et Comparaison}
   \frametitle{Le Marché des Outils VSM}
-  \textbf{3 grandes familles d'outils :}
-  \begin{enumerate}
-    \item \textbf{Outils de dessin génériques}
-          \begin{itemize}
-            \item Ex: Visio, Lucidchart, Draw.io
-            \item Forces : Flexibles, accessibles
-            \item Limites : Aucune intelligence métier, pas de calculs auto
-          \end{itemize}
-    \item \textbf{Outils VSM spécialisés}
-          \begin{itemize}
-            \item Ex: visTABLE®, Simcad Pro
-            \item Forces : Calculs intégrés, simulation
-            \item Limites : Complexes, coûteux, parfois surdimensionnés
-          \end{itemize}
-    \item \textbf{Plateformes VSM Management}
-          \begin{itemize}
-            \item Ex: Planview, Axify
-            \item Forces : Intégration d'entreprise, IA
-            \item Limites : Très coûteuses, abstraites, focus logiciel
-          \end{itemize}
-  \end{enumerate}
-\end{frame}
-
-\begin{frame}{Comparaison avec les Acteurs Clés}
-  \frametitle{Positionnement de VSM-Tools}
-  \begin{itemize}
-    \item \textbf{vs. visTABLE® :} Excellence en Factory Layout, moins centré sur les indicateurs Lean globaux.
-    \item \textbf{vs. Simcad Pro :} Simulation d'événements discrets très puissante, mais complexe et coûteuse.
-    \item \textbf{vs. Lucidchart :} Collaboratif et basé web, mais reste un outil de dessin sans connexion de données.
-  \end{itemize}
-\end{frame}
-
-\begin{frame}{Nos Atouts Différenciants}
-  \frametitle{Ce qui Rend VSM-Tools Unique}
-  \begin{itemize}
-    \item \textbf{Approche « Model-First » unique :}
-          \begin{itemize}
-            \item Guidage, cohérence, fiabilité.
-          \end{itemize}
-    \item \textbf{Flexibilité inégalée de collecte de données :}
-          \begin{itemize}
-            \item 3 modes (statique, manuel, dynamique).
-            \item S'adapte à la maturité digitale.
-          \end{itemize}
-    \item \textbf{Intelligence accessible :}
-          \begin{itemize}
-            \item Suggestions, détection, assistant IA.
-            \item Sans submerger l'utilisateur.
-          \end{itemize}
-    \item \textbf{Architecture ouverte et moderne :}
-          \begin{itemize}
-            \item Technologies répandues (Electron, Node.js, React).
-            \item Multi-plateformes, évolutive.
-          \end{itemize}
-  \end{itemize}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \textbf{3 familles d'outils :}
+      \begin{itemize}
+        \item \textbf{Dessin générique} (Visio, Lucidchart)\\
+              Flexibles mais sans intelligence métier
+        \item \textbf{VSM spécialisés} (visTABLE, Simcad)\\
+              Puissants mais complexes et coûteux
+        \item \textbf{Plateformes VSM} (Planview)\\
+              Complets mais très chers, focus logiciel
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \textbf{Nos atouts différenciants :}
+      \begin{itemize}
+        \item Approche guidée et simplifiée, étape par étape
+        \item 3 modes de collecte de données
+        \item Intelligence accessible (IA)
+        \item Architecture ouverte moderne
+        \item Multi-plateformes
+      \end{itemize}
+    \end{column}
+  \end{columns}
   \vfill
-  \centering
-  \textit{La solution la plus pragmatique et adaptable.}
 \end{frame}
 
 % ==============================================================================
-% SECTION 8 : ÉCOSYSTÈME INDUSTRIEL
+% SECTION 8 : ÉCOSYSTÈME INDUSTRIEL (2 slides)
 % ==============================================================================
 \section{Écosystème Industriel}
 
-\begin{frame}{Pyramide d'Automatisation}
-  \frametitle{Le Cadre de Référence}
-  \begin{figure}
-    \centering
-    \includegraphics[width=0.65\textwidth]{../../../images/automation_pyramide.png}
-    \caption{La pyramide d'automatisation}
-  \end{figure}
-
-  \textbf{Niveaux :} ERP (Stratégique) → MES (Pilotage) → SCADA (Supervision) → PLC (Contrôle) → Terrain (Capteurs)
-\end{frame}
-
-\begin{frame}{Place de VSM-Tools}
-  \frametitle{Un Outil d'Analyse Transverse}
-  \textbf{VSM-Tools n'est pas dans une couche unique :}
-  \begin{itemize}
-    \item C'est une \textbf{couche d'analyse et d'aide à la décision}.
-    \item Interagit avec plusieurs niveaux.
-  \end{itemize}
-  \vfill
-  \textbf{Son rôle :}
-  \begin{itemize}
-    \item \textbf{Consomme} : Données de l'ERP (planning) et du MES (production réelle).
-    \item \textbf{Produit} : Analyses, objectifs d'amélioration, règles de détection.
-    \item \textbf{Influence} : Stratégie (ERP) et actions d'optimisation (MES).
-  \end{itemize}
-  \vfill
-  \textit{Focus : Compréhension et amélioration des processus transversaux.}
-\end{frame}
-
-\begin{frame}{Synergies et Interactions}
-  \frametitle{VSM-Tools dans l'Écosystème}
-  \begin{itemize}
-    \item \textbf{Alimentation en données fiables :}
-          \begin{itemize}
-            \item Connecteurs vers MES/ERP.
-            \item VSM « vivante » et précise.
-          \end{itemize}
-    \item \textbf{Orientation des actions :}
-          \begin{itemize}
-            \item Objectifs issus de l'analyse VSM.
-            \item Paramétrage affiné des systèmes MES/ERP.
-          \end{itemize}
-    \item \textbf{Complémentarité fondamentale :}
-          \begin{itemize}
-            \item ERP : Gestion globale des ressources.
-            \item MES : Exécution et contrôle quotidien.
-            \item VSM-Tools : Comprendre, analyser, concevoir l'amélioration.
-          \end{itemize}
-  \end{itemize}
-  \vfill
-  \textit{Boucle vertueuse : Analyse → Action → Données → Analyse.}
+\begin{frame}{Place dans l'Écosystème}
+  \frametitle{VSM-Tools et la Pyramide d'Automatisation}
+  \begin{columns}[T]
+    \begin{column}{0.45\textwidth}
+      \includegraphics[width=\textwidth]{../../../images/automation_pyramide.png}
+    \end{column}
+    \begin{column}{0.55\textwidth}
+      \textbf{VSM-Tools = Couche d'analyse transverse}
+      \vspace{0.1cm}
+      \begin{itemize}
+        \item \textbf{Consomme :} Données ERP + MES
+        \item \textbf{Produit :} Analyses, objectifs, règles
+        \item \textbf{Influence :} Stratégie et optimisation
+      \end{itemize}
+      \textbf{Complémentarité :}
+      \begin{itemize}
+        \item ERP : Gestion globale
+        \item MES : Exécution quotidienne
+        \item VSM-Tools : Comprendre et améliorer
+      \end{itemize}
+    \end{column}
+  \end{columns}
 \end{frame}
 
 % ==============================================================================
-% SECTION 9 : DÉFIS ET LIMITES
+% SECTION 9 : DÉFIS ET LIMITES (1 slide)
 % ==============================================================================
 \section{Défis et Limites}
 
 \begin{frame}{Défis et Limites Actuelles}
   \frametitle{Points de Vigilance}
-  \begin{itemize}
-    \item \textbf{Dépendance à la qualité des données :}
-          \begin{itemize}
-            \item Pertinence = qualité, complétude, fiabilité des données d'entrée.
-          \end{itemize}
-    \item \textbf{Outil au service d'une démarche :}
-          \begin{itemize}
-            \item Ne remplace pas la compréhension Lean/VSM.
-            \item Besoin d'équipes formées à la méthodologie.
-          \end{itemize}
-    \item \textbf{Sécurité et droits d'accès :}
-          \begin{itemize}
-            \item Authentification et ACL non implémentés (version actuelle).
-            \item Prérequis pour déploiement à grande échelle.
-          \end{itemize}
-    \item \textbf{Périmètre fonctionnel actuel :}
-          \begin{itemize}
-            \item Contrainte : 1 fournisseur + 1 client par diagramme.
-            \item Pas de simulation/prédiction avancée.
-            \item Connectivité générique (SQL/API), pas de connecteurs métiers « clés en main ».
-            \item Collaboration asynchrone uniquement.
-          \end{itemize}
-  \end{itemize}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \textbf{Dépendances :}
+      \begin{itemize}
+        \item Qualité des données d'entrée
+        \item Compréhension Lean/VSM requise
+        \item Équipes formées
+      \end{itemize}
+      \vspace{0.3cm}
+      \textbf{Non implémenté :}
+      \begin{itemize}
+        \item Authentification et ACL
+        \item Simulation/Prédiction avancée
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \textbf{Contraintes actuelles :}
+      \begin{itemize}
+        \item 1 fournisseur + 1 client par VSM
+        \item Connectivité générique (SQL/API)
+        \item Collaboration asynchrone
+      \end{itemize}
+      \vspace{0.3cm}
+      \textit{Ces limites définissent la feuille de route des évolutions futures.}
+    \end{column}
+  \end{columns}
 \end{frame}
 
 % ==============================================================================
-% SECTION 10 : PERSPECTIVES ET ÉVOLUTIONS
+% SECTION 10 : PERSPECTIVES ET ÉVOLUTIONS (2 slides)
 % ==============================================================================
 \section{Perspectives et Évolutions}
 
-\begin{frame}{Enrichissement de l'Analyse}
-  \frametitle{Vers Plus d'Intelligence}
-  \begin{itemize}
-    \item \textbf{Simulation « What-if » :}
-          \begin{itemize}
-            \item Modifier paramètres et simuler l'impact.
-          \end{itemize}
-    \item \textbf{Analyse prédictive :}
-          \begin{itemize}
-            \item Anticiper goulots futurs (Machine Learning).
-          \end{itemize}
-    \item \textbf{Tableau de bord comparatif :}
-          \begin{itemize}
-            \item Actuel vs. Futur avec calculs de gains automatisés.
-          \end{itemize}
-  \end{itemize}
-\end{frame}
-
-\begin{frame}{Connectivité et Intégrations}
-  \frametitle{Faciliter la Connexion aux Données}
-  \begin{itemize}
-    \item \textbf{Bibliothèque de connecteurs métiers :}
-          \begin{itemize}
-            \item Connecteurs pré-configurés (SAP, Wonderware...).
-            \item Réduction de l'effort de configuration manuelle.
-          \end{itemize}
-    \item \textbf{Intégrations natives :}
-          \begin{itemize}
-            \item Synchronisation automatique avec ERP/MES.
-          \end{itemize}
-  \end{itemize}
-\end{frame}
-
-\begin{frame}{Extension de la Modélisation}
-  \frametitle{Flux Complexes et Collaboration}
-  \begin{itemize}
-    \item \textbf{Gestion des flux complexes :}
-          \begin{itemize}
-            \item Plusieurs fournisseurs et/ou clients.
-            \item Flux avec branches (divergence/convergence).
-          \end{itemize}
-    \item \textbf{Collaboration temps réel :}
-          \begin{itemize}
-            \item Plusieurs utilisateurs sur une même cartographie simultanément.
-          \end{itemize}
-    \item \textbf{Gestion avancée des droits :}
-          \begin{itemize}
-            \item ACL (rôles : lecteur, éditeur, administrateur).
-            \item Historique et versions.
-          \end{itemize}
-  \end{itemize}
-\end{frame}
-
-\begin{frame}{Évolution du Déploiement}
-  \frametitle{Vers le Cloud / SaaS}
-  \begin{itemize}
-    \item \textbf{Offre Cloud / SaaS :}
-          \begin{itemize}
-            \item Version entièrement hébergée.
-            \item Accès via navigateur, sans installation.
-            \item Mises à jour automatiques.
-            \item Modèle d'abonnement flexible.
-          \end{itemize}
-  \end{itemize}
+\begin{frame}{Évolutions Futures}
+  \frametitle{La Feuille de Route}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \textbf{Analyse enrichie :}
+      \begin{itemize}
+        \item Simulation « What-if »
+        \item Analyse prédictive (ML)
+        \item Comparatif Actuel vs Futur
+      \end{itemize}
+      \vspace{0.3cm}
+      \textbf{Connectivité :}
+      \begin{itemize}
+        \item Connecteurs métiers (SAP...)
+        \item Intégrations natives ERP/MES
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \textbf{Modélisation :}
+      \begin{itemize}
+        \item Multi-fournisseurs/clients
+        \item Flux avec branches
+        \item Collaboration temps réel
+      \end{itemize}
+      \vspace{0.3cm}
+      \textbf{Déploiement :}
+      \begin{itemize}
+        \item Offre Cloud / SaaS
+        \item Abonnement flexible
+      \end{itemize}
+    \end{column}
+  \end{columns}
   \vfill
-  \textbf{Objectif :} Rendre VSM-Tools encore plus prédictif, intégré et collaboratif.
+  \centering
+  \textbf{Objectif :} Plus prédictif, intégré et collaboratif.
 \end{frame}
 
 % ==============================================================================
-% SECTION 11 : MODÈLE ÉCONOMIQUE
+% SECTION 11 : MODÈLE ÉCONOMIQUE (2 slides)
 % ==============================================================================
 \section{Modèle Économique}
 
-\begin{frame}{Segments de Clientèle}
-  \frametitle{Trois Marchés Cibles}
-  \begin{enumerate}
-    \item \textbf{Individuels et Milieu Académique}
-          \begin{itemize}
-            \item Étudiants, enseignants, chercheurs, consultants indépendants.
-          \end{itemize}
-    \item \textbf{PME et Équipes d'Amélioration Continue}
-          \begin{itemize}
-            \item Petites et moyennes entreprises.
-            \item Départements spécifiques dans les grands groupes.
-          \end{itemize}
-    \item \textbf{Grandes Entreprises}
-          \begin{itemize}
-            \item Besoins avancés : intégration, sécurité, collaboration, support.
-          \end{itemize}
-  \end{enumerate}
-\end{frame}
-
 \begin{frame}{Stratégie de Tarification}
   \frametitle{Modèle Freemium à 3 Niveaux}
-  \begin{enumerate}
-    \item \textbf{VSM-Tools Community (Gratuit)}
-          \begin{itemize}
-            \item 3 projets max, mode statique uniquement.
-            \item Cible : Étudiants, enseignants.
-          \end{itemize}
-    \item \textbf{VSM-Tools Professional (Abonnement)}
-          \begin{itemize}
-            \item Projets illimités, tous les modes de collecte.
-            \item Suggestions IA, dashboard web, support email.
-            \item \textbf{~49€/utilisateur/mois}
-          \end{itemize}
-    \item \textbf{VSM-Tools Enterprise (Devis)}
-          \begin{itemize}
-            \item SSO, ACL, support prioritaire (SLA).
-            \item On-Premise ou Cloud privé.
-            \item Connecteurs métiers personnalisés.
-          \end{itemize}
-  \end{enumerate}
+  \begin{columns}[T]
+    \begin{column}{0.33\textwidth}
+      \centering
+      \textbf{Community}\\
+      \textit{Gratuit}\\[0.3cm]
+      \begin{itemize}
+        \item 3 projets max
+        \item Mode statique
+        \item Étudiants, enseignants
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.33\textwidth}
+      \centering
+      \textbf{Professional}\\
+      \textit{prix fixe/mois/user}\\[0.3cm]
+      \begin{itemize}
+        \item Projets illimités
+        \item Tous les modes
+        \item IA, dashboard
+        \item PME, consultants
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.33\textwidth}
+      \centering
+      \textbf{Enterprise}\\
+      \textit{Sur devis}\\[0.3cm]
+      \begin{itemize}
+        \item SSO, ACL
+        \item Support SLA
+        \item On-Premise/Cloud
+        \item Grandes entreprises
+      \end{itemize}
+    \end{column}
+  \end{columns}
 \end{frame}
-
 \begin{frame}{Business Model Canvas}
-  \frametitle{Synthèse du Modèle Économique}
+  \frametitle{Business Model Canvas}
   \begin{figure}
     \centering
-    \includegraphics[width=0.85\textwidth]{../../../images/business_model_canvas.png}
-    \caption{Business Model Canvas pour VSM-Tools}
+    \includegraphics[width=0.9\textwidth]{../../../images/business_model_canvas.png}
   \end{figure}
 \end{frame}
 
 % ==============================================================================
-% SECTION 12 : DÉMONSTRATION
+% SECTION 12 : DÉMONSTRATION (1 slide)
 % ==============================================================================
 \section{Démonstration}
 
 \begin{frame}{Démonstration Live}
   \frametitle{Passage à la Démonstration}
   \centering
-  \vspace{2cm}
-  {\LARGE \textbf{Démonstration de l'application}}
   \vspace{1cm}
+  {\LARGE \textbf{Démonstration de l'application}}
+  \vspace{0.5cm}
 
   \begin{itemize}
-    \item Création d'un projet VSM
-    \item Configuration d'un flux de production
+    \item Chargement d'un projet VSM
+    \item Commentaires sur le diagramme
     \item Analyse des indicateurs et détection des goulots
     \item Conception d'un état futur optimisé
   \end{itemize}
 \end{frame}
 
 % ==============================================================================
-% CONCLUSION
+% CONCLUSION (2 slides)
 % ==============================================================================
 \section{Conclusion}
 
-\begin{frame}{Synthèse du Projet}
+\begin{frame}{Synthèse et Perspectives}
   \frametitle{Ce que nous avons réalisé}
-  \begin{itemize}
-    \item \textbf{Problème identifié :} Limites des méthodes VSM traditionnelles.
-    \item \textbf{Solution développée :} VSM-Tools, une application complète et moderne.
-    \item \textbf{Apports clés :}
-          \begin{itemize}
-            \item Simplification et fiabilisation du processus VSM.
-            \item Dynamisation des données (3 modes de collecte).
-            \item Analyse augmentée par l'intelligence artificielle.
-            \item Architecture moderne et évolutive.
-          \end{itemize}
-    \item \textbf{Résultat :} Un outil pragmatique et adaptable pour l'amélioration continue.
-  \end{itemize}
-\end{frame}
-
-\begin{frame}{Perspectives}
-  \frametitle{L'Avenir de VSM-Tools}
-  \begin{itemize}
-    \item \textbf{Court terme :}
-          \begin{itemize}
-            \item Implémentation de l'authentification et ACL.
-            \item Enrichissement de la bibliothèque de connecteurs.
-          \end{itemize}
-    \item \textbf{Moyen terme :}
-          \begin{itemize}
-            \item Simulation « What-if » et analyse prédictive.
-            \item Support des flux complexes (multi-fournisseurs/clients).
-          \end{itemize}
-    \item \textbf{Long terme :}
-          \begin{itemize}
-            \item Offre Cloud / SaaS.
-            \item Collaboration temps réel.
-          \end{itemize}
-  \end{itemize}
-  \vfill
-  \textbf{Vision :} Devenir la plateforme de référence pour l'analyse VSM.
-\end{frame}
-
-\begin{frame}{Impact et Valeur}
-  \frametitle{L'Apport de VSM-Tools à l'Industrie}
-  \begin{itemize}
-    \item \textbf{Pour les entreprises :}
-          \begin{itemize}
-            \item Gains de temps et de productivité.
-            \item Décisions basées sur des données fiables.
-            \item Amélioration continue facilitée.
-          \end{itemize}
-    \item \textbf{Pour le secteur :}
-          \begin{itemize}
-            \item Démocratisation de l'analyse VSM.
-            \item Digitalisation des démarches Lean.
-            \item Pont entre méthodes traditionnelles et Industrie 4.0.
-          \end{itemize}
-  \end{itemize}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \textbf{Réalisations :}
+      \begin{itemize}
+        \item Problème identifié : limites VSM traditionnel
+        \item Solution complète et moderne
+        \item 4 apports clés :
+              \begin{itemize}
+                \item Simplification
+                \item Dynamisation
+                \item Intelligence
+                \item Architecture moderne
+              \end{itemize}
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \textbf{Perspectives :}
+      \begin{itemize}
+        \item Court terme : Auth, ACL, connecteurs
+        \item Moyen terme : Simulation, flux complexes
+        \item Long terme : Cloud/SaaS, temps réel
+      \end{itemize}
+      \vspace{0.3cm}
+      \textbf{Impact :}
+      \begin{itemize}
+        \item Démocratisation VSM
+        \item Digitalisation Lean
+        \item Pont vers Industrie 4.0
+      \end{itemize}
+    \end{column}
+  \end{columns}
   \vfill
   \centering
   \textit{VSM-Tools : L'intelligence au service de l'excellence opérationnelle.}

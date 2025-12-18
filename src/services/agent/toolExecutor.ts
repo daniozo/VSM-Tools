@@ -638,14 +638,14 @@ export class ToolExecutor {
     try {
       const { useProjectsStore } = await import('@/store/projectsStore')
       const { currentProject } = useProjectsStore.getState()
-      
+
       if (!currentProject?.id) {
         return { notes: [], message: 'Aucun projet ouvert' }
       }
 
       const { notesApi } = await import('@/services/api')
       const notes = await notesApi.list(currentProject.id)
-      
+
       return {
         notes: notes.map((n: any) => ({
           id: n.id,
@@ -671,7 +671,7 @@ export class ToolExecutor {
     try {
       const { useProjectsStore } = await import('@/store/projectsStore')
       const { currentProject } = useProjectsStore.getState()
-      
+
       if (!currentProject?.id) {
         throw new Error('Aucun projet ouvert')
       }
@@ -681,7 +681,7 @@ export class ToolExecutor {
         title,
         content: content || ''
       })
-      
+
       this.emitUIEvent({ type: 'refresh' })
       // Émettre un événement spécifique pour rafraîchir les notes dans MainLayout
       if (typeof window !== 'undefined') {
@@ -697,7 +697,7 @@ export class ToolExecutor {
     try {
       const { useProjectsStore } = await import('@/store/projectsStore')
       const { currentProject } = useProjectsStore.getState()
-      
+
       if (!currentProject?.id) {
         throw new Error('Aucun projet ouvert')
       }
@@ -706,9 +706,9 @@ export class ToolExecutor {
       const updates: any = {}
       if (title) updates.title = title
       if (content !== undefined) updates.content = content
-      
+
       const note = await notesApi.update(currentProject.id, noteId, updates)
-      
+
       this.emitUIEvent({ type: 'refresh' })
       // Émettre un événement spécifique pour rafraîchir les notes dans MainLayout
       if (typeof window !== 'undefined') {
@@ -728,21 +728,21 @@ export class ToolExecutor {
     try {
       const { useProjectsStore } = await import('@/store/projectsStore')
       const { currentProject } = useProjectsStore.getState()
-      
+
       if (!currentProject?.id) {
         return { actions: [], message: 'Aucun projet ouvert' }
       }
 
       const { actionPlanApi } = await import('@/services/api')
       const actions = await actionPlanApi.list(currentProject.id)
-      
+
       const stats = {
         total: actions.length,
         pending: actions.filter((a: any) => a.status === 'pending').length,
         inProgress: actions.filter((a: any) => a.status === 'in_progress').length,
         completed: actions.filter((a: any) => a.status === 'completed').length
       }
-      
+
       return {
         actions: actions.map((a: any) => ({
           id: a.id,
@@ -770,7 +770,7 @@ export class ToolExecutor {
     try {
       const { useProjectsStore } = await import('@/store/projectsStore')
       const { currentProject } = useProjectsStore.getState()
-      
+
       if (!currentProject?.id) {
         throw new Error('Aucun projet ouvert')
       }
@@ -783,7 +783,7 @@ export class ToolExecutor {
         status: 'pending',
         due_date: dueDate
       })
-      
+
       this.emitUIEvent({ type: 'refresh' })
       return { item, message: `Action créée: "${action.substring(0, 50)}${action.length > 50 ? '...' : ''}"` }
     } catch (error) {
@@ -795,7 +795,7 @@ export class ToolExecutor {
     try {
       const { useProjectsStore } = await import('@/store/projectsStore')
       const { currentProject } = useProjectsStore.getState()
-      
+
       if (!currentProject?.id) {
         throw new Error('Aucun projet ouvert')
       }
@@ -806,9 +806,9 @@ export class ToolExecutor {
       if (updates.status) updateData.status = updates.status
       if (updates.priority) updateData.priority = updates.priority
       if (updates.responsible) updateData.responsible = updates.responsible
-      
+
       const item = await actionPlanApi.update(currentProject.id, actionId, updateData)
-      
+
       this.emitUIEvent({ type: 'refresh' })
       return { item, message: `Action mise à jour avec succès` }
     } catch (error) {
@@ -822,7 +822,7 @@ export class ToolExecutor {
 
   private async getFutureState() {
     const store = useVsmStore.getState()
-    
+
     if (!store.diagram) {
       throw new Error('Aucun diagramme ouvert')
     }
@@ -830,10 +830,10 @@ export class ToolExecutor {
     // Importer le tabsStore pour trouver les onglets état futur
     const { useTabsStore } = await import('@/store/tabsStore')
     const { tabs } = useTabsStore.getState()
-    
+
     // Trouver les onglets de type future-diagram
     const futureTabs = tabs.filter(tab => tab.type === 'future-diagram')
-    
+
     if (futureTabs.length === 0) {
       return {
         hasFutureState: false,
@@ -844,7 +844,7 @@ export class ToolExecutor {
     // Récupérer les données des états futurs depuis le store
     const futureDiagrams = store.futureDiagrams || []
     const activeFuture = futureDiagrams[0] // Premier état futur disponible
-    
+
     if (!activeFuture) {
       return {
         hasFutureState: true,
@@ -854,9 +854,9 @@ export class ToolExecutor {
     }
 
     // Calculer les métriques de l'état futur
-    const futureCycleTime = activeFuture.nodes?.reduce((sum: number, n: Node) => 
+    const futureCycleTime = activeFuture.nodes?.reduce((sum: number, n: Node) =>
       sum + getIndicatorValue(n.indicators, 'cycle'), 0) || 0
-    
+
     let futureWaitTime = 0
     activeFuture.flowSequences?.forEach((seq: any) => {
       seq.intermediateElements?.forEach((el: any) => {
@@ -884,13 +884,13 @@ export class ToolExecutor {
 
   private async listFutureStates() {
     const store = useVsmStore.getState()
-    
+
     if (!store.diagram) {
       throw new Error('Aucun diagramme ouvert')
     }
 
     const futureDiagrams = store.futureDiagrams || []
-    
+
     if (futureDiagrams.length === 0) {
       return {
         futureStates: [],
@@ -917,28 +917,28 @@ export class ToolExecutor {
 
   private async updateFutureState(futureStateId: string, updates: Record<string, any>) {
     const store = useVsmStore.getState()
-    
+
     if (!store.diagram) {
       throw new Error('Aucun diagramme ouvert')
     }
 
     const futureDiagrams = store.futureDiagrams || []
     const futureIndex = futureDiagrams.findIndex((fd: any) => fd.id === futureStateId)
-    
+
     if (futureIndex === -1) {
       throw new Error(`État futur non trouvé: ${futureStateId}`)
     }
 
     // Mettre à jour l'état futur
     const updated = { ...futureDiagrams[futureIndex] }
-    
+
     if (updates.name) {
       updated.metaData = { ...updated.metaData, name: updates.name }
     }
     if (updates.description) {
       updated.metaData = { ...updated.metaData, description: updates.description }
     }
-    updated.metaData = { ...updated.metaData, lastModified: new Date().toISOString() }
+    updated.metaData = { ...updated.metaData, modifiedDate: new Date().toISOString() }
 
     // Appliquer la mise à jour dans le store
     const newFutureDiagrams = [...futureDiagrams]
@@ -959,14 +959,14 @@ export class ToolExecutor {
 
   private async compareCurrentVsFuture(futureStateId?: string) {
     const store = useVsmStore.getState()
-    
+
     if (!store.diagram) {
       throw new Error('Aucun diagramme ouvert')
     }
 
     const currentDiagram = store.diagram
     const futureDiagrams = store.futureDiagrams || []
-    
+
     // Trouver l'état futur
     let futureDiagram
     if (futureStateId) {
@@ -980,9 +980,9 @@ export class ToolExecutor {
     }
 
     // Calculer les métriques de l'état actuel
-    const currentCycleTime = currentDiagram.nodes.reduce((sum: number, n: Node) => 
+    const currentCycleTime = currentDiagram.nodes.reduce((sum: number, n: Node) =>
       sum + getIndicatorValue(n.indicators, 'cycle'), 0)
-    
+
     let currentWaitTime = 0
     currentDiagram.flowSequences.forEach(seq => {
       seq.intermediateElements?.forEach(el => {
@@ -994,9 +994,9 @@ export class ToolExecutor {
     const currentLeadTime = currentCycleTime + currentWaitTime
 
     // Calculer les métriques de l'état futur
-    const futureCycleTime = futureDiagram.nodes?.reduce((sum: number, n: Node) => 
+    const futureCycleTime = futureDiagram.nodes?.reduce((sum: number, n: Node) =>
       sum + getIndicatorValue(n.indicators, 'cycle'), 0) || 0
-    
+
     let futureWaitTime = 0
     futureDiagram.flowSequences?.forEach((seq: any) => {
       seq.intermediateElements?.forEach((el: any) => {
@@ -1008,14 +1008,14 @@ export class ToolExecutor {
     const futureLeadTime = futureCycleTime + futureWaitTime
 
     // Calculer les améliorations
-    const leadTimeReduction = currentLeadTime > 0 
-      ? ((currentLeadTime - futureLeadTime) / currentLeadTime * 100) 
+    const leadTimeReduction = currentLeadTime > 0
+      ? ((currentLeadTime - futureLeadTime) / currentLeadTime * 100)
       : 0
-    const cycleTimeReduction = currentCycleTime > 0 
-      ? ((currentCycleTime - futureCycleTime) / currentCycleTime * 100) 
+    const cycleTimeReduction = currentCycleTime > 0
+      ? ((currentCycleTime - futureCycleTime) / currentCycleTime * 100)
       : 0
-    const waitTimeReduction = currentWaitTime > 0 
-      ? ((currentWaitTime - futureWaitTime) / currentWaitTime * 100) 
+    const waitTimeReduction = currentWaitTime > 0
+      ? ((currentWaitTime - futureWaitTime) / currentWaitTime * 100)
       : 0
 
     const currentEfficiency = currentLeadTime > 0 ? (currentCycleTime / currentLeadTime * 100) : 0
@@ -1052,13 +1052,13 @@ export class ToolExecutor {
 
   private async openFutureStateTab(futureStateId?: string) {
     const store = useVsmStore.getState()
-    
+
     if (!store.diagram) {
       throw new Error('Aucun diagramme ouvert')
     }
 
     const futureDiagrams = store.futureDiagrams || []
-    
+
     // Trouver l'état futur
     let futureDiagram
     if (futureStateId) {
@@ -1072,9 +1072,9 @@ export class ToolExecutor {
     }
 
     // Émettre un événement pour ouvrir l'onglet
-    this.emitUIEvent({ 
-      type: 'open_future_state', 
-      payload: { diagram: futureDiagram, currentStateId: store.diagram.id } 
+    this.emitUIEvent({
+      type: 'open_future_state',
+      payload: { diagram: futureDiagram, currentStateId: store.diagram.id }
     })
 
     return {
@@ -1086,7 +1086,7 @@ export class ToolExecutor {
 
   private async createFutureState(improvements?: string, targetLeadTimeReduction?: number) {
     const store = useVsmStore.getState()
-    
+
     if (!store.diagram) {
       throw new Error('Aucun diagramme ouvert')
     }
@@ -1096,7 +1096,7 @@ export class ToolExecutor {
 
     // Créer une copie profonde du diagramme
     const futureDiagram = JSON.parse(JSON.stringify(currentDiagram))
-    
+
     // Modifier les métadonnées
     futureDiagram.id = `future-${Date.now()}`
     futureDiagram.diagramType = 'FUTURE'
@@ -1136,9 +1136,9 @@ export class ToolExecutor {
     })
 
     // Émettre un événement pour ouvrir l'état futur dans un nouvel onglet
-    this.emitUIEvent({ 
-      type: 'open_future_state', 
-      payload: { diagram: futureDiagram, currentStateId: currentDiagram.id } 
+    this.emitUIEvent({
+      type: 'open_future_state',
+      payload: { diagram: futureDiagram, currentStateId: currentDiagram.id }
     })
 
     return {

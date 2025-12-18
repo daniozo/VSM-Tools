@@ -21,7 +21,8 @@ const config = {
     }
   },
   server: {
-    port: 3000
+    port: 3000,
+    allowedHosts: ['syngamic-concetta-superhandsome.ngrok-free.dev'],
   },
   build: {
     outDir: 'dist',

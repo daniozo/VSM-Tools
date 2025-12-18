@@ -13,7 +13,7 @@ import {
   AlertTriangle,
   CheckCircle2
 } from 'lucide-react';
-import { VSMDiagram, DiagramType } from '@/shared/vsm-model';
+import { VSMDiagram, NodeType, Indicator, ImprovementPoint } from '@/shared/types/vsm-model';
 import { useProjectsStore } from '@/store/projectsStore';
 
 interface ComparisonPanelProps {
@@ -42,8 +42,7 @@ export const ComparisonPanel: React.FC<ComparisonPanelProps> = ({
   const [currentDiagram, setCurrentDiagram] = useState<VSMDiagram | null>(currentDiagramProp || null);
   const [futureDiagram, setFutureDiagram] = useState<VSMDiagram | null>(futureDiagramProp || null);
   const [loading, setLoading] = useState(!currentDiagramProp || !futureDiagramProp);
-  const { diagramsApi } = useProjectsStore();
-  // Utiliser currentProject au lieu de selectedProject qui n'existe pas
+  const { loadDiagram } = useProjectsStore();
   const currentProject = useProjectsStore(state => state.currentProject);
 
   useEffect(() => {
@@ -57,16 +56,16 @@ export const ComparisonPanel: React.FC<ComparisonPanelProps> = ({
 
     // Sinon, on charge depuis l'API avec les IDs
     const loadDiagrams = async () => {
-      if (!diagramsApi || !currentDiagramId || !futureDiagramId) return;
+      if (!currentDiagramId || !futureDiagramId) return;
 
       try {
         setLoading(true);
         const [current, future] = await Promise.all([
-          diagramsApi.get(currentDiagramId),
-          diagramsApi.get(futureDiagramId)
+          loadDiagram(currentDiagramId),
+          loadDiagram(futureDiagramId)
         ]);
-        setCurrentDiagram(current.data);
-        setFutureDiagram(future.data);
+        if (current?.data) setCurrentDiagram(current.data as VSMDiagram);
+        if (future?.data) setFutureDiagram(future.data as VSMDiagram);
       } catch (error) {
         console.error('Error loading diagrams for comparison:', error);
       } finally {
@@ -75,7 +74,17 @@ export const ComparisonPanel: React.FC<ComparisonPanelProps> = ({
     };
 
     loadDiagrams();
-  }, [currentDiagramId, futureDiagramId, currentDiagramProp, futureDiagramProp, diagramsApi]);
+  }, [currentDiagramId, futureDiagramId, currentDiagramProp, futureDiagramProp, loadDiagram]);
+
+  /**
+   * Helper pour extraire une valeur d'indicateur
+   */
+  const getIndicatorValue = (indicators: Indicator[], name: string): number => {
+    const indicator = indicators?.find((i: Indicator) =>
+      i.name?.toLowerCase().includes(name.toLowerCase())
+    );
+    return indicator?.value ? parseFloat(indicator.value) || 0 : 0;
+  };
 
   const calculateMetrics = (diagram: VSMDiagram | null) => {
     if (!diagram) return {
@@ -97,20 +106,36 @@ export const ComparisonPanel: React.FC<ComparisonPanelProps> = ({
     let operatorCount = 0;
     let problemCount = 0;
 
-    diagram.processes?.forEach(p => {
+    // Analyser les nœuds de type PROCESS_STEP
+    const processSteps = diagram.nodes?.filter(n => n.type === NodeType.PROCESS_STEP) || [];
+
+    processSteps.forEach(node => {
       processCount++;
-      totalCT += p.cycleTime || 0;
-      totalWT += p.waitingTime || 0;
-      operatorCount += p.operators || 0;
-      if (p.problems && p.problems.length > 0) {
-        problemCount += p.problems.length;
-      }
+      operatorCount += node.operators || 0;
+
+      // Extraire les temps depuis les indicateurs
+      const cycleTime = getIndicatorValue(node.indicators || [], 'cycle');
+      const waitTime = getIndicatorValue(node.indicators || [], 'attente') ||
+        getIndicatorValue(node.indicators || [], 'wait');
+
+      totalCT += cycleTime;
+      totalWT += waitTime;
     });
 
-    diagram.stocks?.forEach(s => {
-      stockCount++;
-      totalStock += s.quantity || 0;
+    // Analyser les stocks dans les flowSequences
+    diagram.flowSequences?.forEach(seq => {
+      seq.intermediateElements?.forEach(elem => {
+        if (elem.type === 'INVENTORY' && elem.inventory) {
+          stockCount++;
+          totalStock += elem.inventory.quantity || 0;
+          // Le temps d'attente inclut la durée des stocks
+          totalWT += (elem.inventory.duration || 0) * 24 * 60; // jours -> minutes
+        }
+      });
     });
+
+    // Comptabiliser les points d'amélioration comme "problèmes"
+    problemCount = diagram.improvementPoints?.length || 0;
 
     const totalLT = totalCT + totalWT;
 
@@ -350,27 +375,27 @@ export const ComparisonPanel: React.FC<ComparisonPanelProps> = ({
       </Card>
 
       {/* Actions recommandées */}
-      {futureDiagram?.improvements && futureDiagram.improvements.length > 0 && (
+      {futureDiagram?.improvementPoints && futureDiagram.improvementPoints.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle>Actions d'Amélioration Planifiées</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {futureDiagram.improvements.map((improvement, index) => (
+              {futureDiagram.improvementPoints.map((improvement: ImprovementPoint, index: number) => (
                 <div
                   key={index}
                   className="flex items-start gap-3 p-3 rounded-lg bg-green-50 dark:bg-green-950/30"
                 >
                   <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400 mt-0.5" />
                   <div>
-                    <div className="font-medium">{improvement.title}</div>
-                    {improvement.description && (
-                      <div className="text-sm text-muted-foreground">{improvement.description}</div>
+                    <div className="font-medium">{improvement.description}</div>
+                    {improvement.owner && (
+                      <div className="text-sm text-muted-foreground">Responsable: {improvement.owner}</div>
                     )}
-                    {improvement.estimatedGain && (
+                    {improvement.dueDate && (
                       <div className="text-xs text-green-600 dark:text-green-400 mt-1">
-                        Gain estimé: {improvement.estimatedGain}
+                        Échéance: {new Date(improvement.dueDate).toLocaleDateString('fr-FR')}
                       </div>
                     )}
                   </div>

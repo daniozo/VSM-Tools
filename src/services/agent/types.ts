@@ -154,6 +154,6 @@ export interface DiagramSummary {
 // ============================================
 
 export interface AgentUIEvent {
-  type: 'select_node' | 'zoom_to' | 'highlight' | 'open_config' | 'refresh'
+  type: 'select_node' | 'zoom_to' | 'highlight' | 'open_config' | 'refresh' | 'open_future_state'
   payload?: any
 }
