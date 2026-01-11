@@ -65,15 +65,15 @@ export const MainLayout = forwardRef<MainLayoutHandle, MainLayoutProps>(({
   const [leftPanelWidth, setLeftPanelWidth] = useState(280)
   const [rightPanelWidth, setRightPanelWidth] = useState(320)
   const [selectedElementId, setSelectedElementId] = useState<string | null>(null)
-  
+
   // Refs pour les canvas d'état futur (un par onglet)
   const futureDiagramCanvasRefs = useRef<Map<string, FutureDiagramCanvasHandle | null>>(new Map())
-  
+
   // Écouter les requêtes de changement de panneau depuis le store
   const requestedLeftPanel = useTabsStore(state => state.requestedLeftPanel)
   const requestedRightPanel = useTabsStore(state => state.requestedRightPanel)
   const clearPanelRequest = useTabsStore(state => state.clearPanelRequest)
-  
+
   // Gérer les requêtes de panneau
   useEffect(() => {
     if (requestedLeftPanel) {
@@ -91,7 +91,7 @@ export const MainLayout = forwardRef<MainLayoutHandle, MainLayoutProps>(({
     zoomIn: () => {
       const activeTabId = useTabsStore.getState().activeTabId
       const activeTab = useTabsStore.getState().tabs.find(t => t.id === activeTabId)
-      
+
       if (activeTab?.type === 'future-diagram' && activeTabId) {
         const futureCanvasRef = futureDiagramCanvasRefs.current.get(activeTabId)
         if (futureCanvasRef) {
@@ -104,7 +104,7 @@ export const MainLayout = forwardRef<MainLayoutHandle, MainLayoutProps>(({
     zoomOut: () => {
       const activeTabId = useTabsStore.getState().activeTabId
       const activeTab = useTabsStore.getState().tabs.find(t => t.id === activeTabId)
-      
+
       if (activeTab?.type === 'future-diagram' && activeTabId) {
         const futureCanvasRef = futureDiagramCanvasRefs.current.get(activeTabId)
         if (futureCanvasRef) {
@@ -117,7 +117,7 @@ export const MainLayout = forwardRef<MainLayoutHandle, MainLayoutProps>(({
     zoomReset: () => {
       const activeTabId = useTabsStore.getState().activeTabId
       const activeTab = useTabsStore.getState().tabs.find(t => t.id === activeTabId)
-      
+
       if (activeTab?.type === 'future-diagram' && activeTabId) {
         const futureCanvasRef = futureDiagramCanvasRefs.current.get(activeTabId)
         if (futureCanvasRef) {
@@ -457,7 +457,7 @@ export const MainLayout = forwardRef<MainLayoutHandle, MainLayoutProps>(({
         </div>
 
       </div>
-      
+
       {/* Poignée de redimensionnement gauche - visible uniquement si un panneau est actif */}
       {activeLeftPanel && (
         <div
@@ -539,7 +539,7 @@ export const MainLayout = forwardRef<MainLayoutHandle, MainLayoutProps>(({
                   // Pour l'état futur, on utilise un canvas dédié avec son propre état
                   const activeTab = useTabsStore.getState().tabs.find(t => t.id === activeTabId);
                   const futureDiagram = activeTab?.data?.diagram;
-                  
+
                   if (!futureDiagram) {
                     return (
                       <div className="flex-1 w-full h-full flex items-center justify-center text-muted-foreground">
@@ -550,7 +550,7 @@ export const MainLayout = forwardRef<MainLayoutHandle, MainLayoutProps>(({
                       </div>
                     );
                   }
-                  
+
                   return (
                     <FutureDiagramCanvas
                       ref={(handle) => {
@@ -629,6 +629,10 @@ export const MainLayout = forwardRef<MainLayoutHandle, MainLayoutProps>(({
               if (event.type === 'zoom_to' && canvasRef?.current) {
                 // Zoomer sur l'élément si le canvas supporte cette méthode
                 // canvasRef.current.zoomToElement?.(event.payload?.elementId)
+              }
+              if (event.type === 'refresh') {
+                // Forcer le rafraîchissement du diagramme après modification par l'agent
+                canvasRef?.current?.forceRefresh()
               }
             }}
           />

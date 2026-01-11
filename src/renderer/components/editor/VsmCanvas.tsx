@@ -12,6 +12,7 @@ export interface VsmCanvasHandle {
   zoomOut: () => void
   zoomReset: () => void
   updateBottlenecks: (bottleneckIds: string[]) => void
+  forceRefresh: () => void
 }
 
 /**
@@ -125,6 +126,14 @@ const VsmCanvas = forwardRef<VsmCanvasHandle>((_props, ref) => {
       if (rendererRef.current && diagram) {
         const allNodeIds = diagram.nodes.map(n => n.id)
         rendererRef.current.updateBottlenecks(bottleneckIds, allNodeIds)
+      }
+    },
+    forceRefresh: () => {
+      // Force le re-rendu du diagramme depuis le store actuel
+      const currentDiagram = useVsmStore.getState().diagram
+      if (rendererRef.current && layoutEngineRef.current && currentDiagram) {
+        const layout = layoutEngineRef.current.computeLayout(currentDiagram)
+        rendererRef.current.render(layout)
       }
     }
   }), [diagram])
